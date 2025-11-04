@@ -1,0 +1,53 @@
+using System;
+using System.Collections.Generic;
+using CodeBase.Infrastructure;
+using CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.Infrastructure.Services;
+using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
+using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
+using HexaSortTest.CodeBase.Infrastructure.StateMachine.States;
+
+namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
+{
+  public class StateMachine
+  {
+    private readonly Dictionary<Type, IExitState> _states;
+    private IExitState _currentState;
+    
+    public StateMachine(SceneLoader sceneLoader, ServiceLocator serviceLocator)
+    {
+      _states = new Dictionary<Type, IExitState>()
+      {
+        [typeof(BootstrapState)] = new BootstrapState(this, sceneLoader, serviceLocator),
+        [typeof(LoadProgressState)] = new LoadProgressState(this, serviceLocator.Single<IPersistentProgressService>(), serviceLocator.Single<ISaveLoadService>()),
+        [typeof(LoadLevelState)] = new LoadLevelState(this, sceneLoader, serviceLocator.Single<IGameFactory>(), serviceLocator.Single<IPersistentProgressService>()),
+        [typeof(GameLoopState)] = new GameLoopState(this),
+      };
+    }
+    
+    public void Enter<TState>() where TState : class, IState
+    {
+      IState state = ChangeState<TState>();
+      state.Enter();
+    }
+
+    public void Enter<TState, TPayload>(TPayload payload) where TState : class, IPayloadState<TPayload>
+    {
+      IPayloadState<TPayload> state = ChangeState<TState>();
+      state.Enter(payload);
+    }
+
+    private TState ChangeState<TState>() where TState : class, IExitState
+    {
+      _currentState?.Exit();
+      TState state = GetState<TState>();
+      _currentState = state;
+      return state;  
+    }
+
+    private TState GetState<TState>() where TState : class, IExitState
+    {
+      return _states[typeof(TState)] as TState;
+    }
+  }
+}

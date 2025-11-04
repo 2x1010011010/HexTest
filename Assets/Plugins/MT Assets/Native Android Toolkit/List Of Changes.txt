@@ -1,0 +1,354 @@
+
+/////////////////////
+	  MT ASSETS
+	  CHANGELOG
+/////////////////////
+
+v3.0.0
+	- ****
+	  WARNING:
+	  - In this update the Native Android Toolkit has undergone a major update. The tool code was completely
+	    rewritten, from scratch. Several new improvements and features were added.
+		If you are a new user, or have not yet installed Native Android Toolkit in your project, you can use this
+		version without any problems!
+
+	  >> For users of old version 2.6.5 or lower...
+
+	  IF you are a user of version 2.6.5 or lower, It is NOT recommended that you update your project's Native
+	  Android Toolkit to this version. In this release, several Native Android Toolkit APIs have been modified,
+	  redone and changed. Due to the size of this update and change in features, this release is incompatible
+	  with versions 2.6.5 or lower.
+
+	  If you use the old version of NAT and really need to update to this new version, contact MT Assets support
+	  to perform this update: mtassets@windsoft.xyz
+	  ****
+	  
+	- The documentation has been completely redone and updated as well. Now the new documentation is more modern
+	  and more beautiful, it can be found in the folder "_Documentation/Documentation.html" and you can open it
+	  directly from within your Unity Editor. If your project still has the old "Documentation.zip" file, you can
+	  delete it without any problems.
+	- Some fields that were used only for internal codes, but which were not used for external scripts, were hidden
+	  to avoid confusion.
+	- The Native Android Toolkit Native Java (AAR) core has been completely rewritten to enhance the tool,
+      accommodate the new changes and also make it more modern and up-to-date with the new additions of Android 11,
+	  as well as making it ready for new additions from new Android versions to come!
+	- Now the minimum Android API level required by Native Android Toolkit is 19 (KitKat) to keep up with the minimum
+	  version supported by Native Android Toolkit (2019.3).
+	- Now the Dialogos of the Dialogos class are more customizable through new parameters and definitions.
+	- Now Native Android Toolkit no longer uses the old "NAT Data Handler", and now to initialize NAT you must call
+	  NativeAndroidToolkit.Initialize from the first scene executed by your game. This was a way found to simplify
+	  things and further reduce the steps required for the NAT Setup. Calling this method at the start of the
+	  game will allow NAT to take care of everything for you.
+	- NAT classes have been reorganized as well.
+	- Now NAT is able to emulate all Android Native methods in its Unity Editor too! This means that if you call
+	  a method to open a Dialog box on the Android device, you will also see that Dialog box when you run your app
+	  in the Editor too! This applies not only to NAT Dialogs methods, but to all NAT methods.
+	- The preferences window has been updated.
+	- For the sake of simplicity, outage notifications have been removed. You can use the normal notification
+	  scheduling system to schedule notifications for a few days in the future and create your own downtime
+	  notifications yourself using NAT's C# API.
+	- There have been some minor bugfixes involving NAT Dialogues.
+	- Repetitive notifications have been added! You are now able to schedule repetitive notifications with NAT.
+	- There is now a new method for the Notifications API that can return a list containing all Notification Channels,
+	  free to have notifications scheduled.
+	- Due to some necessary changes in the tool, it now depends on some third party libraries (like other Google AARs
+	  for example). Therefore, a Dependency Resolver has been added, so the Native Android Toolkit can automatically
+	  add missing AARs to your project, as well as remove them if there is already any AAR of the same type in your
+	  project, to avoid duplicates. Note that the NAT Dependency Resolver will only handle the AARs provided by the
+	  NAT, it will not modify any other files or libraries in your project.
+	- It is now possible to view the compilation date of the Native Android Toolkit native code library through the
+	  NAT preferences window.
+	- Now the Native Android Toolkit Webview has been improved. There is a new API to open your Webviews that allows
+	  for greater flexibility and customization.
+	- It is now possible to customize features such as interface colors, Webview icons, messages and so on.
+	- It is now possible to track the URLs that the user browsed while he had the Webview open. This is all done by
+	  getting an OnClose callback from the Webview NAT.
+	- Added a callback to let you know when NAT initialization completed and if it completed successfully.
+	- The Webview interface also underwent changes for greater modernity and beauty.
+	- It is now possible to provide your cookies to open the Webview. That way you can keep people logged in even
+	  when opening your site in NAT's Webview.
+	- Now the Webview class has a method so that you can access a page on a website and get Cookies from that page. You
+	  can send Post data (such as email and password) to log into this page for example, and get the Cookies returned
+	  by the page, these Cookies can be stored and used by you so that the user no longer needs to log into your app
+	  and you can send them on subsequent requests.
+	- Fixed a bug with Webview, which sometimes showed the error message for lack of internet connection when in fact
+	  it was just a similar error.
+	- You can now customize which buttons or controls you want to hide or display in your Webview.
+	- The NAT preferences window now has several options and parameters so you can customize the appearance of your
+	  application's Webviews.
+	- NAT now has a new, simpler API for requesting permissions for your app.
+	- Added Permission Requester Wizard. This is a wizard that makes it easy to request permissions for your users. When
+	  calling this wizard, a new interface will open that will explain to the user why that permission is needed and
+	  will even ask for the permission for the user. When the user gives the necessary permissions, the interface will
+	  show that the user has completed that task and can return to the application normally, however, the user can also
+	  return to the application at any time, even without having provided any permission you requested. This happens
+	  to comply with good practices for requesting permissions in apps, as explained by Google.
+	- Now the Native Android Toolkit Preferences window has a new interface and organization!
+	- It is now possible to add actions to your scheduled notifications. Actions include buttons and etc. When the user
+	  interacts with a notification that has an Action, NAT will open your Unity application and inform you through
+	  an Event that the user has opened your Unity application by clicking on that notification. It will also tell you
+	  what action was linked to that particular button, so you can run your own C# logic based on which notification
+	  button the user clicked.
+	- The function of setting the position of a Toast has been removed due to limitations and changes made to the
+	  Android API 30+ (R+).
+	- The RestartApplication() method has been reworked to be more reliable and functional regardless of OEM or any
+	  auto-restart restrictions applied between different Android versions/Brands.
+	- It is now possible to get more information about the device, such as its Manufacturer and Model.
+	- Fixed a bug that caused the internet connectivity check not to work sometimes when connected to 3G+ networks.
+	- The GetUniqueID method was removed due to changes in the Android system and related to Privacy which made it
+	  untrustworthy.
+	- It is now possible to check if the device has developer mode turned on.
+	- It is now possible to check if Wi-Fi is enabled.
+	- The method to check if there is a Headset connected now checks if any audio output devices are connected. This
+	  includes Bluetooth, USB or P2/P3 sound devices.
+	- The Bluetooth activation check method has been removed from the Utils class, as this is the only method that uses
+	  Bluetooth in NAT, and adds almost no value.
+	- The "Settings" class was added to NAT. This class contains tools for checking settings or applying settings to
+	  the device.
+	- The "Location" class was added. With this class you have a simple and easy method to get the device location or
+	  track it, either using GPS or location provided by Network!
+	- The Utils class now has a method to check if Google Play Services is available on the Android device.
+	- The "Camera" class was added to Native Android Toolkit. With this class you can take photos using the device's
+	  front or rear camera, check if the device supports the camera, record videos and even scan barcodes or QR codes
+	  and more!
+	- Now NAT allows you to manipulate your project's Gradle file. This hourly approach is only useful for enabling
+	  some additional NAT functions, however it will allow for more easy additions and customizations to the Gradle file.
+	- Added support to make Android device read Strings aloud with Android devices native TTS Engine.
+	- Added "Microphone" class. With this class, now Native Android Toolkit now has functions for recording voice,
+	  listening to user's speech for converting to text and etc.
+	- Added a method that makes it possible to check if the Play Store is available on the user's device.
+	- It is now possible to open another application by passing Extras to it. That way, you can pass parameters when
+	  opening a 3rd party app or yourself from your app made in Unity with NAT.
+	- Now, you can set a minimum and maximum time limit for the DatePicker of the DateTime class.
+	- Now the call to get an NTP time is completely Asynchronous, both on the Backend and Frontend.
+	- Now, you can configure which NTP servers will be used by NAT.
+	- The entire Files class of Native Android Toolkit has been restructured and reworked to comply with the new rules
+	  and changes imposed in the latest versions of Android related to Scope Storage. The Native Android Toolkit's Files
+	  class has been reworked in a way that makes it easy and intuitive to manipulate and manage files on Android devices,
+	  so you'll be able to manage files without worry, regardless of the Android versions your app will run on.
+	- And much, much, much more! :)
+
+v2.6.5
+	- Correction of small bugs.
+
+v2.6.4
+	- Improvements have been made to Webview. Webview should now run a little faster on less powerful devices.
+	  In addition, Webview now supports sounds played by JavaScript from pages.
+	- Now when Webview is running in full screen, it is possible to play YouTube videos and so on, using the
+	 hardware acceleration of the device.
+	- More improvements will come soon.
+
+v2.6.3
+	- A bug has been fixed that caused the automatic deactivation of some scripts' Gizmos to stop working.
+
+v2.6.2
+	- Fixed a bug in the functioning of functions that involved bluetooth, in some devices.
+	- Some extra (and optional) permissions have been added to ensure that some methods that involve bluetooth,
+	  work as expected.
+	- Fixed a bug that caused saving preferences to cause some build errors, sometimes.
+	- Fixed a bug that caused the "NAT Data Handler" preferences button not to work.
+
+v2.6.1
+	- The data bridge component now has an icon!
+	- The documentation has been updated to ensure greater clarity, volume of information, tips and minor corrections!
+	- Fixed a bug that caused compilation errors when importing the asset. Now NAT has a mecanism that prevents
+	  conflict errors with DLLs included in the package of this asset.
+	- Scheduled notifications have improved their native code, focusing on greater accuracy in deliveries.
+	- The "ConfigOnChangeTimeNotification()" method is now obsolete and does nothing else. You can now enable
+	  or disable the Date/Time change notification through the Native Android Toolkit preferences window.
+	- Native Android Toolkit now has a system to force the Android system to deliver your notifications as
+	  close as possible to the time at which you wanted them to be delivered, even if the Android device
+	  has battery saving settings.
+	- 10 more channels of scheduled notifications have been added to the Native Android Toolkit. NAT now
+	  has a total of 20 notification channels, which means that you can schedule up to 20 notifications to be delivered.
+	- Some more settings have been added for the preferences window.
+	- Native Android Toolkit can now detect whether NAT Core.aar has been modified externally or updated,
+	  thus automatically applying your preferences.
+
+v2.5.2
+	- Following the rhythm of Unity Engine versions and to guarantee the good permanent support of this asset,
+	  now the minimum recommended version is 2018.1, however, you can still use this asset in the 2017.4 LTS
+	  version if you prefer. This will allow this asset to always have the latest features and better and
+	  more effective support!
+
+v2.5.1
+	- Fixed an issue that generated conflicts when loading a scene that already had a data receiver.
+
+v2.5.0
+	- All resources, persistent asset data and other files are now saved in "MT Assets/_AssetsData".
+	  This makes it easy to manage all files generated by MT assets and if you need to remove any asset,
+	  just delete the asset folder. So, even if you want to remove some MT assets from your project, or
+	  update it, you will not lose any files or information that you would like to keep!
+
+v2.4.3
+	- Fixed a bug that caused the method to check if a phone was connected, not working on Android 5.
+	- Fixed a bug that caused the compilation or loading time of the scene execution to increase considerably
+	  in the editor.
+
+v2.4.2
+	- It is now possible to hide the Webview control bar and toolbar in dialog and fullscreen.
+	- Updated documentation.
+
+v2.4.1
+	- Fixed a bug in the Webview forward and back buttons in the dialog.
+	- Now it is possible to open Webview in full screen, in a new activity. However, when opening in full
+	  screen, Unity's activity will be closed, that is, your application that runs on Unity will be closed and
+	  a new window will open with Webview in full screen. When the user closes Webview, it will return to the
+	  original activity of Unity, returning to your app automatically.
+	- If an error occurs while saving preferences, NAT will stop saving, to avoid corrupting the AAR file,
+	  so you do not need to re-install the asset if an error occurs.
+	- The documentation has been updated.
+
+v2.3.0
+	- In this update the monitoring functions have been improved!
+	- Now you can check to see if a wired headset is connected or if a wireless headset is connected.
+	  Both methods are functional.
+	- Documentation updated!
+
+v2.2.1
+	- This is an update/patch that fixes some bugs and brings improvements.
+	- Fixed a bug that generated several errors saving preferences in Unity 2019 or later versions.
+	- Fixed some errors in the documentation.
+	- Now, besides getting the time unit of a Calendar object in INT format, you can also get this unit
+	  formatted in a STRING, so if the unit (such as time) is less than 10, it will have a leading zero,
+	  to make everything easier!
+	- You can now enable or disable other permissions such as Internet, Access Network State, Bluetooth, and so on.
+	- You can also change the NAT API level through preferences.
+	- Now the documentation includes the permission each Native Android Toolkit method requires!
+
+v2.1.1
+	- This is a major update for the Native Android Toolkit. From the time this version is available, previous
+	  versions of NAT are obsolete. Several changes to the API and native side of NAT have been made, and
+	  if you already use Native Android Toolkit, you will most likely have to change some NAT code that is
+	  in your application, so if you choose to upgrade, do a back up your project, and be aware that you may
+	  need to make changes to your code, as several API methods/classes have been renamed and some have even been
+	  removed for obsolete use. Don't worry, 95% of Native Android Toolkit's functions are still there, just
+	  changed their names and were redone from scratch.
+	- Fixed a bug when importing this asset for the first time, where a file error message was displayed.
+	  It was more common with Windows 10 users.
+	- Native Android Toolkit installation system improvements.
+	- Native Android Toolkit now has a new DataHandler installer to make life easier in the editor.
+	- You can now change Native Android Toolkit settings, such as disabling asset log posting.
+	- Native source code improvements.
+	- The script "MTAssetsDataHandlerNAT" has been removed from Native Android Toolkit and is no longer
+	  supported. This script was responsible for the communication between your game and the native
+	  Android code. There is now a new script responsible for this work. The new script responsible for
+	  this service is "NativeAndroidDataHandler". If you have the old script in your project, just delete it.
+	- Added a method to get the current time and date over the internet (NTP).
+	- ProgressDialog and SpinnerDialog are now obsolete. This happened because in the latest versions
+	  of Android, these methods are also obsolete as they prevent the user from interacting with the app,
+	  because of this, the best way to display a progress bar is by creating it within your app.
+	- Several bug fixes and code improvements.
+	- You can now request permissions separately, so you have better control of which permissions
+	  you will or will not request in your game.
+	- It is no longer possible to check if the system has been rebooted. Due to the malfunction
+	  of this solution, it is now obsolete. Native Android Toolkit itself will check to see if the system
+	  has been rebooted, so if you use a system of time that passes while the game is closed,
+	  rest assured, Native Android Toolkit will take care of everything for you.
+	- There was a slight change in the asset API. Now, to access the API methods of this asset,
+	  use "using MTAssets.NativeAndroidToolkit".
+	- The "TimeRepresentation" class has been removed from the asset and is deprecated. Now the "Calendar"
+	  class has taken its place. This class is much more complete and besides storing a period of time, it
+	  also makes calculations of sum and subtraction of time, conversions and so on. It is now much easier
+	  to manage and manipulate the times returned by Native Android Toolkit and etc.
+	- Calendar also supports Direct Debug, so you can better debug your logic.
+	  For example: Debug.Log(new Calendar(2018, 11, 08, 21, 19, 15));
+	- Now the API to check if the Date/Time was changed while the game was closed has been removed.
+	  From now on, Native Android Toolkit will manage this for you, and you can get this information every
+	  time the game is restored (after being minimized) or right at the beginning of the game (you can call
+	  a method that will let you know if it happened). a time change while the game was closed). See the
+	  updated documentation for full details.
+	- The old API for knowing how much time passed while the app was closed is now obsolete.
+	  The new API ("NativeAndroid.Time.GetElapsedTimeLastCloseUntilThisRun()") is more powerful and can
+	  tell you how long the app has been closed, as well as whether the device date or time has been changed
+	  manually. This is great for avoiding cheating!
+	- Added a new event that allows you to execute custom logic whenever the application is resumed
+	  (restored) after a pause (minimized). The event will let you know how long the app has been paused,
+	  and if the device's date/time has changed while it has been paused. With this event you can calculate
+	  the time elapsed while the game was closed, and keep counting the time of your builds (for example)
+	  even while the game is paused! Also, you can know if the date/time have been changed to avoid cheating!
+	  This API will also tell you how long the device has been locked.
+	- Now, with the two APIs above, you have a complete solution to monitor time while the game has been
+	  closed or minimized. If you use these APIs along with the "Calendar" class to manipulate and calculate
+	  time, you can create Daily Roulette logics, Daily Chests, Constructs, and more using time logic!
+	- WebView's "OnError", "OnClose", and "Close" events are now obsolete because most Android versions
+	  are unable to run them. The "OnClose" event continues to function normally.
+	- Documentation has been updated with new changes and APIs.
+	- Fixed an error that happened to empty events.
+	- Notification scheduling methods have been redesigned for better writing and organization.
+	- The "isReadable" method has been removed as it was redundant. Every file is readable,
+	  but you can still check if the files are editable, hidden and etc, normally.
+	- Several methods for verifying file information have been deleted from the API and are now obsolete.
+	  In place of these methods, a new class was introduced. The FileRef class. By instantiating this class
+	  you can enter the path to the target file and after instantiating this class you can get all the
+	  information from the target file (if it exists and is found by FileRef). With this class, your code
+	  will be more organized and simple! It is still possible to do everything that was done before with
+	  files, but now the code has changed and is more organized and intuitive.
+	- The "FileManager" class is now obsolete and the "Files" class has taken its place. This class is
+	  simpler and contains only the main methods for creating files and getting information from memory. File
+	  management now belongs to the "FileRef" class.
+	- The methods for getting the network name and mac address of the device have been removed as the
+	  Android system has implemented some changes for user security.
+	- Now, through the Native Android Toolkit settings system, you can change your Android Manifest preferences
+	  without having to edit the XML file directly. Now NAT can manage everything for you. In addition, you
+	  can also change the icon for Native Android Toolkit notifications and etc. If you don't want Native
+	  Android Toolkit to take care of your Manifest, just disable it in NAT settings.
+	- Improved debug messages.
+	- Fixed an issue that caused native dialog box events to run more than 1 times.
+
+v1.3.2
+	- Fix an issue that caused Texture2d and Text sharing not to work on Android 8 or higher.
+	- Fixed an issue where flash light was not enabled on Android versions higher than 6.0.
+	- Fixed an issue where could not open an app in the Play Store from its package name.
+	- Demo scene interface improvements.
+
+v1.3.1
+	- Minor additions to the asset menu.
+	- Improvement of some asset codes.
+	- Improvements to undo actions.
+	- Minor bug fixes.
+
+v1.2.2
+	- Fix a bug with the welcome message.
+	- Small housekeeping in scripts
+	- Added method to get wifi MAC address
+	- Added method to get unique Android device ID
+	- Updated Documentation
+	- Added a guide to removing permissions you will not use in your project
+
+v1.1.6
+	- Now notifications sent while the game is open also receive touch entries.
+
+v1.1.5
+	- Improved notification compatibility for all versions of Android.
+
+v1.1.4
+	- Expanded support: The tool now offers full support from the Unity 2017.4.1 (LTS) version or higher.
+	  Create more, even in old versions!
+
+v1.1.3
+	- AndroidManifest.xml merge improvements
+	- Improved byte transfer to native Android code.
+	- Small corrections.
+
+v1.1.2
+	- Webview improvements
+	- Minor fixes in code
+	- Fixed a bug in getting the time elapsed since the last time the game was closed, in newer versions of the Unity Editor.
+
+v1.1.1
+	- Minor improvements in code.
+
+v1.1
+	- The minimum support version is now Unity 2018.1.0f2. This change was made to ensure future improvements to the tool! Stay tuned!
+	- Small corrections!
+
+v1.0
+	- The Native Android Toolkit has just been released! I will always be working to support and add new features!
+	  Do you have any suggestions, Bug reports or any problems with using this asset? Contact by email!
+	  (mtassets@windsoft.xyz)
+
+/////////////////////
+  Email for support
+mtassets@windsoft.xyz
+/////////////////////

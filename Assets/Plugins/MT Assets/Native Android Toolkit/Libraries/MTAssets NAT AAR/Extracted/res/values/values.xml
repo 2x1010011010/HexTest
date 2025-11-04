@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+  <color name="button_filled_styled">#FFFFFF</color>
+  <color name="button_outlined_styled">#8E8E8E</color>
+  <color name="camera_controls_tint_disabled">#7A7A7A</color>
+  <color name="camera_controls_tint_enabled">#000000</color>
+  <color name="camera_controls_tint_recording">#9F0000</color>
+  <color name="camera_preview_background">#000000</color>
+  <color name="camera_toolbar_background">#0099CC</color>
+  <color name="camera_toolbar_icons_tint">#FFFFFF</color>
+  <color name="camera_toolbar_title">#FFFFFF</color>
+  <color name="google_maps_toolbar_background">#0099CC</color>
+  <color name="google_maps_toolbar_icons_tint">#FFFFFF</color>
+  <color name="google_maps_toolbar_title">#FFFFFF</color>
+  <color name="layouts_background_darkness">#66000000</color>
+  <color name="notification_color">#005E7D</color>
+  <color name="notification_interact_receiver_color">#000000</color>
+  <color name="permissions_requester_wizard_toolbar_background">#0099CC</color>
+  <color name="permissions_requester_wizard_toolbar_title">#FFFFFF</color>
+  <color name="webview_inside_webview_icons_tint">#454545</color>
+  <color name="webview_outside_webview_icons_tint">#FFFFFF</color>
+  <color name="webview_toolbar_background">#0099CC</color>
+  <color name="webview_toolbar_title">#FFFFFF</color>
+  <string name="app_id" translatable="false">0</string>
+  <string name="file_picker_oars_title">File Picker</string>
+  <string name="notification_interact_receiver_title">Notification Interact Receiver</string>
+  <string name="package_name" translatable="false">domain.appName</string>
+  <string name="permissions_requester_wizard_title">Permissions Requester Wizard</string>
+  <string name="play_games_cloud_save_oars_title">Play Games Cloud Save</string>
+  <string name="play_games_friend_list_access_oars_title">Play Games Friend List Access</string>
+  <string name="restart_application_title">Restarting Application</string>
+  <string name="webview_title">NAT Webview Chromium</string>
+  <style name="FilePickerOARSTheme">
+    <item name="android:activityOpenEnterAnimation">@anim/activity_slide_from_bottom</item>
+    <item name="android:activityOpenExitAnimation">@anim/activity_stay</item>
+    <item name="android:activityCloseEnterAnimation">@anim/activity_stay</item>
+    <item name="android:activityCloseExitAnimation">@anim/activity_slide_to_bottom</item>
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:backgroundDimEnabled">false</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowTranslucentNavigation">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+  </style>
+  <style name="NATDialogsDefaultTheme" parent="android:Theme.DeviceDefault.Light.Dialog.NoActionBar">
+    <item name="android:windowBackground">@drawable/dialogs_background</item>
+    <item name="android:windowNoTitle">false</item>
+  </style>
+  <style name="NotificationInteractReceiverTheme">
+    <item name="android:windowBackground">@android:color/white</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowTranslucentNavigation">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+  </style>
+  <style name="PermissionsRequesterWizardTheme">
+    <item name="android:windowBackground">@android:color/white</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowTranslucentNavigation">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+  </style>
+  <style name="PlayGamesCloudSaveOARSTheme">
+    <item name="android:activityOpenEnterAnimation">@anim/activity_slide_from_bottom</item>
+    <item name="android:activityOpenExitAnimation">@anim/activity_stay</item>
+    <item name="android:activityCloseEnterAnimation">@anim/activity_stay</item>
+    <item name="android:activityCloseExitAnimation">@anim/activity_slide_to_bottom</item>
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:backgroundDimEnabled">false</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowTranslucentNavigation">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+  </style>
+  <style name="PlayGamesFriendListAccessOARSTheme">
+    <item name="android:activityOpenEnterAnimation">@anim/activity_slide_from_bottom</item>
+    <item name="android:activityOpenExitAnimation">@anim/activity_stay</item>
+    <item name="android:activityCloseEnterAnimation">@anim/activity_stay</item>
+    <item name="android:activityCloseExitAnimation">@anim/activity_slide_to_bottom</item>
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:backgroundDimEnabled">false</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowTranslucentNavigation">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+  </style>
+  <style name="RestartApplicationTheme">
+    <item name="android:windowBackground">@android:color/white</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowTranslucentNavigation">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+  </style>
+  <style name="WebviewTheme">
+    <item name="android:windowBackground">@android:color/white</item>
+    <item name="android:windowTranslucentStatus">true</item>
+    <item name="android:windowTranslucentNavigation">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+  </style>
+</resources>

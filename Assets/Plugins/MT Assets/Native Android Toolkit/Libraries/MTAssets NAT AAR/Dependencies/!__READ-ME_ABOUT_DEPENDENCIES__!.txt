@@ -1,0 +1,29 @@
+- Any dependencies added in "Dependencies" folder must also be in the
+  file "Dependencies.asset" present in "Libraries/MTAssets NAT AAR".
+
+- If any dependency of "Dependencies" folder is updated, it must also have
+  its meta data updated in the file "Dependencies.asset".
+
+- If any dependence on "Dependencies" folder is removed or updated to a new
+  version, the old AAR file to be removed, must be deleted from "Dependencies"
+  folder and registered as obsolete in "Dependencies.asset".
+
+- After completing the editing of the file "Dependencies.asset", click
+  in "Update XML for Play Services Resolver". Thus, if the user will
+  install "Play Services Resolver" on their project, "Play Services
+  Resolver" will find this XML and know that NAT needs these dependencies.
+  This can be useful if the user comes to install any tools that include
+  automatically "Play Services Resolver" in the future, such as Unity ADS,
+  Unity Mediation SDK, Google Play Games SDK, Firebase SDK etc.
+
+- Do not manually modify the file "PlayServicesResolverDependencies.xml"
+  found inside the "Editor" folder. It is managed by the
+  "Dependencies.asset" file and can only be updating using the button
+  "Update XML for Play Services Resolver" for this.
+
+- The name of the dependence files present in "Dependencies" folder should
+  follow the current standard of "<group>-<package>-<version>.aar", that is,
+  they must be the same are in the Maven Repository, for example
+  "com.google.android.gms-play-services-location-18.0.0.aar" as this way
+  the file "Dependencies.asset" can correctly inform the dependencies in
+  the XML file for the "Play Services Resolver" tool.

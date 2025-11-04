@@ -1,0 +1,33 @@
+<!-- This file is managed by Native Android Toolkit "Dependencies.asset" file. Do not modify it manually! -->
+<dependencies>
+  <androidPackages>
+    <!-- Inform the main Repository -->
+    <repositories>
+      <repository>https://repo.maven.apache.org/maven2</repository>
+    </repositories>
+    <!-- Inform the needed Packages -->
+    <androidPackage spec="androidx.core:core:1.3.2" />
+    <androidPackage spec="androidx.cardview:cardview:1.0.0" />
+    <androidPackage spec="androidx.annotation:annotation-experimental:1.1.0" />
+    <androidPackage spec="androidx.arch.core:core-runtime:2.1.0" />
+    <androidPackage spec="androidx.exifinterface:exifinterface:1.3.2" />
+    <androidPackage spec="androidx.lifecycle:lifecycle-livedata:2.3.1" />
+    <androidPackage spec="androidx.lifecycle:lifecycle-livedata-core:2.3.1" />
+    <androidPackage spec="androidx.lifecycle:lifecycle-runtime:2.3.1" />
+    <androidPackage spec="androidx.versionedparcelable:versionedparcelable:1.1.0" />
+    <androidPackage spec="androidx.activity:activity:1.2.4" />
+    <androidPackage spec="androidx.customview:customview:1.1.0" />
+    <androidPackage spec="androidx.fragment:fragment:1.3.6" />
+    <androidPackage spec="androidx.lifecycle:lifecycle-viewmodel:2.3.1" />
+    <androidPackage spec="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1" />
+    <androidPackage spec="androidx.loader:loader:1.1.0" />
+    <androidPackage spec="androidx.savedstate:savedstate:1.1.0" />
+    <androidPackage spec="androidx.tracing:tracing:1.0.0" />
+    <androidPackage spec="androidx.viewpager:viewpager:1.0.0" />
+    <androidPackage spec="androidx.annotation:annotation:1.2.0" />
+    <androidPackage spec="androidx.arch.core:core-common:2.1.0" />
+    <androidPackage spec="androidx.collection:collection:1.1.0" />
+    <androidPackage spec="androidx.concurrent:concurrent-futures:1.1.0" />
+    <androidPackage spec="androidx.lifecycle:lifecycle-common:2.3.1" />
+  </androidPackages>
+</dependencies>

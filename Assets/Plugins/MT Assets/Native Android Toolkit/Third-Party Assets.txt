@@ -1,0 +1,54 @@
+
+/////////////////////
+	  MT ASSETS
+	   Credits
+/////////////////////
+
+- Ionic Zip or DotNetZip
+	created by Dino Chiesa and Microsoft Corporation
+	used through Microsoft's "Microsoft Public License", as a dependency library for the operation of some resources of this asset.
+	available in
+	https://www.nuget.org/packages/DotNetZip/ (Free)
+
+- All That
+    created by Benjamin Tissot
+	used through Bensound "Free License", as a example music for the operation of media player of NAT Files Class.
+	available in
+	https://www.bensound.com/royalty-free-music/track/all-that-chill-hop (Free)
+
+- SavWav
+    created by Calvin Rien
+	used through "Free License", as a dependency library for the operation of some demonstration resources of this asset.
+	available in
+	https://gist.github.com/darktable/2317063 (Free)
+
+
+	Ionic Zip or DotNetZip Warning About License: This package uses an adapted version of Ionic Zip or DotNetZip, created
+	in C# by Dino Chiesa and Microsoft Corporation, under the license, Ms-PL. This package uses a C# code version of this
+	library (instead of using a DLL). This package uses an adapted version of this library to avoid duplicate compilation
+	errors and makes it possible for this package to edit the AAR easily through an end-user interface. With an adapted
+	version of the library, this package is able to offer all its functionalities without the risk of duplicates of the
+	Namespace of the Ionic Zip library. The Ms-PL license is included in every library script present in
+	"Libraries/MTAssets DotNetZip". Any other C# script belonging to this package, which does not have the Ionic Zip Ms-PL
+	license notice, was entirely created by Marcos Tomaz (MT Assets).
+	DotNetZip: https://github.com/r2d2rigo/dotnetzip-for-unity (by r2d2rigo)
+
+	AAR Dependencies of Google or other third-party: This package has its own AAR core ("NAT Core.aar") and as such, this
+	AAR core has dependencies on other AARs important to its functioning. These dependent AARs include Google AARs (such as
+	compatibility libraries, Android functions, etc). These AARs are in the "Dependencies" folder present in "Libraries/MTAssets
+	NAT AAR", the license files of each dependent AAR are included in this folder as well.
+
+	Please note that: All third party assets (that were not created by MT Assets) included here, are used based on
+	the license of the original authors contained in each asset link. You cannot use the third party assets included
+	in this package, if you want to use them in your creation, purchase them from each link (informed above) and
+	make sure you have permission from the author or carefully read the license that is in each link.
+
+	However, any asset in this package, which is not listed here, was created by MT Assets, and since you have purchased
+	this package, you can use them in accordance with the license contained on this package's page on the Asset Store.
+	If you have any questions about licensing or permission to use assets, do not hesitate to contact us through 
+	mtassets@windsoft.xyz
+
+/////////////////////
+  Email for support
+mtassets@windsoft.xyz
+/////////////////////
