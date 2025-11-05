@@ -13,43 +13,52 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       Circular
     }
 
+    private enum CellState
+    {
+      Enabled,
+      Disabled,
+      SpawnPoint
+    }
+
+    private class HexCell
+    {
+      public HexCell(Vector3 position)
+      {
+        Position = position;
+      }
+
+      public Vector3 Position;
+      public CellState State = CellState.Enabled;
+    }
+
     private GridType _gridType = GridType.Rectangular;
     private int _width = 3;
     private int _height = 5;
     private int _radius = 3;
     private Vector3 _hexSize = new Vector3(0.5f, 0.5f, 0.05f);
-    private float _spacing = 13f;
+    private float _spacing = 6.5f;
     private bool _autoRotate = false;
 
     private GameObject _hexPrefab;
-    private readonly List<Vector3> _hexPositions = new();
+    private readonly List<HexCell> _cells = new();
 
     private PreviewRenderUtility _previewRenderUtility;
     private Vector3 _lastCenter;
 
     [MenuItem("Tools/Grid/Hex Grid Editor")]
-    public static void ShowWindow()
-    {
-      var window = GetWindow<HexGridEditor>("Hex Grid Editor");
-      window.Show();
-    }
+    public static void ShowWindow() => GetWindow<HexGridEditor>("Hex Grid Editor");
 
     private void OnEnable()
     {
       _hexPrefab = Resources.Load<GameObject>(AssetPaths.CellPrefab);
-
       _previewRenderUtility ??= new PreviewRenderUtility();
       _previewRenderUtility.cameraFieldOfView = 80f;
       _previewRenderUtility.camera.farClipPlane = 200f;
       _previewRenderUtility.camera.nearClipPlane = 0.1f;
-
       GenerateGrid();
     }
 
-    private void OnDisable()
-    {
-      _previewRenderUtility?.Cleanup();
-    }
+    private void OnDisable() => _previewRenderUtility?.Cleanup();
 
     private void OnGUI()
     {
@@ -60,12 +69,12 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       if (_gridType == GridType.Rectangular)
       {
-        _width = EditorGUILayout.IntSlider("Width", _width, 1, 3);
-        _height = EditorGUILayout.IntSlider("Height", _height, 1, 5);
+        _width = EditorGUILayout.IntSlider("Width", _width, 1, 10);
+        _height = EditorGUILayout.IntSlider("Height", _height, 1, 10);
       }
       else
       {
-        _radius = EditorGUILayout.IntSlider("Radius", _radius, 1, 4);
+        _radius = EditorGUILayout.IntSlider("Radius", _radius, 1, 6);
       }
 
       EditorGUILayout.Space();
@@ -81,9 +90,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       _hexPrefab = (GameObject)EditorGUILayout.ObjectField("Hex Prefab", _hexPrefab, typeof(GameObject), false);
 
       if (GUILayout.Button("Generate Grid"))
-      {
         GenerateGrid();
-      }
 
       if (EditorGUI.EndChangeCheck())
       {
@@ -91,29 +98,32 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         Repaint();
       }
 
-      if (_hexPositions.Count > 0 && GUILayout.Button("Save Grid as Prefab"))
-      {
+      if (_cells.Count > 0 && GUILayout.Button("Save Grid as Prefab"))
         SaveGridAsPrefab();
-      }
 
       Rect previewRect = GUILayoutUtility.GetRect(400, 450);
       DrawPreview(previewRect);
+
+      HandleMouse(previewRect);
     }
 
     private void GenerateGrid()
     {
-      _hexPositions.Clear();
+      _cells.Clear();
       if (_hexPrefab == null)
         return;
 
       if (_gridType == GridType.Rectangular)
       {
-        for (int q = 0; q < _width; q++)
+        int cols = _width;
+        int rows = _height;
+        
+        for (int row = 0; row < rows; row++)
         {
-          for (int r = 0; r < _height; r++)
+          for (int col = 0; col < cols; col++)
           {
-            Vector3 pos = AxialToWorld(q - _width / 2, r - _height / 2, _hexSize.x * _spacing);
-            _hexPositions.Add(pos);
+            Vector3 pos = OffsetToWorldForRect(col, row, _hexSize.x * _spacing);
+            _cells.Add(new HexCell(pos));
           }
         }
       }
@@ -126,10 +136,30 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           for (int r = r1; r <= r2; r++)
           {
             Vector3 pos = AxialToWorld(q, r, _hexSize.x * _spacing);
-            _hexPositions.Add(pos);
+            _cells.Add(new HexCell(pos));
           }
         }
       }
+      CenterPositions();
+    }
+
+    private Vector3 OffsetToWorldForRect(int col, int row, float size)
+    {
+      float sqrt3 = Mathf.Sqrt(3f);
+      float x = sqrt3 * size * (col + 0.5f * (row % 2));
+      float z = 1.5f * size * row;
+      return new Vector3(x, 0f, z);
+    }
+
+    private void CenterPositions()
+    {
+      if (_cells.Count == 0) return;
+      Vector3 center = Vector3.zero;
+      foreach (var p in _cells) center += p.Position;
+      center /= _cells.Count;
+
+      for (int i = 0; i < _cells.Count; i++)
+        _cells[i].Position -= center;
     }
 
     private void DrawPreview(Rect rect)
@@ -141,43 +171,98 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       _previewRenderUtility.camera.clearFlags = CameraClearFlags.Color;
 
       Vector3 center = Vector3.zero;
-      foreach (var pos in _hexPositions) center += pos;
-      if (_hexPositions.Count > 0) center /= _hexPositions.Count;
+      foreach (var c in _cells) center += c.Position;
+      if (_cells.Count > 0) center /= _cells.Count;
       _lastCenter = center;
 
-      List<GameObject> tempObjects = new();
+      List<GameObject> temp = new();
       Quaternion rotationFix = _autoRotate ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
 
-      if (_hexPrefab != null)
+      foreach (var cell in _cells)
       {
-        foreach (var pos in _hexPositions)
+        GameObject go = GameObject.Instantiate(_hexPrefab);
+        go.transform.position = cell.Position;
+        go.transform.rotation = _hexPrefab.transform.rotation * rotationFix;
+        go.transform.localScale = _hexPrefab.transform.localScale * _hexSize.x;
+        
+        var renderer = go.GetComponentInChildren<Renderer>();
+        if (renderer != null)
         {
-          GameObject instance = GameObject.Instantiate(_hexPrefab);
-          instance.transform.position = pos;
-          instance.transform.rotation = _hexPrefab.transform.rotation * rotationFix;
-          instance.transform.localScale = _hexPrefab.transform.localScale;
-          tempObjects.Add(instance);
-          _previewRenderUtility.AddSingleGO(instance);
+          Color c = cell.State switch
+          {
+            CellState.Enabled => Color.white,
+            CellState.Disabled => Color.gray,
+            CellState.SpawnPoint => Color.green,
+            _ => Color.white
+          };
+          renderer.sharedMaterial = new Material(renderer.sharedMaterial) { color = c };
         }
+
+        temp.Add(go);
+        _previewRenderUtility.AddSingleGO(go);
       }
 
-      float camDistance = (_gridType == GridType.Circular ? _radius * 2f: Mathf.Max(_width, _height)) * 8f;
-      Vector3 camPos = center + Vector3.up * camDistance;
-      _previewRenderUtility.camera.transform.position = camPos;
+      float camDist = (_gridType == GridType.Circular ? _radius * 1.5f : Mathf.Max(_width, _height)) * _spacing;
+      _previewRenderUtility.camera.transform.position = center + Vector3.up * 20f;
       _previewRenderUtility.camera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
       _previewRenderUtility.camera.orthographic = true;
-      _previewRenderUtility.camera.orthographicSize = camDistance;
-      _previewRenderUtility.camera.nearClipPlane = 0.1f;
-      _previewRenderUtility.camera.farClipPlane = 500f;
-
+      _previewRenderUtility.camera.orthographicSize = camDist * 0.8f;
       _previewRenderUtility.camera.Render();
 
       Texture tex = _previewRenderUtility.EndPreview();
       GUI.DrawTexture(rect, tex, ScaleMode.StretchToFill, false);
 
-      foreach (var obj in tempObjects)
+      foreach (var obj in temp)
         if (obj != null)
           Object.DestroyImmediate(obj);
+    }
+
+    private void HandleMouse(Rect previewRect)
+    {
+      Event e = Event.current;
+      if (e.type == EventType.MouseDown && e.button == 0 && previewRect.Contains(e.mousePosition))
+      {
+        Vector2 mousePos = e.mousePosition;
+        HexCell clicked = FindClosestCell(mousePos, previewRect);
+        if (clicked != null)
+          ShowCellMenu(clicked);
+      }
+    }
+
+    private HexCell FindClosestCell(Vector2 mousePos, Rect rect)
+    {
+      if (_cells.Count == 0) return null;
+      HexCell closest = null;
+      float minDist = float.MaxValue;
+      foreach (var cell in _cells)
+      {
+        Vector3 screen = WorldToPreview(cell.Position, rect);
+        float dist = Vector2.Distance(mousePos, new Vector2(screen.x, screen.y));
+        if (dist < minDist && dist < 25f) 
+        {
+          minDist = dist;
+          closest = cell;
+        }
+      }
+
+      return closest;
+    }
+
+    private Vector3 WorldToPreview(Vector3 world, Rect rect)
+    {
+      Vector3 camPos = _previewRenderUtility.camera.transform.position;
+      Vector3 dir = world - _lastCenter;
+      return new Vector3(rect.x + rect.width / 2 + dir.x * 3f, rect.y + rect.height / 2 - dir.z * 3f, 0);
+    }
+
+    private void ShowCellMenu(HexCell cell)
+    {
+      GenericMenu menu = new GenericMenu();
+      menu.AddItem(new GUIContent("Enabled"), cell.State == CellState.Enabled, () => cell.State = CellState.Enabled);
+      menu.AddItem(new GUIContent("Disabled"), cell.State == CellState.Disabled, () => cell.State = CellState.Disabled);
+      menu.AddItem(new GUIContent("Spawn Point"), cell.State == CellState.SpawnPoint,
+        () => cell.State = CellState.SpawnPoint);
+      menu.ShowAsContext();
     }
 
     private static Vector3 AxialToWorld(int q, int r, float size)
@@ -189,7 +274,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void SaveGridAsPrefab()
     {
-      if (_hexPrefab == null || _hexPositions.Count == 0)
+      if (_hexPrefab == null || _cells.Count == 0)
         return;
 
       string defaultName = "HexGrid_" + System.DateTime.Now.ToString("HHmmss");
@@ -200,13 +285,16 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       GameObject root = new GameObject("HexGrid");
       Quaternion rotationFix = _autoRotate ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
 
-      foreach (var pos in _hexPositions)
+      foreach (var cell in _cells)
       {
         GameObject hex = (GameObject)PrefabUtility.InstantiatePrefab(_hexPrefab);
         hex.transform.SetParent(root.transform);
-        hex.transform.localPosition = pos;
+        hex.transform.localPosition = cell.Position;
         hex.transform.localRotation = rotationFix;
-        hex.transform.localScale = _hexPrefab.transform.localScale;
+        hex.transform.localScale = _hexPrefab.transform.localScale * _hexSize.x;
+
+        if (cell.State == CellState.Disabled)
+          hex.SetActive(false);
       }
 
       PrefabUtility.SaveAsPrefabAsset(root, path);
