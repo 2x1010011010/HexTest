@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CodeBase.Infrastructure.Services.AssetManagement;
 using CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     }
     
     public GameObject CreatePlayer(Transform spawnPoint) =>
-      InstantiateRegistered(AssetPaths.CharacterPath, spawnPoint);
+      InstantiateRegistered(AssetPaths.CellPrefab, spawnPoint);
       
 
     public void CreateHud() => 
