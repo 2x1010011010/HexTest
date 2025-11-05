@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using UnityEditor;
 using UnityEngine;
@@ -35,7 +36,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     private int _width = 3;
     private int _height = 5;
     private int _radius = 3;
-    private Vector3 _hexSize = new Vector3(0.5f, 0.5f, 0.05f);
+    private Vector3 _hexSize;
     private float _spacing = 6.5f;
     private bool _autoRotate = false;
 
@@ -44,6 +45,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private PreviewRenderUtility _previewRenderUtility;
     private Vector3 _lastCenter;
+    private Rect _lastPreviewRect;
 
     [MenuItem("Tools/Grid/Hex Grid Editor")]
     public static void ShowWindow() => GetWindow<HexGridEditor>("Hex Grid Editor");
@@ -51,6 +53,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     private void OnEnable()
     {
       _hexPrefab = Resources.Load<GameObject>(AssetPaths.CellPrefab);
+      _hexSize = _hexPrefab != null ? _hexPrefab.transform.localScale : Vector3.one;
       _previewRenderUtility ??= new PreviewRenderUtility();
       _previewRenderUtility.cameraFieldOfView = 80f;
       _previewRenderUtility.camera.farClipPlane = 200f;
@@ -79,9 +82,6 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       EditorGUILayout.Space();
       GUILayout.Label("Hexagon Size:", EditorStyles.boldLabel);
-      _hexSize.x = EditorGUILayout.Slider("Size X", _hexSize.x, 0.1f, 2f);
-      _hexSize.y = EditorGUILayout.Slider("Size Y", _hexSize.y, 0.1f, 2f);
-      _hexSize.z = EditorGUILayout.Slider("Size Z", _hexSize.z, 0.01f, 1f);
       _spacing = EditorGUILayout.Slider("Spacing", _spacing, 0.8f, 20f);
 
       _autoRotate = EditorGUILayout.Toggle("Rotate Prefab (fix 90° X)", _autoRotate);
@@ -117,7 +117,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       {
         int cols = _width;
         int rows = _height;
-        
+
         for (int row = 0; row < rows; row++)
         {
           for (int col = 0; col < cols; col++)
@@ -140,6 +140,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           }
         }
       }
+
       CenterPositions();
     }
 
@@ -166,6 +167,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     {
       if (_previewRenderUtility == null) return;
 
+      _lastPreviewRect = rect;
+
       _previewRenderUtility.BeginPreview(rect, GUIStyle.none);
       _previewRenderUtility.camera.backgroundColor = new Color(0.18f, 0.18f, 0.18f);
       _previewRenderUtility.camera.clearFlags = CameraClearFlags.Color;
@@ -184,7 +187,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         go.transform.position = cell.Position;
         go.transform.rotation = _hexPrefab.transform.rotation * rotationFix;
         go.transform.localScale = _hexPrefab.transform.localScale * _hexSize.x;
-        
+
         var renderer = go.GetComponentInChildren<Renderer>();
         if (renderer != null)
         {
@@ -195,7 +198,9 @@ namespace HexaSortTest.CodeBase.Editor.Grid
             CellState.SpawnPoint => Color.green,
             _ => Color.white
           };
-          renderer.sharedMaterial = new Material(renderer.sharedMaterial) { color = c };
+          Material mat = new Material(renderer.sharedMaterial);
+          mat.color = c;
+          renderer.sharedMaterial = mat;
         }
 
         temp.Add(go);
@@ -203,7 +208,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       }
 
       float camDist = (_gridType == GridType.Circular ? _radius * 1.5f : Mathf.Max(_width, _height)) * _spacing;
-      _previewRenderUtility.camera.transform.position = center + Vector3.up * 20f;
+      _previewRenderUtility.camera.transform.position = center + Vector3.up * (camDist + 5f);
       _previewRenderUtility.camera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
       _previewRenderUtility.camera.orthographic = true;
       _previewRenderUtility.camera.orthographicSize = camDist * 0.8f;
@@ -222,11 +227,42 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       Event e = Event.current;
       if (e.type == EventType.MouseDown && e.button == 0 && previewRect.Contains(e.mousePosition))
       {
-        Vector2 mousePos = e.mousePosition;
-        HexCell clicked = FindClosestCell(mousePos, previewRect);
+        HexCell clicked = FindClosestCellByCameraProjection(e.mousePosition, previewRect);
         if (clicked != null)
+        {
           ShowCellMenu(clicked);
+          e.Use();
+        }
       }
+    }
+
+    private HexCell FindClosestCellByCameraProjection(Vector2 mousePos, Rect rect)
+    {
+      if (_cells.Count == 0 || _previewRenderUtility == null) return null;
+
+      Camera cam = _previewRenderUtility.camera;
+      float bestDist = float.MaxValue;
+      HexCell best = null;
+
+      float clickRadiusPixels = Mathf.Max(12f, rect.width * 0.03f);
+
+      foreach (var cell in _cells)
+      {
+        Vector3 viewPos = cam.WorldToViewportPoint(cell.Position);
+        if (viewPos.z <= 0f) continue;
+
+        float guiX = rect.x + viewPos.x * rect.width;
+        float guiY = rect.y + (1f - viewPos.y) * rect.height;
+
+        float dist = Vector2.Distance(mousePos, new Vector2(guiX, guiY));
+        if (dist < bestDist)
+        {
+          bestDist = dist;
+          best = cell;
+        }
+      }
+
+      return bestDist <= clickRadiusPixels ? best : null;
     }
 
     private HexCell FindClosestCell(Vector2 mousePos, Rect rect)
@@ -238,7 +274,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       {
         Vector3 screen = WorldToPreview(cell.Position, rect);
         float dist = Vector2.Distance(mousePos, new Vector2(screen.x, screen.y));
-        if (dist < minDist && dist < 25f) 
+        if (dist < minDist && dist < 25f)
         {
           minDist = dist;
           closest = cell;
@@ -250,7 +286,6 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private Vector3 WorldToPreview(Vector3 world, Rect rect)
     {
-      Vector3 camPos = _previewRenderUtility.camera.transform.position;
       Vector3 dir = world - _lastCenter;
       return new Vector3(rect.x + rect.width / 2 + dir.x * 3f, rect.y + rect.height / 2 - dir.z * 3f, 0);
     }
@@ -287,14 +322,19 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       foreach (var cell in _cells)
       {
-        GameObject hex = (GameObject)PrefabUtility.InstantiatePrefab(_hexPrefab);
-        hex.transform.SetParent(root.transform);
+        GameObject hex = Instantiate(_hexPrefab, root.transform, true);
         hex.transform.localPosition = cell.Position;
-        hex.transform.localRotation = rotationFix;
+        hex.transform.localRotation = _hexPrefab.transform.rotation * rotationFix;
         hex.transform.localScale = _hexPrefab.transform.localScale * _hexSize.x;
 
+        if (cell.State == CellState.SpawnPoint)
+        {
+          hex.GetComponent<Cell>().SetSpawner(true);
+          continue;
+        }
+
         if (cell.State == CellState.Disabled)
-          hex.SetActive(false);
+          DestroyImmediate(hex);
       }
 
       PrefabUtility.SaveAsPrefabAsset(root, path);
