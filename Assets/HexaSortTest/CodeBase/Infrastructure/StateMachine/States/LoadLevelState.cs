@@ -47,18 +47,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void InitGameWorld()
     {
-      var character = _gameFactory.CreatePlayer
-      (
-        GameObject.FindGameObjectWithTag
-            (Constants.SpawnPointTag)
-          .transform
-      );
-      
-      character.transform.SetParent(null);
 
-      _gameFactory.CreateHud();
-      
-      CameraSetup(character);
+      //_gameFactory.CreateHud();
     }
 
     private void CameraSetup(GameObject target)

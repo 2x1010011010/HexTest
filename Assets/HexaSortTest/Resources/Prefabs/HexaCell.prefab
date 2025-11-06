@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62f5bdfd32390774e96b3af009bf2eb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
+  _isSpawner: 0
 --- !u!1001 &5495944983279055508
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -97,6 +98,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: 20265_Hexagonal_prism_v1
       objectReference: {fileID: 0}
+    - target: {fileID: 7648973668265453872, guid: c00cb934cd73a8c4b9ca7aef2053a895, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 82a77f2dc1bd7c543a228751c11516de, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

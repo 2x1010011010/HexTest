@@ -493,6 +493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 571071518f8345d995725414774f6f9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.Infrastructure.Bootstrapper
+  _loadingCurtain: {fileID: 1067841167}
 --- !u!4 &1687496626
 Transform:
   m_ObjectHideFlags: 0

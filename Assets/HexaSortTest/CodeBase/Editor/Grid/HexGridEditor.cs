@@ -322,19 +322,15 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       foreach (var cell in _cells)
       {
+        if (cell.State == CellState.Disabled) continue;
+        
         GameObject hex = Instantiate(_hexPrefab, root.transform, true);
         hex.transform.localPosition = cell.Position;
         hex.transform.localRotation = _hexPrefab.transform.rotation * rotationFix;
         hex.transform.localScale = _hexPrefab.transform.localScale * _hexSize.x;
 
         if (cell.State == CellState.SpawnPoint)
-        {
           hex.GetComponent<Cell>().SetSpawner(true);
-          continue;
-        }
-
-        if (cell.State == CellState.Disabled)
-          DestroyImmediate(hex);
       }
 
       PrefabUtility.SaveAsPrefabAsset(root, path);
