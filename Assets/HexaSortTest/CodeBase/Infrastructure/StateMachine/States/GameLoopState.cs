@@ -1,22 +1,26 @@
+using HexaSortTest.CodeBase.GameLogic.UI.Loading;
+
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
   public class GameLoopState : IState
   {
-    private readonly StateMachine _stateMachine;
+    private readonly GameStateMachine _gameStateMachine;
+    private readonly LoadingCurtain _loadingCurtain;
 
-    public GameLoopState(StateMachine stateMachine)
+    public GameLoopState(GameStateMachine gameStateMachine, LoadingCurtain curtain)
     {
-      _stateMachine = stateMachine;
-    }
-
-    public void Exit()
-    {
-      throw new System.NotImplementedException();
+      _gameStateMachine = gameStateMachine;
+      _loadingCurtain = curtain;
     }
 
     public void Enter()
     {
-      throw new System.NotImplementedException();
+      _loadingCurtain.Hide();
+    }
+
+    public void Exit()
+    {
+      
     }
   }
 }

@@ -1,6 +1,7 @@
 using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services.AssetManagement;
 using CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.InputService;
@@ -12,20 +13,24 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
   public class BootstrapState : IState
   {
-    private readonly StateMachine _stateMachine;
+    private readonly GameStateMachine _gameStateMachine;
     private readonly SceneLoader _sceneLoader;
     private readonly ServiceLocator _serviceLocator;
+    private readonly LoadingCurtain _loadingCurtain;
 
-    public BootstrapState(StateMachine stateMachine, SceneLoader sceneLoader, ServiceLocator serviceLocator)
+    public BootstrapState(GameStateMachine gameStateMachine, SceneLoader sceneLoader, ServiceLocator serviceLocator, LoadingCurtain loadingCurtain)
     {
-      _stateMachine = stateMachine;
+      _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _serviceLocator = serviceLocator;
+      _loadingCurtain = loadingCurtain;
+
       RegisterServices();
     }
 
     public void Enter()
     {
+      _loadingCurtain.Show();
       _sceneLoader.Load(sceneName: Constants.InitialScene, onLoaded: EnterLoadLevel);
     }
 
@@ -34,7 +39,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     }
 
     private void EnterLoadLevel() =>
-      _stateMachine.Enter<LoadProgressState>();
+      _gameStateMachine.Enter<LoadProgressState>();
 
     private void RegisterServices()
     {

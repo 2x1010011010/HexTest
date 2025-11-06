@@ -8,13 +8,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
   public class LoadLevelState : IPayloadState<string>
   {
     private readonly SceneLoader _sceneLoader;
-    private readonly StateMachine _stateMachine;
+    private readonly GameStateMachine _gameStateMachine;
     private readonly IGameFactory _gameFactory;
     private readonly IPersistentProgressService _progressService;
 
-    public LoadLevelState(StateMachine stateMachine, SceneLoader sceneLoader, IGameFactory gameFactory, IPersistentProgressService progressService)
+    public LoadLevelState(GameStateMachine gameStateMachine, SceneLoader sceneLoader, IGameFactory gameFactory, IPersistentProgressService progressService)
     {
-      _stateMachine = stateMachine;
+      _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _gameFactory = gameFactory;
       _progressService = progressService;
@@ -36,7 +36,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       InitGameWorld();
       InformProgressReaders();
 
-      _stateMachine.Enter<GameLoopState>();
+      _gameStateMachine.Enter<GameLoopState>();
     }
 
     private void InformProgressReaders()

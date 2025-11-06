@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using CodeBase.Infrastructure;
 using CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
@@ -9,19 +9,19 @@ using HexaSortTest.CodeBase.Infrastructure.StateMachine.States;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
 {
-  public class StateMachine
+  public class GameStateMachine
   {
     private readonly Dictionary<Type, IExitState> _states;
     private IExitState _currentState;
     
-    public StateMachine(SceneLoader sceneLoader, ServiceLocator serviceLocator)
+    public GameStateMachine(SceneLoader sceneLoader, ServiceLocator serviceLocator, LoadingCurtain curtain)
     {
       _states = new Dictionary<Type, IExitState>()
       {
-        [typeof(BootstrapState)] = new BootstrapState(this, sceneLoader, serviceLocator),
+        [typeof(BootstrapState)] = new BootstrapState(this, sceneLoader, serviceLocator, curtain),
         [typeof(LoadProgressState)] = new LoadProgressState(this, serviceLocator.Single<IPersistentProgressService>(), serviceLocator.Single<ISaveLoadService>()),
         [typeof(LoadLevelState)] = new LoadLevelState(this, sceneLoader, serviceLocator.Single<IGameFactory>(), serviceLocator.Single<IPersistentProgressService>()),
-        [typeof(GameLoopState)] = new GameLoopState(this),
+        [typeof(GameLoopState)] = new GameLoopState(this, curtain),
       };
     }
     
