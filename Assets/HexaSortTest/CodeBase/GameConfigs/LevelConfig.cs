@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace HexaSortTest.GameConfigs
+namespace HexaSortTest.CodeBase.GameConfigs
 {
   [CreateAssetMenu(fileName = "LevelConfig", menuName = "Static Data/Level Config", order = 52)]
   public class LevelConfig : ScriptableObject
