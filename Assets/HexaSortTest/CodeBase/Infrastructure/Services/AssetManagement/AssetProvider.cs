@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CodeBase.Infrastructure.Services.AssetManagement
+namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
 {
   public class AssetProvider : IAssetProvider
   {

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using CodeBase.Infrastructure.Services.AssetManagement;
-using CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;

@@ -1,6 +1,5 @@
-using CodeBase.Infrastructure;
-using CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.GameLogic.Data;
+using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 

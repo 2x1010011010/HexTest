@@ -1,4 +1,3 @@
-using CodeBase.Infrastructure;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.InputService

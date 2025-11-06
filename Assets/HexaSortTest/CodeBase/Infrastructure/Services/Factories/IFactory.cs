@@ -1,6 +1,4 @@
-using HexaSortTest.CodeBase.Infrastructure.Services;
-
-namespace CodeBase.Infrastructure.Services.Factories
+namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 {
   public interface IFactory : IService
   {

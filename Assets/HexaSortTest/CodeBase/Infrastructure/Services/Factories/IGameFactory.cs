@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 
-namespace CodeBase.Infrastructure.Services.Factories
+namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 {
   public interface IGameFactory : IFactory
   {

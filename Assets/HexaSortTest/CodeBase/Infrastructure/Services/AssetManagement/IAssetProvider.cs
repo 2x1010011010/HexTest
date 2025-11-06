@@ -1,7 +1,6 @@
-using HexaSortTest.CodeBase.Infrastructure.Services;
 using UnityEngine;
 
-namespace CodeBase.Infrastructure.Services.AssetManagement
+namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
 {
   public interface IAssetProvider : IService
   {

@@ -1,4 +1,3 @@
-using CodeBase.Infrastructure;
 using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
