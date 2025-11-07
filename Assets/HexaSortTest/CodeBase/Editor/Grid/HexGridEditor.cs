@@ -37,7 +37,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     private int _height = 5;
     private int _radius = 3;
     private Vector3 _hexSize;
-    private float _spacing = 6.5f;
+    private float _spacing = 13f;
     private bool _autoRotate = false;
 
     private GameObject _hexPrefab;
@@ -186,7 +186,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         GameObject go = GameObject.Instantiate(_hexPrefab);
         go.transform.position = cell.Position;
         go.transform.rotation = _hexPrefab.transform.rotation * rotationFix;
-        go.transform.localScale = _hexPrefab.transform.localScale * _hexSize.x;
+        go.transform.localScale = _hexPrefab.transform.localScale;
 
         var renderer = go.GetComponentInChildren<Renderer>();
         if (renderer != null)
@@ -207,11 +207,11 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         _previewRenderUtility.AddSingleGO(go);
       }
 
-      float camDist = (_gridType == GridType.Circular ? _radius * 1.5f : Mathf.Max(_width, _height)) * _spacing;
+      float camDist = (_gridType == GridType.Circular ? _radius * 1.5f: Mathf.Max(_width, _height)) * _spacing;
       _previewRenderUtility.camera.transform.position = center + Vector3.up * (camDist + 5f);
       _previewRenderUtility.camera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
       _previewRenderUtility.camera.orthographic = true;
-      _previewRenderUtility.camera.orthographicSize = camDist * 0.8f;
+      _previewRenderUtility.camera.orthographicSize = camDist * 0.4f;
       _previewRenderUtility.camera.Render();
 
       Texture tex = _previewRenderUtility.EndPreview();
@@ -327,7 +327,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         GameObject hex = Instantiate(_hexPrefab, root.transform, true);
         hex.transform.localPosition = cell.Position;
         hex.transform.localRotation = _hexPrefab.transform.rotation * rotationFix;
-        hex.transform.localScale = _hexPrefab.transform.localScale * _hexSize.x;
+        hex.transform.localScale = _hexPrefab.transform.localScale;
 
         if (cell.State == CellState.SpawnPoint)
           hex.GetComponent<Cell>().SetSpawner(true);
