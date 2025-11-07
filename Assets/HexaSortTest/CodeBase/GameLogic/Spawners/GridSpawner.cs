@@ -5,8 +5,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 {
   public class GridSpawner : MonoBehaviour
   {
-    public event Action OnGridSpawned;
-    
     private GameObject _grid;
     
     public void Initialize(GameObject grid) => 
@@ -17,7 +15,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       if (_grid == null) return;
       
       Instantiate(_grid, Vector3.zero, Quaternion.identity);
-      OnGridSpawned?.Invoke();
     }
 
     public void Clear() => 

@@ -20,6 +20,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     public void Spawn()
     {
+      
     }
   }
 }

@@ -10,8 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4770390985961606947}
   - component: {fileID: 8299293020681385129}
-  - component: {fileID: 8784353929723407252}
-  - component: {fileID: 6797610673265082540}
+  - component: {fileID: 4186776061567559479}
   m_Layer: 0
   m_Name: HexaCell
   m_TagString: Untagged
@@ -47,9 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62f5bdfd32390774e96b3af009bf2eb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
+  _renderer: {fileID: 2766082983859805092}
   _isSpawner: 0
---- !u!65 &8784353929723407252
-BoxCollider:
+--- !u!64 &4186776061567559479
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -63,39 +63,13 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 12, y: 12, z: 37.460346}
-  m_Center: {x: 0, y: 0, z: 6.4801626}
---- !u!54 &6797610673265082540
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2472374777777298114}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6730188882212674202, guid: c00cb934cd73a8c4b9ca7aef2053a895, type: 3}
 --- !u!1001 &5495944983279055508
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -157,6 +131,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c00cb934cd73a8c4b9ca7aef2053a895, type: 3}
+--- !u!23 &2766082983859805092 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7648973668265453872, guid: c00cb934cd73a8c4b9ca7aef2053a895, type: 3}
+  m_PrefabInstance: {fileID: 5495944983279055508}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5462652675790034303 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c00cb934cd73a8c4b9ca7aef2053a895, type: 3}

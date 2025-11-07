@@ -46,8 +46,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void InitGameWorld()
     {
-
+      var gridSpawner = _gameFactory.CreateGridSpawner();
+      gridSpawner.SpawnGrid();
       //_gameFactory.CreateHud();
+
+      _gameFactory.CreateStacsSpawner();
     }
 
     private void CameraSetup(GameObject target)

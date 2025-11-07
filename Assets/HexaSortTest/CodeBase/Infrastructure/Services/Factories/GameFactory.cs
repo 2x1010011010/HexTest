@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using HexaSortTest.CodeBase.GameConfigs;
+using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
@@ -8,18 +10,35 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
   public class GameFactory : IGameFactory
   {
     private readonly IAssetProvider _assets;
-    
+    private readonly LevelConfigsList _levelConfigs;
+    private LevelConfig _currentLevelConfig;
+
     public List<IProgressReader> ProgressReaders { get; } = new List<IProgressReader>();
+
     public List<IProgressSaver> ProgressSavers { get; } = new List<IProgressSaver>();
-    
+
+
     public GameFactory(IAssetProvider assets)
     {
       _assets = assets;
+      _levelConfigs = Resources.Load<LevelConfigsList>(AssetPaths.LevelConfigs);
     }
-    
-    public GameObject CreatePlayer(Transform spawnPoint) =>
-      InstantiateRegistered(AssetPaths.CellPrefab, spawnPoint);
-      
+
+    public GridSpawner CreateGridSpawner()
+    {
+      var gridSpawnerObject = InstantiateRegistered(AssetPaths.GridSpawner);
+      var gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
+      var configIndex = Random.Range(0, _levelConfigs.Levels.Count);
+      _currentLevelConfig = _levelConfigs.Levels[configIndex];
+      gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
+      return gridSpawner;
+    }
+
+    public void CreateStacsSpawner()
+    {
+      var stacksSpawnerObject = InstantiateRegistered(AssetPaths.StackSpawner);
+      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig);
+    }
 
     public void CreateHud() => 
       InstantiateRegistered(AssetPaths.HUD);
