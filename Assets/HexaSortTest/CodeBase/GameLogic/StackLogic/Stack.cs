@@ -6,7 +6,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class Stack : MonoBehaviour
   {
-    private readonly List<GameObject> _stack = new();
+    public List<GameObject> _stack = new();
     private Transform _parent;
     
     public IReadOnlyList<GameObject> Tiles => _stack;

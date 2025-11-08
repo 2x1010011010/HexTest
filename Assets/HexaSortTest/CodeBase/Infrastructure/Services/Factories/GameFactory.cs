@@ -37,7 +37,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     public void CreateStacsSpawner()
     {
       var stacksSpawnerObject = InstantiateRegistered(AssetPaths.StackSpawner);
-      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig,_assets.Instantiate(AssetPaths.CellPrefab), _assets.Instantiate(AssetPaths.StackPrefab));
+      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig);
     }
 
     public void CreateHud() => 

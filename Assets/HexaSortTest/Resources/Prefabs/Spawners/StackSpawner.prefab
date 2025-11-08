@@ -83,6 +83,11 @@ MonoBehaviour:
   - {fileID: 5664705313625127168}
   - {fileID: 3393022376283795332}
   - {fileID: 7261501984449560135}
+  _maxTilesInPool: 250
+  _minTilesToSpawn: 5
+  _maxTilesToSpawn: 10
+  _maxColorsInStack: 3
+  _verticalShift: 1
 --- !u!1 &7668640480555875138
 GameObject:
   m_ObjectHideFlags: 0

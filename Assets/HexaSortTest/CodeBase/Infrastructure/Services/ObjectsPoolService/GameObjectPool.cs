@@ -9,28 +9,29 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService
     private readonly List<GameObject> _pool = new();
     private Transform _container;
 
-    public void SetPool(GameObject prefab, Transform container,int count)
+    protected void SetPool(GameObject prefab, Transform container, int count)
     {
       _container = container;
       for (int i = 0; i < count; i++)
       {
-        var go = Instantiate(prefab, container.position, Quaternion.identity, container);
+        var go = Instantiate(prefab, container);
         go.SetActive(false);
         _pool.Add(go);
       }
     }
 
-    public bool TryGetObject(out GameObject gameObject)
+    protected GameObject GetObject()
     {
-      gameObject = _pool.FirstOrDefault(go => !go.activeSelf);
-      return gameObject != null;
+      var gameObject = _pool.FirstOrDefault(go => !go.activeSelf);
+      _pool.Remove(gameObject);
+      return gameObject;
     }
 
     public void ReturnObject(GameObject gameObject)
     {
       gameObject.SetActive(false);
       gameObject.transform.SetParent(_container);
-      gameObject.transform.localPosition = Vector3.zero;
+      _pool.Add(gameObject);
     }
 
     public void Clear() => _pool.Clear();
