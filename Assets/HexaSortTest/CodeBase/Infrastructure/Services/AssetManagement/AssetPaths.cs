@@ -8,6 +8,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
     public const string StackSpawner = "Prefabs/Spawners/StackSpawner";
     
     public const string CellPrefab = "Prefabs/HexaCell";
+    public const string StackPrefab = "Prefabs/Stack";
     
     //public const string MainMenuPath = "Prefabs/HUD/MainMenu";
     public const string HUD = "Prefabs/HUD/HUD";

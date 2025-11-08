@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.Cells;
+using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using UnityEditor;
 using UnityEngine;
@@ -319,6 +320,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       GameObject root = new GameObject("HexGrid");
       Quaternion rotationFix = _autoRotate ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
+      var grid = root.AddComponent<HexGrid>();
+      root.AddComponent<GridRotator>();
 
       foreach (var cell in _cells)
       {
@@ -332,6 +335,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         if (cell.State == CellState.SpawnPoint)
           hex.GetComponent<Cell>().SetSpawner(true);
       }
+      grid.Initialize();
 
       PrefabUtility.SaveAsPrefabAsset(root, path);
       DestroyImmediate(root);

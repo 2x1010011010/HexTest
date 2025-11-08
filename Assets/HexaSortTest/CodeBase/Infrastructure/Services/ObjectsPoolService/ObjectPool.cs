@@ -3,47 +3,23 @@ using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService
 {
-  public class ObjectPool<T> where T : MonoBehaviour, IPoolable
+  public class ObjectPool<TObject> where TObject : class, IPoolable
   {
-    private readonly Queue<T> _pool = new();
-    private readonly T _prefab;
-    private readonly Transform _parent;
+    public List<TObject> Pool { get; } = new();
 
-    public ObjectPool(T prefab, int initialCount, Transform parent = null)
+    public void SetToPool(TObject obj)
     {
-      _prefab = prefab;
-      _parent = parent;
-
-      for (int i = 0; i < initialCount; i++)
-      {
-        T obj = GameObject.Instantiate(_prefab, _parent);
-        obj.gameObject.SetActive(false);
-        _pool.Enqueue(obj);
-      }
+      
     }
-
-    public T Get()
+    
+    public TObject GetFromPool()
     {
-      if (_pool.Count == 0)
-      {
-        T newObj = GameObject.Instantiate(_prefab, _parent);
-        newObj.gameObject.SetActive(false);
-        _pool.Enqueue(newObj);
-      }
-
-      T obj = _pool.Dequeue();
-      obj.gameObject.SetActive(true);
-      obj.OnSpawnedFromPool();
-      return obj;
+      return null;
     }
-
-    public void Return(T obj)
+    
+    public void Clear()
     {
-      obj.OnReturnedToPool();
-      obj.gameObject.SetActive(false);
-      _pool.Enqueue(obj);
+      
     }
-
-    public void Clear() => _pool.Clear();
   }
 }

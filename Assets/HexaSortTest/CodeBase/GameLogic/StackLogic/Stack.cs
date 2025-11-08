@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using UnityEngine;
 
-namespace HexaSortTest.CodeBase.GameLogic.GridLogic
+namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class Stack : MonoBehaviour
   {
