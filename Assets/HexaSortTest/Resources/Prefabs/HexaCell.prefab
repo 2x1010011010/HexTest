@@ -151,6 +151,10 @@ PrefabInstance:
       value: 20265_Hexagonal_prism_v1
       objectReference: {fileID: 0}
     - target: {fileID: 7648973668265453872, guid: c00cb934cd73a8c4b9ca7aef2053a895, type: 3}
+      propertyPath: m_CastShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7648973668265453872, guid: c00cb934cd73a8c4b9ca7aef2053a895, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 82a77f2dc1bd7c543a228751c11516de, type: 2}

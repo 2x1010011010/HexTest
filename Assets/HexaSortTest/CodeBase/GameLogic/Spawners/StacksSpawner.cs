@@ -38,17 +38,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     }
 
-    private void Update()
-    {
-      while(_spawnTimer < 25)
-        _spawnTimer += Time.deltaTime;
-      if (_spawnTimer >= 25)
-      {
-        Spawn();
-        _spawnTimer = 0f;
-      }
-    }
-
     public void Spawn()
     {
       if (_isSpawned) return;

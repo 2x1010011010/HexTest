@@ -6,11 +6,16 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService
 {
   public class ObjectPool<TObject> where TObject : class, IPoolable  
   {
+    private Transform _container;
     private readonly List<TObject> _pool = new();
+
+    public ObjectPool(Transform container) => 
+      _container = container;
 
     public void AddToPool(TObject poolableObject)
     {
       _pool.Add(poolableObject);
+      poolableObject.SetParent(_container);
       poolableObject.SetActive(false);
     }
 

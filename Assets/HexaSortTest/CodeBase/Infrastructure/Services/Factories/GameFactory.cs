@@ -28,11 +28,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
     public ObjectPool<Cell> CreateCellPool()
     {
-      GameObject container = new GameObject("PoolContainer");
-      var cellPoolInstance = new ObjectPool<Cell>();
+      Transform container = new GameObject("PoolContainer").transform;
+      var cellPoolInstance = new ObjectPool<Cell>(container);
       for (int i = 0; i < 250; i++)
       {
-        var cellPrefab = _assets.Instantiate(AssetPaths.CellPrefab, container.transform);
+        var cellPrefab = _assets.Instantiate(AssetPaths.CellPrefab);
         cellPoolInstance.AddToPool(cellPrefab.GetComponent<Cell>());
       }
 
