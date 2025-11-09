@@ -25,7 +25,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     private ObjectPool<Cell> _poolInstance;
     private List<GameObject> _spawnedStacks = new();
     private bool _isSpawned = false;
-    private float _spawnTimer = 0f;
 
     public void Initialize(LevelConfig levelConfig, ObjectPool<Cell> poolInstance)
     {

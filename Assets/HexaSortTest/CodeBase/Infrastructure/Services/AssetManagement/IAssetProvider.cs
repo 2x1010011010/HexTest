@@ -6,6 +6,5 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
   {
     GameObject Instantiate(string path);
     GameObject Instantiate(string path, Transform at);
-    void Destroy(GameObject gameObject);
   }
 }

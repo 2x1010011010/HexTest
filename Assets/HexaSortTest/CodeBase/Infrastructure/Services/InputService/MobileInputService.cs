@@ -6,10 +6,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.InputService
   {
     public Vector2 Axis { get; }
     public Vector3? LookDirection { get; }
-    
     public bool IsAttackButtonDown()
     {
-      return false;
+      throw new System.NotImplementedException();
     }
   }
 }
