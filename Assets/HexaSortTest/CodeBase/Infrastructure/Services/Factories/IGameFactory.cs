@@ -12,6 +12,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     public ObjectPool<Cell> CreateCellPool();
     public GridSpawner CreateGridSpawner(ObjectPool<Cell> pool);
     void CreateStacksSpawner(ObjectPool<Cell> pool);
+    void CreateHud();
     List<IProgressReader> ProgressReaders { get; }
     List<IProgressSaver> ProgressSavers { get; }
     void Clear();

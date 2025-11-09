@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2867849802337858522}
   - component: {fileID: 5937415863697100280}
   - component: {fileID: 3673557651193220927}
+  - component: {fileID: -5193003705582438475}
   m_Layer: 0
   m_Name: Stack
   m_TagString: Untagged
@@ -46,6 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cf115aba8b34cd0b7cd34cad629e079, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.Stack
+  _stack: []
 --- !u!114 &5937415863697100280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59,6 +61,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.StackLogic.StackMover
   _stack: {fileID: 2867849802337858522}
+  _gridLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  _groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  _cellLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  _verticalShift: 0.8
 --- !u!114 &3673557651193220927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,3 +118,47 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+  - eventID: 2
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 5937415863697100280}
+          m_TargetAssemblyTypeName: HexaSortTest.CodeBase.GameLogic.StackLogic.StackMover,
+            Assembly-CSharp
+          m_MethodName: Click
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!54 &-5193003705582438475
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9157851911816969886}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 0
+  m_ImplicitTensor: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
