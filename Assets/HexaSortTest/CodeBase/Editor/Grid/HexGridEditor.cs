@@ -126,7 +126,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     #endregion
 
-    #region Grid Generation and Drawing
+    #region Grid Generation
 
     private void GenerateGrid()
     {
@@ -173,6 +173,13 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       return new Vector3(x, 0f, z);
     }
 
+    private static Vector3 AxialToWorld(int q, int r, float size)
+    {
+      float x = size * (Mathf.Sqrt(3f) * q + Mathf.Sqrt(3f) / 2f * r);
+      float z = size * (3f / 2f * r);
+      return new Vector3(x, 0, z);
+    }
+
     private void CenterPositions()
     {
       if (_cells.Count == 0) return;
@@ -183,7 +190,9 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       for (int i = 0; i < _cells.Count; i++)
         _cells[i].Position -= center;
     }
+#endregion
 
+    #region Preview Rendering
     private void DrawPreview(Rect rect)
     {
       if (_previewRenderUtility == null) return;
@@ -304,13 +313,6 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       menu.AddItem(new GUIContent("Spawn Point"), cell.State == CellState.SpawnPoint,
         () => cell.State = CellState.SpawnPoint);
       menu.ShowAsContext();
-    }
-
-    private static Vector3 AxialToWorld(int q, int r, float size)
-    {
-      float x = size * (Mathf.Sqrt(3f) * q + Mathf.Sqrt(3f) / 2f * r);
-      float z = size * (3f / 2f * r);
-      return new Vector3(x, 0, z);
     }
 
     #endregion
