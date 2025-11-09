@@ -27,5 +27,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       IsActive = isActive;
       gameObject.SetActive(isActive);
     }
+
+    public void SetParent(Transform parent) => 
+      transform.SetParent(parent);
   }
 }

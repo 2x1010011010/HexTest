@@ -83,7 +83,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
         if (!_poolInstance.TryGetObject(out Cell tile)) return null;
         if (tile == null) continue;
         
-        tile.transform.SetParent(stack.transform);
+        tile.SetParent(stack.transform);
         tile.transform.position = stack.transform.position + Vector3.up * (_verticalShift * i);
         stack.Add(tile.gameObject);
       }
