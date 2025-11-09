@@ -56,7 +56,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     private GameObject GenerateStack(Transform parent)
     {
-      GameObject stackObject = Instantiate(_stack, parent.position, Quaternion.identity, parent);
+      GameObject stackObject = Instantiate(_stack, parent.position, Quaternion.identity);
       stackObject.name = $"Stack {parent.GetSiblingIndex()}";
       
       Stack stack = stackObject.GetComponent<Stack>();

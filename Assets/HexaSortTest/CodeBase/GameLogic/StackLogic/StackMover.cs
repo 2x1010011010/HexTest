@@ -26,7 +26,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       if (_isDragging)
       {
         if(GetHit(_groundLayer) || GetHit(_gridLayer) || GetHit(_cellLayer))
-          _stack.transform.localPosition = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
+          _stack.transform.position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
       }
     }
 
@@ -46,12 +46,12 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private void StartDrag()
     {
       _isDragging = true;
-      _startPosition = _stack.transform.localPosition;
+      _startPosition = _stack.Parent.localPosition;
       _stack.transform.position = Vector3.up * _verticalShift;
     }
 
     private void MoveToParent() =>
-      _stack.transform.localPosition = _startPosition;
+      _stack.transform.position = _startPosition;
     
     private Ray GetRay() => 
       Camera.main.ScreenPointToRay(Input.mousePosition);
