@@ -4,11 +4,22 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.InputService
 {
   public class MobileInputService : IInputService
   {
-    public Vector2 Axis { get; }
-    public Vector3? LookDirection { get; }
-    public bool IsAttackButtonDown()
+    public bool Click()
     {
-      throw new System.NotImplementedException();
+      Touch click = Input.GetTouch(0);
+      return click.phase == TouchPhase.Began;
+    }
+
+    public bool Hold()
+    {
+      Touch click = Input.GetTouch(0);
+      return click.phase == TouchPhase.Stationary;
+    }
+
+    public bool Release()
+    {
+      Touch click = Input.GetTouch(0);
+      return click.phase == TouchPhase.Ended;
     }
   }
 }
