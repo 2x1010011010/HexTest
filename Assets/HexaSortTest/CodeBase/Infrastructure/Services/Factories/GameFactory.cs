@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameConfigs;
+using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
+using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 
@@ -24,7 +26,19 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       _levelConfigs = Resources.Load<LevelConfigsList>(AssetPaths.LevelConfigs);
     }
 
-    public GridSpawner CreateGridSpawner()
+    public ObjectPool<Cell> CreateCellPool()
+    {
+      var cellPoolInstance = new ObjectPool<Cell>();
+      for (int i = 0; i < 250; i++)
+      {
+        var cellPrefab = _assets.Instantiate(AssetPaths.CellPrefab);
+        cellPoolInstance.AddToPool(cellPrefab.GetComponent<Cell>());
+      }
+
+      return cellPoolInstance;
+    }
+
+    public GridSpawner CreateGridSpawner(ObjectPool<Cell> poolInstance)
     {
       var gridSpawnerObject = InstantiateRegistered(AssetPaths.GridSpawner);
       var gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
@@ -34,10 +48,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return gridSpawner;
     }
 
-    public void CreateStacsSpawner()
+    public void CreateStacksSpawner(ObjectPool<Cell> poolInstance)
     {
       var stacksSpawnerObject = InstantiateRegistered(AssetPaths.StackSpawner);
-      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig);
+      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig, poolInstance);
     }
 
     public void CreateHud() => 

@@ -11,6 +11,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     [SerializeField, Tooltip("Set this on or off only for level grid"), BoxGroup("SET CELL SPAWNER")] private bool _isSpawner;
     
     public bool IsSpawner => _isSpawner;
+    public bool IsActive { get; private set; }
 
     public Color Color
     {
@@ -21,12 +22,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     public void SetSpawner(bool isSpawner) => 
       _isSpawner = isSpawner;
 
-    public void OnSpawnedFromPool()
+    public void SetActive(bool isActive)
     {
-    }
-
-    public void OnReturnedToPool()
-    {
+      IsActive = isActive;
+      gameObject.SetActive(isActive);
     }
   }
 }

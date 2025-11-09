@@ -15,5 +15,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
       var prefab = Resources.Load<GameObject>(path);
       return Object.Instantiate(prefab, at);
     }
+
+    public void Destroy(GameObject gameObject)
+    {
+      Destroy(gameObject);
+    }
   }
 }

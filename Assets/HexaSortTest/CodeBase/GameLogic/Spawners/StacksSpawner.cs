@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameConfigs;
+using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace HexaSortTest.CodeBase.GameLogic.Spawners
 {
-  public class StacksSpawner : GameObjectPool
+  public class StacksSpawner : MonoBehaviour
   {
     [SerializeField, BoxGroup("POINTS")] private List<Transform> _spawnPoints;
 
@@ -22,22 +23,19 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     private LevelConfig _levelConfig;
     private GameObject _tilePrefab;
     private GameObject _stack;
+    private ObjectPool<Cell> _poolInstance;
     private List<GameObject> _spawnedStacks = new();
     private bool _isSpawned = false;
     private float _spawnTimer = 0f;
 
-    public void Initialize(LevelConfig levelConfig)
+    public void Initialize(LevelConfig levelConfig, ObjectPool<Cell> poolInstance)
     {
       _levelConfig = levelConfig;
-      Debug.Log("Level Config:");
       _tilePrefab = Resources.Load<GameObject>(AssetPaths.CellPrefab);
-      Debug.Log("_tilePrefab");
       _stack = Resources.Load<GameObject>(AssetPaths.StackPrefab);
-      Debug.Log("_stack");
-      SetPool(_tilePrefab, this.transform, _maxTilesInPool);
-      Debug.Log("SetPool");
+      _poolInstance = poolInstance;
       PrepareStack();
-      Debug.Log("PrepareStack");
+
     }
 
     private void Update()
@@ -65,43 +63,31 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     {
       for (int i = 0; i < _spawnPoints.Count; i++)
       {
-        Debug.Log($"PrepareStack: {i}");
         var stack = GenerateStack(_spawnPoints[i]);
-        Debug.Log($"PrepareStack: {i} - stack");
         _spawnedStacks.Add(stack);
-        Debug.Log($"PrepareStack: {i} - stack added");
       }
     }
 
     private GameObject GenerateStack(Transform parent)
     {
       GameObject stackObject = Instantiate(_stack, parent.position, Quaternion.identity, parent);
-      Debug.Log($"GenerateStack: {parent.GetSiblingIndex()}");
-      
       stackObject.name = $"Stack {parent.GetSiblingIndex()}";
       
       Stack stack = stackObject.GetComponent<Stack>();
       stack.SetParent(parent);
 
       int tilesCount = Random.Range(_minTilesToSpawn, _maxTilesToSpawn);
-
-      Debug.Log($"Count = {tilesCount}");
       
       for (int i = 0; i < tilesCount; i++)
       {
-        Debug.Log($"GenerateStack for cycle: {i}");
-        var tile = GetObject();
-        Debug.Log($"GenerateStack for cycle: {i} - tile");
+        if (!_poolInstance.TryGetObject(out Cell tile)) return null;
         if (tile == null) continue;
-        Debug.Log($"GenerateStack for cycle: {i} - tile != null");
+        
         tile.transform.SetParent(stack.transform);
-        Debug.Log($"GenerateStack for cycle: {i} - tile.transform.SetParent");
         tile.transform.position = stack.transform.position + Vector3.up * (_verticalShift * i);
-        Debug.Log($"GenerateStack for cycle: {i} - tile.transform.position");
-        stack.Add(tile);
-        Debug.Log($"GenerateStack for cycle: {i} - stack.Add");
+        stack.Add(tile.gameObject);
       }
-      Debug.Log("GenerateStack: cycle finished");
+
       return stackObject;
     }
   }
