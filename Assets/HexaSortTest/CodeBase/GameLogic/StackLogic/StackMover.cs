@@ -10,25 +10,28 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     [SerializeField, BoxGroup("SETUP")] private LayerMask _gridLayer;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _groundLayer;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _cellLayer;
-    [SerializeField, BoxGroup("DROP SETTINGS")] private float _verticalShift = 0.8f;
+    [SerializeField, BoxGroup("DROP SETTINGS")] private float _verticalShift = 1.5f;
 
     private bool _isDragging = false;
+    private Vector3 _startPosition;
+    private RaycastHit _hit;
     
     public void Move()
     {
-      RaycastHit hit;
-      Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 500, _cellLayer);
-
-      if (hit.collider == null) return;
+      StartDrag();
+      
+      GetHit(_cellLayer);
+      if (_hit.collider == null) return;
+      
       if (_isDragging)
       {
-        
+        if(GetHit(_groundLayer) || GetHit(_gridLayer) || GetHit(_cellLayer))
+          _stack.transform.localPosition = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
       }
     }
 
     public void Drop()
     {
-      MoveToParent();
       _isDragging = false;
       var position = -Vector3.up * _verticalShift;
       foreach (var tile in _stack.Tiles)
@@ -43,10 +46,17 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private void StartDrag()
     {
       _isDragging = true;
+      _startPosition = _stack.transform.localPosition;
       _stack.transform.position = Vector3.up * _verticalShift;
     }
 
-    private void MoveToParent() => 
-      _stack.transform.position = _stack.Parent.transform.position;
+    private void MoveToParent() =>
+      _stack.transform.localPosition = _startPosition;
+    
+    private Ray GetRay() => 
+      Camera.main.ScreenPointToRay(Input.mousePosition);
+    
+    private bool GetHit(LayerMask layerMask) => 
+      Physics.Raycast(GetRay(), out _hit, 100, layerMask);
   }
 }
