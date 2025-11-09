@@ -15,13 +15,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     [SerializeField, BoxGroup("POOL PARAMETERS")] private int _maxTilesInPool = 250;
 
-    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _minTilesToSpawn = 5;
+    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _minTilesToSpawn = 3;
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxTilesToSpawn = 10;
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxColorsInStack = 3;
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private float _verticalShift = 0.5f;
 
     private LevelConfig _levelConfig;
-    private GameObject _tilePrefab;
     private GameObject _stack;
     private ObjectPool<Cell> _poolInstance;
     private List<GameObject> _spawnedStacks = new();
@@ -31,11 +30,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     public void Initialize(LevelConfig levelConfig, ObjectPool<Cell> poolInstance)
     {
       _levelConfig = levelConfig;
-      _tilePrefab = Resources.Load<GameObject>(AssetPaths.CellPrefab);
       _stack = Resources.Load<GameObject>(AssetPaths.StackPrefab);
       _poolInstance = poolInstance;
       PrepareStack();
-
+      Spawn();
     }
 
     public void Spawn()
@@ -66,11 +64,17 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       stack.SetParent(parent);
 
       int tilesCount = Random.Range(_minTilesToSpawn, _maxTilesToSpawn);
+      int firstColorTilesCount = Random.Range(0, tilesCount);
+
+      var firstRandomColor = GetRandomColor();
+      var secondRandomColor = GetRandomColor();
       
       for (int i = 0; i < tilesCount; i++)
       {
         if (!_poolInstance.TryGetObject(out Cell tile)) return null;
         if (tile == null) continue;
+        
+        tile.Color = i < firstColorTilesCount ? firstRandomColor : secondRandomColor;
         
         tile.SetParent(stack.transform);
         tile.transform.position = stack.transform.position + Vector3.up * (_verticalShift * i);
@@ -79,5 +83,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
       return stackObject;
     }
+
+    private Color GetRandomColor() => 
+      _levelConfig.CellColors[Random.Range(0, _levelConfig.CellColors.Count)];
   }
 }
