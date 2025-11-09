@@ -9,6 +9,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 {
   public class HexGridEditor : EditorWindow
   {
+    #region Enums and Structs
+
     private enum GridType
     {
       Rectangular,
@@ -33,6 +35,9 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       public CellState State = CellState.Enabled;
     }
 
+    #endregion
+
+    #region Fields
     private GridType _gridType = GridType.Rectangular;
     private int _width = 3;
     private int _height = 5;
@@ -47,9 +52,16 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     private PreviewRenderUtility _previewRenderUtility;
     private Vector3 _lastCenter;
     private Rect _lastPreviewRect;
+    #endregion
+
+    #region Window
 
     [MenuItem("Tools/Grid/Hex Grid Editor")]
     public static void ShowWindow() => GetWindow<HexGridEditor>("Hex Grid Editor");
+
+    #endregion
+
+    #region Initialization and Cleanup
 
     private void OnEnable()
     {
@@ -63,6 +75,10 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     }
 
     private void OnDisable() => _previewRenderUtility?.Cleanup();
+
+    #endregion
+
+    #region OnGUI Methods
 
     private void OnGUI()
     {
@@ -107,6 +123,10 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       HandleMouse(previewRect);
     }
+
+    #endregion
+
+    #region Grid Generation and Drawing
 
     private void GenerateGrid()
     {
@@ -223,6 +243,10 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           Object.DestroyImmediate(obj);
     }
 
+    #endregion
+
+    #region Cells Interaction
+
     private void HandleMouse(Rect previewRect)
     {
       Event e = Event.current;
@@ -266,25 +290,6 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       return bestDist <= clickRadiusPixels ? best : null;
     }
 
-    private HexCell FindClosestCell(Vector2 mousePos, Rect rect)
-    {
-      if (_cells.Count == 0) return null;
-      HexCell closest = null;
-      float minDist = float.MaxValue;
-      foreach (var cell in _cells)
-      {
-        Vector3 screen = WorldToPreview(cell.Position, rect);
-        float dist = Vector2.Distance(mousePos, new Vector2(screen.x, screen.y));
-        if (dist < minDist && dist < 25f)
-        {
-          minDist = dist;
-          closest = cell;
-        }
-      }
-
-      return closest;
-    }
-
     private Vector3 WorldToPreview(Vector3 world, Rect rect)
     {
       Vector3 dir = world - _lastCenter;
@@ -307,6 +312,10 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       float z = size * (3f / 2f * r);
       return new Vector3(x, 0, z);
     }
+
+    #endregion
+
+    #region Save Grid as Prefab
 
     private void SaveGridAsPrefab()
     {
@@ -342,5 +351,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       AssetDatabase.Refresh();
       EditorUtility.DisplayDialog("Grid Saved", "Hex grid saved successfully!", "OK");
     }
+
+    #endregion
   }
 }
