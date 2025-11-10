@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.GameConfigs.LevelConfig
   <Material>k__BackingField: {fileID: 2100000, guid: 82a77f2dc1bd7c543a228751c11516de, type: 2}
   <CellColors>k__BackingField:
-  - {r: 1, g: 1, b: 1, a: 0}
-  - {r: 0.04471536, g: 0.81886786, b: 0, a: 0}
-  - {r: 0, g: 0.088550694, b: 0.7584905, a: 0}
-  - {r: 0.79622644, g: 0, b: 0, a: 0}
-  - {r: 0.7584905, g: 0.72424906, b: 0, a: 0}
-  - {r: 0.590188, g: 0, b: 0.5924529, a: 0}
-  <GridPrefab>k__BackingField: {fileID: 5425495889680273132, guid: 75f10c323b1a3dd4298fe1298ae5daf8, type: 3}
+  - {r: 0.5641509, g: 1, b: 0.94927174, a: 0}
+  - {r: 0.25217015, g: 0.87169814, b: 0.21545745, a: 0}
+  - {r: 0.19077952, g: 0.53187954, b: 0.8792453, a: 0}
+  - {r: 0.89433956, g: 0.2136812, b: 0.18055533, a: 0}
+  - {r: 1, g: 0.8661475, b: 0.20943397, a: 0}
+  - {r: 0.7207546, g: 0.11287284, b: 0.7207546, a: 0}
+  <GridPrefab>k__BackingField: {fileID: 5100780322026002613, guid: 75f10c323b1a3dd4298fe1298ae5daf8, type: 3}
   <FieldOfView>k__BackingField: 50

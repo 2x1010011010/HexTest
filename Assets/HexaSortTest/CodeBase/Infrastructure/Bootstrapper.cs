@@ -13,6 +13,9 @@ namespace HexaSortTest.CodeBase.Infrastructure
 
     private void Awake()
     {
+      Application.targetFrameRate = 60;
+      Screen.orientation = ScreenOrientation.Portrait;
+     
       _game = new Game(this, _loadingCurtain);
       _game.StateMachine.Enter<BootstrapState>();
       

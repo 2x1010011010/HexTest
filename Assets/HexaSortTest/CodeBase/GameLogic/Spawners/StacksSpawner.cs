@@ -41,7 +41,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       FirstSpawn();
     }
 
-    public void Spawn()
+    private void Spawn()
     {
       if (_isSpawned) return;
       _isSpawned = true;
@@ -49,9 +49,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       {
         _spawnedStacks[i].GetComponent<Stack>().SetActive(true);
       }
+
+      foreach (var stack in _spawnedStacks)
+        stack.GetComponent<StackMover>().OnStackParentChange += StackParentChanged;
     }
 
-    public void PrepareStack()
+    private void PrepareStack()
     {
       _isSpawned = false;
       for (int i = 0; i < _spawnPoints.Count; i++)
@@ -106,5 +109,14 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     private Color GetRandomColor() =>
       _levelConfig.CellColors[Random.Range(0, _levelConfig.CellColors.Count)];
+
+    private void StackParentChanged(Stack stack)
+    {
+      _spawnedStacks.Remove(stack.gameObject);
+
+      if (_spawnedStacks.Count != 0) return;
+      PrepareStack();
+      Spawn();
+    }
   }
 }

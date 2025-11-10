@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
@@ -8,6 +9,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class StackMover : MonoBehaviour
   {
+    public event Action<Stack> OnStackParentChange; 
+    
     [SerializeField, BoxGroup("SETUP")] private Stack _stack;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _gridLayer;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _groundLayer;
@@ -19,21 +22,21 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private Vector3 _startPosition;
     private RaycastHit _hit;
     private Cell _currentGridCell;
+    private Camera _camera;
+    
+    private void Awake() => _camera = Camera.main;
 
     public void Move()
     {
       if (!_isDragging)
         StartDrag();
 
-      GetHit(_cellLayer);
-      if (_hit.collider == null) return;
+      if (!_isDragging) return;
+      if (!GetHit()) return;
 
-      if (_isDragging)
-      {
-        var position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
-        _stack.transform.position = Vector3.MoveTowards(position, _stack.transform.position, 0.1f);
-        CheckGridCell();
-      }
+      var position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
+      _stack.transform.position = position;
+      CheckGridCell();
     }
 
     public void Drop()
@@ -61,13 +64,12 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       _currentGridCell?.ShineOff();
       if (Physics.Raycast(_stack.transform.position, Vector3.down, out var hitToCell, 100, _gridLayer))
       {
-        if (hitToCell.collider == null) return;
+        if (hitToCell.collider.GetComponent<Cell>() == null) return;
+        _stack.SetParent(_stack.DefaultParent);
+
         var cell = hitToCell.collider.GetComponent<Cell>();
-        if (!cell.IsEmpty)
-        {
-          _stack.SetParent(_stack.DefaultParent);
-          return;
-        }
+        if (!cell.IsEmpty) return;
+        
         cell.ShineOn();
         _currentGridCell = cell;
         _stack.SetParent(cell.transform);
@@ -81,15 +83,16 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private void MoveToParent()
     {
       var distance = Vector3.Distance(_stack.transform.position, _stack.Parent.position);
-      var duration = distance / 20;
+      var duration = distance / 50;
       _stack.transform.DOMove(_stack.Parent.position + Vector3.up * 0.5f, duration).SetEase(Ease.Linear);
       _stack.Parent.GetComponent<Cell>()?.SetEmpty(false);
+      if (_stack.Parent.GetComponent<Cell>()) OnStackParentChange?.Invoke(_stack);
     }
 
     private Ray GetRay() =>
-      Camera.main.ScreenPointToRay(Input.mousePosition);
+      _camera.ScreenPointToRay(Input.mousePosition);
 
-    private bool GetHit(LayerMask layerMask) =>
-      Physics.Raycast(GetRay(), out _hit, 100, layerMask);
+    private bool GetHit() =>
+      Physics.Raycast(GetRay(), out _hit, 100);
   }
 }
