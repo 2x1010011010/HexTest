@@ -9,10 +9,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     [SerializeField, BoxGroup("SETUP")] private Renderer _renderer;
     [Space]
     [SerializeField, Tooltip("Set this on or off only for level grid"), BoxGroup("SET CELL SPAWNER")] private bool _isSpawner;
+    [SerializeField, BoxGroup("SET ACTIVE")] private bool _isActive;
+    [SerializeField, BoxGroup("SET EMPTY")] private bool _isEmpty;
     
     public bool IsSpawner => _isSpawner;
-    public bool IsActive { get; private set; }
-    public bool IsEmpty { get; private set; }
+    public bool IsActive => _isActive;
+    public bool IsEmpty => _isEmpty;
 
     public Color Color
     {
@@ -25,12 +27,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
 
     public void SetActive(bool isActive)
     {
-      IsActive = isActive;
+      _isActive = isActive;
       gameObject.SetActive(isActive);
     }
     
     public void SetEmpty(bool isEmpty) => 
-      IsEmpty = isEmpty;
+      _isEmpty = isEmpty;
 
     public void SetParent(Transform parent) => 
       transform.SetParent(parent);

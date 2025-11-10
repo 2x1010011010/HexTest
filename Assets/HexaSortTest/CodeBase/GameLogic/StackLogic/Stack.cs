@@ -8,6 +8,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public List<GameObject> _stack = new();
     private Transform _parent;
     private Transform _defaultParent;
+    private Vector3 _startPosition;
     
     public IReadOnlyList<GameObject> Tiles => _stack;
     public Transform Parent => _parent;
@@ -16,7 +17,11 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public void SetParent(Transform parent)
     {
       _parent = parent;
-      if (_defaultParent == null) _defaultParent = parent;
+      if (_defaultParent == null)
+      {
+        _defaultParent = parent;
+        _startPosition = _defaultParent.position;
+      }
     }
 
     public void Add(GameObject cell) => _stack.Add(cell);
