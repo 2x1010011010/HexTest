@@ -10,11 +10,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     public void Initialize(GameObject grid) => 
       _grid = grid;
 
-    public void SpawnGrid()
+    public GameObject SpawnGrid()
     {
-      if (_grid == null) return;
+      if (_grid == null) return null;
       
-      Instantiate(_grid, Vector3.zero, Quaternion.identity);
+      var spawned = Instantiate(_grid, Vector3.zero, Quaternion.identity);
+      return spawned;
     }
 
     public void Clear() => 

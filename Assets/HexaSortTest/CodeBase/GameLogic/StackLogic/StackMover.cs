@@ -1,5 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
+using HexaSortTest.CodeBase.GameLogic.Cells;
+using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using Sirenix.OdinInspector;
 
 namespace HexaSortTest.CodeBase.GameLogic.StackLogic
@@ -18,6 +20,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     
     public void Move()
     {
+      if (_stack.GetComponentInParent<Cell>()) return;
+      
       StartDrag();
       
       GetHit(_cellLayer);

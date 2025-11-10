@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
@@ -49,9 +50,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       var poolInstance = _gameFactory.CreateCellPool();
       
       var gridSpawner = _gameFactory.CreateGridSpawner(poolInstance);
-      gridSpawner.SpawnGrid();
+      var gridInstance = gridSpawner.SpawnGrid();
 
-      _gameFactory.CreateStacksSpawner(poolInstance);
+      _gameFactory.CreateStacksSpawner(poolInstance, gridInstance.GetComponent<HexGrid>());
 
       _gameFactory.CreateHud();
     }

@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 7528502439013532989}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &2811401223961448666
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 697589338978588744}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &9085615187991699463
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1346,7 +1346,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 7468157082922301164}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &3545973381081171017
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2101,7 +2101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 8678935111031309979}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &8172572059102039327
 MeshCollider:
   m_ObjectHideFlags: 0

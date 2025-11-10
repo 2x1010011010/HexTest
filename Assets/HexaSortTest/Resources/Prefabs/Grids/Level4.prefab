@@ -331,7 +331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 5141126384140918096}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &6781632874708855889
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1709,7 +1709,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 7380462968794553390}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &179703837799991263
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2026,7 +2026,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 16419844213476104}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &1520787342736829663
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2220,7 +2220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 2020906374653994876}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &2594395705017471707
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2546,7 +2546,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 3537932107538505662}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &4125185366172246141
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -3965,7 +3965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 8912641387472745075}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &2558081576313397894
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -4661,7 +4661,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 2595326410949583861}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &5553208429604414607
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -5724,7 +5724,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 8358722133746331454}
-  _isSpawner: 0
+  _isSpawner: 1
 --- !u!64 &6069315628318324730
 MeshCollider:
   m_ObjectHideFlags: 0

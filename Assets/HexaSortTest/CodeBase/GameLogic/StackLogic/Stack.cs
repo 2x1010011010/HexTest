@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HexaSortTest.CodeBase.GameLogic.Cells;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.GameLogic.StackLogic
@@ -12,7 +11,11 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public IReadOnlyList<GameObject> Tiles => _stack;
     public Transform Parent => _parent;
     
-    public void SetParent(Transform parent) => _parent = parent;
+    public void SetParent(Transform parent)
+    {
+      _parent = parent;
+    }
+
     public void Add(GameObject cell) => _stack.Add(cell);
     public void Remove(GameObject cell) => _stack.Remove(cell);
     public void SetActive(bool active) => _stack.ForEach(go => go.SetActive(active));

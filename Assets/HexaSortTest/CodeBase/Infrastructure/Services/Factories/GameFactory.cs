@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Cells;
+using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
@@ -49,10 +50,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return gridSpawner;
     }
 
-    public void CreateStacksSpawner(ObjectPool<Cell> poolInstance)
+    public void CreateStacksSpawner(ObjectPool<Cell> poolInstance, HexGrid grid)
     {
       var stacksSpawnerObject = InstantiateRegistered(AssetPaths.StackSpawner);
-      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig, poolInstance);
+      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig, poolInstance, grid);
     }
 
     public void CreateHud() => 
