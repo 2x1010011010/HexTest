@@ -17,6 +17,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     [SerializeField, BoxGroup("SETUP")] private LayerMask _cellLayer;
 
     [SerializeField, BoxGroup("DROP AND DRAG SETTINGS")] private float _verticalShift = 2.5f;
+    [SerializeField, BoxGroup("DROP AND DRAG SETTINGS")] private float _movementSpeed = 50f;
 
     private bool _isDragging = false;
     private Vector3 _startPosition;
@@ -35,7 +36,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       if (!GetHit()) return;
 
       var position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
-      _stack.transform.position = position;
+      _stack.transform.position = Vector3.MoveTowards(_stack.transform.position, position, Time.deltaTime * _movementSpeed);
       CheckGridCell();
     }
 
@@ -56,7 +57,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
       _isDragging = true;
       _startPosition = _stack.Parent.position;
-      _stack.transform.position = Vector3.up * _verticalShift;
+      _stack.transform.position = _stack.Parent.position + Vector3.up * _verticalShift;
     }
 
     private void CheckGridCell()
@@ -83,7 +84,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private void MoveToParent()
     {
       var distance = Vector3.Distance(_stack.transform.position, _stack.Parent.position);
-      var duration = distance / 50;
+      var duration = distance / _movementSpeed;
       _stack.transform.DOMove(_stack.Parent.position + Vector3.up * 0.5f, duration).SetEase(Ease.Linear);
       _stack.Parent.GetComponent<Cell>()?.SetEmpty(false);
       if (_stack.Parent.GetComponent<Cell>()) OnStackParentChange?.Invoke(_stack);
