@@ -12,7 +12,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     [SerializeField, BoxGroup("SETUP")] private LayerMask _gridLayer;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _groundLayer;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _cellLayer;
-    [SerializeField, BoxGroup("DROP SETTINGS")] private float _verticalShift = 1.5f;
+    [SerializeField, BoxGroup("DROP SETTINGS")] private float _verticalShift = 2.5f;
 
     private bool _isDragging = false;
     private Vector3 _startPosition;
@@ -36,7 +36,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public void Drop()
     {
-      if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
       _isDragging = false;
       var position = -Vector3.up * _verticalShift;
       foreach (var tile in _stack.Tiles)
