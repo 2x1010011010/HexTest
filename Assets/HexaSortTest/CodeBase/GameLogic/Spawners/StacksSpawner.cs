@@ -14,20 +14,15 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
   {
     [SerializeField, BoxGroup("POINTS")] private List<Transform> _spawnPoints;
 
-    [SerializeField, BoxGroup("POOL PARAMETERS")]
-    private int _maxTilesInPool = 250;
+    [SerializeField, BoxGroup("POOL PARAMETERS")] private int _maxTilesInPool = 250;
 
-    [SerializeField, BoxGroup("SPAWNER PARAMETERS")]
-    private int _minTilesToSpawn = 3;
+    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _minTilesToSpawn = 3;
 
-    [SerializeField, BoxGroup("SPAWNER PARAMETERS")]
-    private int _maxTilesToSpawn = 10;
+    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxTilesToSpawn = 10;
 
-    [SerializeField, BoxGroup("SPAWNER PARAMETERS")]
-    private int _maxColorsInStack = 3;
+    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxColorsInStack = 3;
 
-    [SerializeField, BoxGroup("SPAWNER PARAMETERS")]
-    private float _verticalShift = 0.5f;
+    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private float _verticalShift = 0.5f;
 
     private LevelConfig _levelConfig;
     private GameObject _stack;
@@ -56,6 +51,15 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       }
     }
 
+    public void PrepareStack()
+    {
+      for (int i = 0; i < _spawnPoints.Count; i++)
+      {
+        var stack = GenerateStack(_spawnPoints[i]);
+        _spawnedStacks.Add(stack);
+      }
+    }
+
     private void FirstSpawn()
     {
       foreach (var cell in _grid.Cells)
@@ -67,15 +71,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       }
       
       Spawn();
-    }
-
-    private void PrepareStack()
-    {
-      for (int i = 0; i < _spawnPoints.Count; i++)
-      {
-        var stack = GenerateStack(_spawnPoints[i]);
-        _spawnedStacks.Add(stack);
-      }
     }
 
     private GameObject GenerateStack(Transform parent)

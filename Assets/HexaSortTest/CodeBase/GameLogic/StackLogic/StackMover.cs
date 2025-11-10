@@ -20,7 +20,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     
     public void Move()
     {
-      if (_stack.GetComponentInParent<Cell>()) return;
+      if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
       
       StartDrag();
       
@@ -36,6 +36,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public void Drop()
     {
+      if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
       _isDragging = false;
       var position = -Vector3.up * _verticalShift;
       foreach (var tile in _stack.Tiles)
@@ -44,19 +45,22 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public void Click()
     {
-      
+      if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
     }
 
     private void StartDrag()
     {
       _isDragging = true;
-      _startPosition = _stack.Parent.localPosition;
+      _startPosition = _stack.Parent.position;
       _stack.transform.position = Vector3.up * _verticalShift;
     }
 
-    private void MoveToParent() =>
+    private void MoveToParent()
+    {
+      if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
       _stack.transform.position = _startPosition;
-    
+    }
+
     private Ray GetRay() => 
       Camera.main.ScreenPointToRay(Input.mousePosition);
     
