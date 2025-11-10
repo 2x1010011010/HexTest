@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,7 +6,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI
 {
   public abstract class ButtonBase : MonoBehaviour
   {
-    [SerializeField] protected Button _button;
+    [SerializeField, BoxGroup("BUTTON SETUP")] protected Button _button;
 
     public Button Button => _button;
 
