@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -333,6 +334,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       Quaternion rotationFix = _autoRotate ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
       var grid = root.AddComponent<HexGrid>();
       root.AddComponent<GridRotator>();
+      var observer =root.AddComponent<GridObserver>();
+      observer.Init(grid);
 
       foreach (var cell in _cells)
       {

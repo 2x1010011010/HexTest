@@ -2135,6 +2135,7 @@ GameObject:
   - component: {fileID: 4695862383043536035}
   - component: {fileID: 3263764030202339643}
   - component: {fileID: 8914202796206929695}
+  - component: {fileID: 5890450227748876214}
   m_Layer: 6
   m_Name: level3
   m_TagString: Untagged
@@ -2216,6 +2217,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.GridRotator
   _angle: 0
   _axis: {x: 0, y: 0, z: 0}
+--- !u!114 &5890450227748876214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5100780322026002613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6262eb86aa8f4395856681613d4f5fdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.GridObserver
+  _grid: {fileID: 3263764030202339643}
 --- !u!1 &5136965597091490453
 GameObject:
   m_ObjectHideFlags: 0

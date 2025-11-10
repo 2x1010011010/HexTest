@@ -18,6 +18,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private bool _isDragging = false;
     private Vector3 _startPosition;
     private RaycastHit _hit;
+    private Cell _currentGridCell;
 
     public void Move()
     {
@@ -29,7 +30,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
       if (_isDragging)
       {
-        _stack.transform.position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
+        var position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
+        _stack.transform.position = Vector3.MoveTowards(position, _stack.transform.position, 0.1f);
         CheckGridCell();
       }
     }
@@ -56,11 +58,18 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     private void CheckGridCell()
     {
+      _currentGridCell?.ShineOff();
       if (Physics.Raycast(_stack.transform.position, Vector3.down, out var hitToCell, 100, _gridLayer))
       {
         if (hitToCell.collider == null) return;
         var cell = hitToCell.collider.GetComponent<Cell>();
-        if (!cell.IsEmpty) return;
+        if (!cell.IsEmpty)
+        {
+          _stack.SetParent(_stack.DefaultParent);
+          return;
+        }
+        cell.ShineOn();
+        _currentGridCell = cell;
         _stack.SetParent(cell.transform);
       }
       else
@@ -69,8 +78,13 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
     }
 
-    private void MoveToParent() => 
-      _stack.transform.DOMove(_stack.Parent.position + Vector3.up * 0.5f, 0.7f);
+    private void MoveToParent()
+    {
+      var distance = Vector3.Distance(_stack.transform.position, _stack.Parent.position);
+      var duration = distance / 20;
+      _stack.transform.DOMove(_stack.Parent.position + Vector3.up * 0.5f, duration).SetEase(Ease.Linear);
+      _stack.Parent.GetComponent<Cell>()?.SetEmpty(false);
+    }
 
     private Ray GetRay() =>
       Camera.main.ScreenPointToRay(Input.mousePosition);
