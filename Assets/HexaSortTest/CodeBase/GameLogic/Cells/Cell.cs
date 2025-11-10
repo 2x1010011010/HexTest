@@ -12,6 +12,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     
     public bool IsSpawner => _isSpawner;
     public bool IsActive { get; private set; }
+    public bool IsEmpty { get; private set; }
 
     public Color Color
     {
@@ -27,6 +28,9 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       IsActive = isActive;
       gameObject.SetActive(isActive);
     }
+    
+    public void SetEmpty(bool isEmpty) => 
+      IsEmpty = isEmpty;
 
     public void SetParent(Transform parent) => 
       transform.SetParent(parent);

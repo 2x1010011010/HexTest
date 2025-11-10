@@ -29,8 +29,16 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       
       if (_isDragging)
       {
-        if(GetHit(_groundLayer) || GetHit(_gridLayer) || GetHit(_cellLayer))
+        if (GetHit(_groundLayer) || GetHit(_cellLayer))
+        {
+          _stack.SetParent(_stack.DefaultParent);
           _stack.transform.position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
+        }
+        else if (GetHit(_gridLayer))
+        {
+          _stack.transform.position = new Vector3(_hit.point.x, _stack.transform.position.y, _hit.point.z);
+          CheckGridCell();
+        }
       }
     }
 
@@ -57,7 +65,20 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private void MoveToParent()
     {
       if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
-      _stack.transform.position = _startPosition;
+      _stack.transform.DOMove(_startPosition, 0.7f);
+    }
+
+    private void CheckGridCell()
+    {
+      RaycastHit hitToCell;
+      if (Physics.Raycast(_stack.transform.position, Vector3.down, out hitToCell, 100, _gridLayer))
+      {
+        if(hitToCell.collider == null) return;
+        var cell = hitToCell.collider.GetComponent<Cell>();
+        if (!cell.IsEmpty) return;
+        
+        _stack.SetParent(cell.transform);
+      }
     }
 
     private Ray GetRay() => 

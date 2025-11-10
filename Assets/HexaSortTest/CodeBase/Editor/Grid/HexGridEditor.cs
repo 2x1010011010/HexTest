@@ -342,9 +342,15 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         hex.transform.localPosition = cell.Position;
         hex.transform.localRotation = _hexPrefab.transform.rotation * rotationFix;
         hex.transform.localScale = _hexPrefab.transform.localScale;
-
+        
+        var cellComp = hex.GetComponent<Cell>();
+        cellComp.SetEmpty(true);
+        
         if (cell.State == CellState.SpawnPoint)
-          hex.GetComponent<Cell>().SetSpawner(true);
+        {
+          cellComp.SetSpawner(true);
+          cellComp.SetEmpty(false);
+        }
       }
       grid.Initialize();
 

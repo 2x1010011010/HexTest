@@ -15,13 +15,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     [SerializeField, BoxGroup("POINTS")] private List<Transform> _spawnPoints;
 
     [SerializeField, BoxGroup("POOL PARAMETERS")] private int _maxTilesInPool = 250;
-
+    
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _minTilesToSpawn = 3;
-
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxTilesToSpawn = 10;
-
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxColorsInStack = 3;
-
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private float _verticalShift = 0.5f;
 
     private LevelConfig _levelConfig;
@@ -33,6 +30,9 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     public void Initialize(LevelConfig levelConfig, ObjectPool<Cell> poolInstance, HexGrid grid)
     {
+      foreach (var spawnPoint in _spawnPoints)
+        spawnPoint.transform.SetParent(null);
+      
       _levelConfig = levelConfig;
       _stack = Resources.Load<GameObject>(AssetPaths.StackPrefab);
       _poolInstance = poolInstance;
@@ -53,6 +53,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     public void PrepareStack()
     {
+      _isSpawned = false;
       for (int i = 0; i < _spawnPoints.Count; i++)
       {
         var stack = GenerateStack(_spawnPoints[i]);
@@ -68,6 +69,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
         var aditionalStack = GenerateStack(cell.transform);
         aditionalStack.GetComponent<Stack>().SetActive(true);
+        cell.SetSpawner(false);
       }
       
       Spawn();
