@@ -34,7 +34,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
       if (_defaultParent == null)
         _defaultParent = parent;
-      
+
       _parentCell = parent.GetComponent<Cell>();
     }
 
@@ -70,7 +70,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       if (_stack.Count == 0)
         return Color.clear;
 
-      var lastCell = _stack.Last().GetComponent<Cell>();
+      var lastCell = Cells.Last();
       return lastCell != null ? lastCell.Color : Color.clear;
     }
 
@@ -80,32 +80,29 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     {
       if (_stack.Count < COLOR_THRESHOLD)
         return;
-      
-      var colorGroups = _stack
-        .Where(go => go != null)
-        .Select(go => go.GetComponent<Cell>())
-        .Where(cell => cell != null)
-        .GroupBy(cell => cell.Color)
-        .ToList();
 
-      foreach (var group in colorGroups)
+      List<Cell> colorGroups = new();
+      Color color = GetLastCellColor();
+      for (int i = _stack.Count - 1; i >= 0; i--)
       {
-        if (group.Count() >= COLOR_THRESHOLD)
-        {
-          foreach (var cell in group.ToList())
-          {
-            _stack.Remove(cell.gameObject);
-            cell.gameObject.SetActive(false);
-            _poolInstance?.ReturnObject(cell);
-          }
-
-          Debug.Log($"Removed {group.Count()} tiles of color {group.Key}");
-        }
+        if (Cells[i].Color != color) break;
+        colorGroups.Add(Cells[i]);
       }
+
+      if (colorGroups.Count < COLOR_THRESHOLD) return;
+      
+      foreach (var cell in colorGroups)
+      {
+        _stack.Remove(cell.gameObject);
+        cell.gameObject.SetActive(false);
+        _poolInstance?.ReturnObject(cell);
+      }
+
+      Debug.Log($"Removed {colorGroups.Count()} tiles of color {color}");
 
       if (_stack.Count == 0)
       {
-        var parent = Parent.GetComponent<Cell>();
+        var parent = _parentCell;
         parent?.ShineOff();
         parent?.SetEmpty(true);
         Clear();
