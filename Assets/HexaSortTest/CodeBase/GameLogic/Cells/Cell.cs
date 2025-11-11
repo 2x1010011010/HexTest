@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     public bool IsSpawner => _isSpawner;
     public bool IsActive => _isActive;
     public bool IsEmpty => _isEmpty;
+    public Stack Stack => GetComponentInChildren<Stack>();
     
     public Color Color
     {

@@ -49,7 +49,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       foreach (var cell in _grid.Cells)
       {
-        var stack = cell.GetComponentInChildren<Stack>();
+        var stack = cell.Stack;
         if (stack != null)
           _stacksOnGrid.Add(stack);
       }
@@ -61,7 +61,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     {
       foreach (var cell in _grid.Cells)
       {
-        var stack = cell.GetComponentInChildren<Stack>();
+        var stack = cell.Stack;
         if (stack == null) continue;
         if (_stacksOnGrid.Contains(stack)) continue;
 
@@ -81,7 +81,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       {
         merged = false;
         var stacks = _grid.Cells
-          .Where(c => c.GetComponentInChildren<Stack>() != null)
+          .Where(c => c.Stack != null)
           .ToList();
 
         foreach (var cell in stacks)
@@ -95,13 +95,13 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private bool ProcessMergesFromCell(Cell centerCell, bool recursiveCheck = true)
     {
       if (centerCell == null) return false;
-      var centerStack = centerCell.GetComponentInChildren<Stack>();
+      var centerStack = centerCell.Stack;
       if (centerStack == null) return false;
 
       bool mergedAny = false;
 
       var neighborCells = _neighbors[centerCell]
-        .Where(n => n != null && n.GetComponentInChildren<Stack>() != null)
+        .Where(n => n != null && n.Stack != null)
         .ToList();
 
       if (neighborCells.Count == 0) return false;
@@ -113,7 +113,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       var sameColorNeighbors = neighborCells
         .Where(n =>
         {
-          var s = n.GetComponentInChildren<Stack>();
+          var s = n.Stack;
           return s != null && s.GetLastCellColor() == baseColor;
         })
         .ToList();
@@ -123,7 +123,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       foreach (var neighbor in sameColorNeighbors)
       {
-        var neighborStack = neighbor.GetComponentInChildren<Stack>();
+        var neighborStack = neighbor.Stack;
         if (neighborStack == null) continue;
 
         var tilesToMove = GetCellsToMove(neighborStack, baseColor);
@@ -148,12 +148,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       var result = new List<Cell>();
       if (stack == null || stack.Tiles == null) return result;
 
-      for (int i = stack.Tiles.Count - 1; i >= 0; i--)
+      for (int i = stack.Cells.Count - 1; i >= 0; i--)
       {
-        var go = stack.Tiles[i];
-        if (go == null) break;
 
-        var cell = go.GetComponent<Cell>();
+        var cell = stack.Cells[i];
         if (cell == null || cell.Color != color)
           break;
 
@@ -169,7 +167,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var cell = cellsToMove[i];
         if (cell == null) continue;
 
-        var prevStack = cell.GetComponentInParent<Stack>();
+        var prevStack = cell.Stack;
         if (prevStack == null) continue;
 
         prevStack.Remove(cell.gameObject);
@@ -188,7 +186,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     {
       if (stack == null) return;
       _stacksOnGrid.Remove(stack);
-      var cell = stack.GetComponentInParent<Cell>();
+      var cell = stack.Cell;
       if (cell != null)
       {
         cell.SetEmpty(true);

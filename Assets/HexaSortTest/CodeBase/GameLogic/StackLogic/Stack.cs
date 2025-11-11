@@ -12,12 +12,15 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private Transform _parent;
     private Transform _defaultParent;
     private ObjectPool<Cell> _poolInstance;
+    private Cell _parentCell;
 
     private const int COLOR_THRESHOLD = 20;
 
     public IReadOnlyList<GameObject> Tiles => _stack;
+    public List<Cell> Cells => _stack.Select(go => go.GetComponent<Cell>()).ToList();
     public Transform Parent => _parent;
     public Transform DefaultParent => _defaultParent;
+    public Cell Cell => _parentCell;
 
     public void Initialize(ObjectPool<Cell> poolInstance)
     {
@@ -31,6 +34,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
       if (_defaultParent == null)
         _defaultParent = parent;
+      
+      _parentCell = parent.GetComponent<Cell>();
     }
 
     public void ResetParent()
