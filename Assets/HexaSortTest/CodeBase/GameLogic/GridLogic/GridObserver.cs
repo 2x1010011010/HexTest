@@ -131,7 +131,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var tilesToMove = GetCellsToMove(neighborStack, baseColor);
         if (tilesToMove.Count == 0) continue;
 
-        StartCoroutine(MoveNeighborStackToNewStack(centerStack, neighborStack));
+        MoveCellsToOtherStack(tilesToMove, centerStack);
         mergedAny = true;
       }
 
@@ -165,7 +165,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return result;
     }
 
-    /*private void MoveCellsToOtherStack(List<Cell> cellsToMove, Stack targetStack)
+    private void MoveCellsToOtherStack(List<Cell> cellsToMove, Stack targetStack)
     {
       for (int i = cellsToMove.Count - 1; i >= 0; i--)
       {
@@ -185,7 +185,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       }
 
       RecalcStackPositions(targetStack);
-    }*/
+    }
 
     private void RemoveStack(Stack stack)
     {
@@ -221,55 +221,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         .Where(c => c != null && c != cell)
         .ToList();
       return result;
-    }
-    
-    private IEnumerator AnimateCellToStack(Cell cell, Stack targetStack, float moveDuration = 0.4f)
-    {
-      if (cell == null || targetStack == null) yield break;
-
-      Vector3 startPos = cell.transform.position;
-      Vector3 endPos = targetStack.transform.position + Vector3.up * targetStack.Tiles.Count * 0.5f; 
-      Vector3 midPoint = (startPos + endPos) / 2 + Vector3.up * 2f; // дуга
-
-      bool completed = false;
-
-      Sequence seq = DOTween.Sequence();
-      seq.Append(cell.transform.DOPath(new Vector3[] { startPos, midPoint, endPos }, moveDuration, PathType.CatmullRom)
-        .SetEase(Ease.OutQuad));
-      seq.Join(cell.transform.DOLocalRotate(new Vector3(0, 180, 0), moveDuration, RotateMode.LocalAxisAdd)
-        .SetEase(Ease.OutQuad));
-      seq.OnComplete(() => completed = true);
-
-      yield return new WaitUntil(() => completed);
-
-      // После анимации вставляем клетку в новый стек
-      cell.SetParent(targetStack.transform);
-      targetStack.Add(cell.gameObject);
-    }
-
-    private IEnumerator MoveNeighborStackToNewStack(Stack sourceStack, Stack targetStack, float moveDuration = 0.4f, float delayBetween = 0.05f)
-    {
-      if (sourceStack == null || targetStack == null) yield break;
-
-      // Берем копию, чтобы не ломать оригинальный список
-      List<Cell> cellsToMove = sourceStack.Tiles
-        .Select(go => go.GetComponent<Cell>())
-        .Where(c => c != null)
-        .ToList();
-
-      foreach (var cell in cellsToMove)
-      {
-        sourceStack.Remove(cell.gameObject);
-
-        if (sourceStack.Tiles.Count == 0)
-          RemoveStack(sourceStack);
-
-        yield return StartCoroutine(AnimateCellToStack(cell, targetStack, moveDuration));
-        yield return new WaitForSeconds(delayBetween);
-      }
-
-      // После перелёта всех клеток пересчитываем позиции нового стека
-      RecalcStackPositions(targetStack);
     }
   }
 }
