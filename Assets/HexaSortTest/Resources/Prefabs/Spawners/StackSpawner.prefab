@@ -86,7 +86,7 @@ MonoBehaviour:
   _minTilesToSpawn: 5
   _maxTilesToSpawn: 10
   _maxColorsInStack: 3
-  _verticalShift: 1
+  _verticalShift: 0.5
 --- !u!1 &7668640480555875138
 GameObject:
   m_ObjectHideFlags: 0
