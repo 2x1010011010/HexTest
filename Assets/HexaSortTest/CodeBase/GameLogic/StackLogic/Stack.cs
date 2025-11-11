@@ -18,6 +18,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public void SetParent(Transform parent)
     {
       _parent = parent;
+      transform.SetParent(parent);
       
       if (_defaultParent == null)
         _defaultParent = parent;

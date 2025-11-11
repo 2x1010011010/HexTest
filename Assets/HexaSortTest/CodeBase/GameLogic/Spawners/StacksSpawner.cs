@@ -70,8 +70,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       {
         if (!cell.IsSpawner) continue;
 
-        var aditionalStack = GenerateStack(cell.transform);
-        aditionalStack.GetComponent<Stack>().SetActive(true);
+        var additionalStack = GenerateStack(cell.transform);
+        additionalStack.GetComponent<Stack>().SetActive(true);
         cell.SetSpawner(false);
       }
       
