@@ -9,7 +9,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class StackMover : MonoBehaviour
   {
-    public event Action<Stack> OnStackParentChange; 
+    public event Action<Stack> OnStackParentChange;
     
     [SerializeField, BoxGroup("SETUP")] private Stack _stack;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _gridLayer;
@@ -87,7 +87,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       var duration = distance / _movementSpeed;
       _stack.transform.DOMove(_stack.Parent.position + Vector3.up * 0.5f, duration).SetEase(Ease.Linear);
       _stack.Parent.GetComponent<Cell>()?.SetEmpty(false);
-      if (_stack.Parent.GetComponent<Cell>()) OnStackParentChange?.Invoke(_stack);
+      if (!_stack.Parent.GetComponent<Cell>()) return;
+      OnStackParentChange?.Invoke(_stack);
     }
 
     private Ray GetRay() =>
