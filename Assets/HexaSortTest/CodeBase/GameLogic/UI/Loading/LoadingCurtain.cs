@@ -21,7 +21,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Loading
     {
       while (_canvasGroup.alpha > 0)
       {
-        _canvasGroup.alpha -= 0.03f;
+        _canvasGroup.alpha -= 0.2f;
         yield return new WaitForSeconds(0.03f);
       }
       

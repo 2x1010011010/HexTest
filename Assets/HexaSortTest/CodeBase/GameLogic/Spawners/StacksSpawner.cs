@@ -85,6 +85,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
       Stack stack = stackObject.GetComponent<Stack>();
       stack.SetParent(parent);
+      stack.Initialize(_poolInstance);
 
       int tilesCount = Random.Range(_minTilesToSpawn, _maxTilesToSpawn);
       int firstColorTilesCount = Random.Range(0, tilesCount);
