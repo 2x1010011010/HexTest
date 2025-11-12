@@ -131,8 +131,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (sameColorNeighbors.Count == 0)
         return false;
 
-      List<Task> moveTasks = new();
-
       foreach (var neighbor in sameColorNeighbors)
       {
         var neighborStack = neighbor.GetComponentInChildren<Stack>();
@@ -141,12 +139,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var tilesToMove = GetCellsToMove(neighborStack, baseColor);
         if (tilesToMove.Count == 0) continue;
 
-        moveTasks.Add(MoveCellsToOtherStackAsync(tilesToMove, centerStack));
+        await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
         mergedAny = true;
       }
 
-      await Task.WhenAll(moveTasks);
-      
       if (mergedAny)
         await CheckAllStacksForColorThresholdAsync();
 
@@ -281,13 +277,12 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private async Task CheckAllStacksForColorThresholdAsync()
     {
-      var tasks = new List<Task>();
-      foreach (var stack in _stacksOnGrid.ToList())
+      var stacksSnapshot = _stacksOnGrid.ToList();
+      foreach (var stack in stacksSnapshot)
       {
         if (stack != null)
-          tasks.Add(stack.CheckForColorThreshold());
+          await stack.CheckForColorThreshold();
       }
-      await Task.WhenAll(tasks);
     }
 
     private List<Cell> GetNeighbors(Cell cell)
