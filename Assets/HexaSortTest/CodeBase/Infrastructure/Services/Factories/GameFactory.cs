@@ -3,6 +3,7 @@ using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
+using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -67,6 +68,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     public void CreateHud()
     {
       var instance = InstantiateRegistered(AssetPaths.HUD);
+      instance.GetComponent<HudObserver>().SetConfig(_currentLevelConfig.WinCondition);
       _instances.Add(instance);
     }
 

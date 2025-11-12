@@ -1,10 +1,13 @@
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
+using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Boosters;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
+using Random = UnityEngine.Random;
 
 namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 {
@@ -21,10 +24,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     //[SerializeField, BoxGroup("COINS COUNTER")] private TMP_Text _coinsCounter;
     [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _tilesCounter;
+    [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _winConditionText;
     [SerializeField, BoxGroup("TILES COUNTER")] private Slider _tilesCounterSlider;
 
     public static HudObserver Instance { get; private set; }
 
+    private int _winCondition;
     private int _coisnsCount;
     private int _tilesCount;
     private int _hammerBoosterCount;
@@ -35,7 +40,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     {
       if (Instance != null) Destroy(gameObject);
       Instance = this;
-
+      
       _hammerBoosterCount = 2;
       _handBoosterCount = 2;
       _coisnsCount = 0;
@@ -48,6 +53,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounterSlider.value = _tilesCount;
     }
 
+    public void SetConfig(int configWinCondition) => _winCondition = configWinCondition;
+
     private void OnEnable()
     {
       _hammerButton.OnHammerButtonClick += OnHammerButtonClick;
@@ -56,9 +63,19 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       Open();
     }
 
+    private void Start()
+    {
+      _tilesCounterSlider.maxValue = _winCondition;
+      _tilesCounterSliderFill = 0;
+      _winConditionText.text = ("/" +_winCondition).ToString();
+      _tilesCounter.text = _tilesCount.ToString();
+    }
+
     private void OnDisable()
     {
       Close();
+      _hammerButton.OnHammerButtonClick -= OnHammerButtonClick;
+      _handButton.OnHandButtonClick -= OnHandButtonClick;
     }
 
     private void OnHammerButtonClick(IBooster booster)
@@ -97,6 +114,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       {
         _tilesCounterSliderFill = 0;
         GetRandomBooster();
+        //win condition reached
       }
 
       _tilesCounterSlider.value = _tilesCounterSliderFill;
