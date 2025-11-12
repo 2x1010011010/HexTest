@@ -22,7 +22,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
         [typeof(BootstrapState)] = new BootstrapState(this, sceneLoader, serviceLocator, curtain),
         [typeof(LoadProgressState)] = new LoadProgressState(this, serviceLocator.Single<IPersistentProgressService>(), serviceLocator.Single<ISaveLoadService>()),
         [typeof(LoadLevelState)] = new LoadLevelState(this, sceneLoader, serviceLocator.Single<IGameFactory>(), serviceLocator.Single<IPersistentProgressService>()),
-        [typeof(GameLoopState)] = new GameLoopState(this, curtain, serviceLocator.Single<IUIListenerService>()),
+        [typeof(GameLoopState)] = new GameLoopState(this, curtain, serviceLocator.Single<IUIListenerService>(), serviceLocator.Single<IGameFactory>()),
       };
     }
     

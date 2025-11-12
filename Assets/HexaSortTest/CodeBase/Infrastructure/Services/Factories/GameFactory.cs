@@ -15,6 +15,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     private readonly IAssetProvider _assets;
     private readonly LevelConfigsList _levelConfigs;
     private LevelConfig _currentLevelConfig;
+    
+    private List<GameObject> _instances = new List<GameObject>();
 
     public List<IProgressReader> ProgressReaders { get; } = new List<IProgressReader>();
 
@@ -90,6 +92,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
     public void Clear()
     {
+      foreach (GameObject instance in _instances)
+      {
+        Object.Destroy(instance);
+      }
+      _instances.Clear();
       ProgressReaders.Clear();
       ProgressSavers.Clear();
     }
