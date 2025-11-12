@@ -11,7 +11,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
   public class StackMover : MonoBehaviour
   {
     public event Action<Stack> OnStackParentChange;
-    
+
     [SerializeField, BoxGroup("SETUP")] private Stack _stack;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _gridLayer;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _groundLayer;
@@ -25,13 +25,21 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private RaycastHit _hit;
     private Cell _currentGridCell;
     private Camera _camera;
-    
+
+    private bool _forcedDragByBooster = false;
+
     private void Awake() => _camera = Camera.main;
+
+    private void Update()
+    {
+      if (_isDragging)
+        Move();
+    }
 
     public void Move()
     {
       if (!_isDragging)
-        StartDrag();
+        StartDragInternal();
 
       if (!_isDragging) return;
       if (!GetHit()) return;
@@ -46,6 +54,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       AudioFacade.Instance.PlayOpen();
       transform.position = _stack.Parent.position + Vector3.up * 0.5f;
       _isDragging = false;
+      _forcedDragByBooster = false;
       _stack.SetDragged(_isDragging);
       MoveToParent();
     }
@@ -53,13 +62,13 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public void Click()
     {
       if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
-      //TO DO Click on stack animation
     }
 
-    private void StartDrag()
+    private void StartDragInternal()
     {
       AudioFacade.Instance.PlayClick();
-      if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
+      if (_stack.Parent.GetComponentInParent<HexGrid>() && !_forcedDragByBooster) return;
+
       _isDragging = true;
       _stack.SetDragged(_isDragging);
       _startPosition = _stack.Parent.position;
@@ -76,7 +85,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
         var cell = hitToCell.collider.GetComponent<Cell>();
         if (!cell.IsEmpty) return;
-        
+
         cell.ShineOn();
         _currentGridCell = cell;
         _stack.SetParent(cell.transform);
@@ -110,5 +119,16 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     private bool GetHit() =>
       Physics.Raycast(GetRay(), out _hit, 100);
+    
+    public void StartDragFromBooster()
+    {
+      _forcedDragByBooster = true;
+      StartDragInternal();
+    }
+
+    public void DropFromBooster()
+    {
+      Drop();
+    }
   }
 }

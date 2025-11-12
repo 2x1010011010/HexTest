@@ -1482,6 +1482,7 @@ GameObject:
   - component: {fileID: 4051229811452877379}
   - component: {fileID: 2976454790927663584}
   - component: {fileID: 2360695521417942673}
+  - component: {fileID: 7973592694783790603}
   m_Layer: 0
   m_Name: Hammer
   m_TagString: Untagged
@@ -1605,6 +1606,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.HammerButton
   _button: {fileID: 2976454790927663584}
+  _hammerBooster: {fileID: 7973592694783790603}
+--- !u!114 &7973592694783790603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4011625657645036055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41dc0e1e50974fbea12ff99f718abdc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Boosters.HammerBooster
+  _punchScale: 1.5
+  _punchDuration: 0.4
 --- !u!1 &4168937702809598729
 GameObject:
   m_ObjectHideFlags: 0
@@ -1938,6 +1954,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6730002849048569873}
   - component: {fileID: 1897866087542758054}
+  - component: {fileID: 9138167217524562760}
   m_Layer: 0
   m_Name: HUD
   m_TagString: Untagged
@@ -1974,10 +1991,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1eea3bedb5347a0b23fc7b579c4bb51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.HudObserver
-  _settingsButton: {fileID: 0}
-  _musicSwitchButton: {fileID: 0}
-  _soundFxSwitchButton: {fileID: 0}
-  _settingsPanel: {fileID: 0}
+  _boosterTools: {fileID: 9138167217524562760}
   _hammerButton: {fileID: 2360695521417942673}
   _hammerCounterImage: {fileID: 4326875402890620845}
   _handButton: {fileID: 2645097333320019427}
@@ -1986,6 +2000,24 @@ MonoBehaviour:
   _handBoostaerCounter: {fileID: 5859929703249568370}
   _tilesCounter: {fileID: 90745094605889681}
   _tilesCounterSlider: {fileID: 6200364540012284701}
+--- !u!114 &9138167217524562760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5762449610187230462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05b0d6bbbeb74c31aa59040fe1346a9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Boosters.BoosterTools
+  _hammerBooster: {fileID: 7973592694783790603}
+  _handBooster: {fileID: 2517389441453015717}
+  _stackLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  _camera: {fileID: 0}
 --- !u!1 &6269817082273129661
 GameObject:
   m_ObjectHideFlags: 0
@@ -2253,6 +2285,7 @@ GameObject:
   - component: {fileID: 7133031096340961894}
   - component: {fileID: 7550792341309847270}
   - component: {fileID: 2645097333320019427}
+  - component: {fileID: 2517389441453015717}
   m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
@@ -2376,6 +2409,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.HandButton
   _button: {fileID: 7550792341309847270}
+  _handBooster: {fileID: 2517389441453015717}
+--- !u!114 &2517389441453015717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8000823786351033976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf4f6c3a3ea749eeb4140a8f8f4e8977, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Boosters.HandBooster
 --- !u!1 &8098311704725201667
 GameObject:
   m_ObjectHideFlags: 0

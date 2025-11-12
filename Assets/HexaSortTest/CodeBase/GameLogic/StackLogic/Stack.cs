@@ -7,12 +7,13 @@ using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
+using Sirenix.OdinInspector;
 
 namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class Stack : MonoBehaviour
   {
-    [SerializeField] private List<GameObject> _stack = new();
+    [SerializeField, BoxGroup("STACK SETUP")] private List<GameObject> _stack = new();
     private Transform _parent;
     private Transform _defaultParent;
     private ObjectPool<Cell> _poolInstance;
@@ -68,7 +69,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         if (go != null)
           go.SetActive(active);
     }
-    
+
     public void SetDragged(bool dragged) => 
       _isDragged = dragged;
 
@@ -138,7 +139,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
 
       Debug.Log($"Removed {colorGroups.Count} tiles of color {color}");
-      
+
       float totalAnimationTime = delay + scaleDuration;
       await Task.Delay(Mathf.RoundToInt(totalAnimationTime * 1000f));
 
@@ -155,6 +156,54 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         Clear();
         Destroy(gameObject);
       }
+    }
+    
+    public async Task BreakStackByHammer(float punchScale = 1.5f, float duration = 0.4f)
+    {
+      if (_stack.Count == 0)
+      {
+        CheckForEmptyStack();
+        return;
+      }
+      
+      var tiles = Cells.Where(c => c != null).ToList();
+
+      float delay = 0f;
+      float pauseBetween = 0.05f;
+
+      foreach (var cell in tiles)
+      {
+        if (cell == null) continue;
+
+        _stack.Remove(cell.gameObject);
+        var startScale = cell.transform.localScale;
+
+        cell.transform.DOPunchScale(Vector3.one * punchScale, duration / 2f, 8, 0.5f)
+          .OnStart(() => AudioFacade.Instance.PlayClose());
+
+        cell.transform.DOScale(Vector3.zero, duration)
+          .SetDelay(delay)
+          .SetEase(Ease.InBack)
+          .OnStart(() =>
+          {
+            HudObserver.Instance.AddTiles(1);
+          })
+          .OnComplete(() =>
+          {
+            cell.SetActive(false);
+            cell.transform.localScale = startScale;
+            cell.transform.position = Vector3.zero;
+            cell.Color = Color.white;
+            _poolInstance?.ReturnObject(cell);
+          });
+
+        delay += pauseBetween;
+      }
+
+      float totalTime = delay + duration;
+      await Task.Delay(Mathf.RoundToInt(totalTime * 1000f));
+
+      CheckForEmptyStack();
     }
   }
 }
