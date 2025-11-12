@@ -107,8 +107,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
 
       float delay = 0f;
-      float pauseBetween = 0.2f;
-      float scaleDuration = 0.5f;
+      float pauseBetween = 0.1f;
+      float scaleDuration = 0.8f;
 
       foreach (var cell in colorGroups)
       {

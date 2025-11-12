@@ -248,8 +248,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       }
 
       float delay = 0f;
-      float pauseBetween = 0.3f;
-      float moveDuration = 0.5f;
+      float pauseBetween = 0.2f;
+      float moveDuration = 0.4f;
 
       int completed = 0;
       int total = movedTiles.Count;

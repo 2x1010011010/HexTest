@@ -9,11 +9,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 {
   public class HudObserver : UIWindow
   {
-    [SerializeField, BoxGroup("SETTINGS BUTTON")] private SettingsButton _settingsButton;
-    [SerializeField, BoxGroup("SETTINGS BUTTON")] private MusicSwitchButton _musicSwitchButton;
-    [SerializeField, BoxGroup("SETTINGS BUTTON")] private SoundFxSwitchButton _soundFxSwitchButton;
-    [SerializeField, BoxGroup("SETTINGS BUTTON")] private SettingsPanel _settingsPanel;
-    
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HammerButton _hammerButton;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _hammerCounterImage;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HandButton _handButton;
