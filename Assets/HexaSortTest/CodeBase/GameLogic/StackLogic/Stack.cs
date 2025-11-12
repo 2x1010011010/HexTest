@@ -5,6 +5,7 @@ using DG.Tweening;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
+using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 
 namespace HexaSortTest.CodeBase.GameLogic.StackLogic
@@ -119,7 +120,11 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         cell.transform.DOScale(Vector3.zero, scaleDuration)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
-          .OnStart(() => AudioFacade.Instance.PlayClose())
+          .OnStart(() =>
+          {
+            AudioFacade.Instance.PlayClose();
+            HudObserver.Instance.AddTiles(1);
+          })
           .OnComplete(() =>
           {
             cell.SetActive(false);

@@ -15,21 +15,29 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     [SerializeField, BoxGroup("SETTINGS BUTTON")] private SettingsPanel _settingsPanel;
     
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HammerButton _hammerButton;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _hammerCounterImage;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HandButton _handButton;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _handCounterImage;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _hammerBoosterCounter;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _handBoostaerCounter;
     
     //[SerializeField, BoxGroup("COINS COUNTER")] private TMP_Text _coinsCounter;
     [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _tilesCounter;
     [SerializeField, BoxGroup("TILES COUNTER")] private Slider _tilesCounterSlider;
-    
+
+    public static HudObserver Instance { get; private set; }
+
     private int _coisnsCount;
     private int _tilesCount;
     private int _hammerBoosterCount;
     private int _handBoosterCount;
+    private int _tilesCounterSliderFill = 0;
     
     private void Awake()
     {
+      if (Instance != null) Destroy(gameObject);
+      Instance = this;
+      
       _hammerBoosterCount = 2;
       _handBoosterCount = 2;
       _coisnsCount = 0;
@@ -75,9 +83,46 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     {
       
     }
-    
+
+    public void AddTiles(int value)
+    {
+      OnTilesCounterChanged(value);
+    }
+
     private void OnTilesCounterChanged(int value)
     {
+      _tilesCount += value;
+      _tilesCounter.text = _tilesCount.ToString();
+      _tilesCounterSliderFill += value;
+      if (_tilesCounterSliderFill >= _tilesCounterSlider.maxValue)
+      {
+        _tilesCounterSliderFill = 0;
+        GetRandomBooster();
+      }
+      
+      _tilesCounterSlider.value = _tilesCounterSliderFill;
+    }
+
+    private void GetRandomBooster()
+    {
+      var randomBooster = Random.Range(0, 2);
+      switch (randomBooster)
+      {
+        case 0:
+          _hammerCounterImage.transform
+            .DOPunchScale(Vector3.one * 2f, 0.5f, 10, 0.5f)
+            .SetEase(Ease.OutBounce);
+          _hammerBoosterCount++;
+          _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
+          break;
+        case 1:
+          _handCounterImage.transform
+            .DOPunchScale(Vector3.one * 2f, 0.5f, 10, 0.5f)
+            .SetEase(Ease.OutBounce);
+          _handBoosterCount++;
+          _handBoostaerCounter.text = _handBoosterCount.ToString();
+          break;
+      }
     }
   }
 }

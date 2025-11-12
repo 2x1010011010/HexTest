@@ -509,8 +509,8 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
-  m_WholeNumbers: 0
+  m_MaxValue: 250
+  m_WholeNumbers: 1
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1979,7 +1979,9 @@ MonoBehaviour:
   _soundFxSwitchButton: {fileID: 0}
   _settingsPanel: {fileID: 0}
   _hammerButton: {fileID: 2360695521417942673}
+  _hammerCounterImage: {fileID: 4326875402890620845}
   _handButton: {fileID: 2645097333320019427}
+  _handCounterImage: {fileID: 798576951410677622}
   _hammerBoosterCounter: {fileID: 5628681648913366698}
   _handBoostaerCounter: {fileID: 5859929703249568370}
   _tilesCounter: {fileID: 90745094605889681}
