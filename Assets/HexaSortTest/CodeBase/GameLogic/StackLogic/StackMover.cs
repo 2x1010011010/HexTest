@@ -3,6 +3,7 @@ using UnityEngine;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
+using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using Sirenix.OdinInspector;
 
 namespace HexaSortTest.CodeBase.GameLogic.StackLogic
@@ -42,6 +43,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public void Drop()
     {
+      AudioFacade.Instance.PlayOpen();
       transform.position = _stack.Parent.position + Vector3.up * 0.5f;
       _isDragging = false;
       _stack.SetDragged(_isDragging);
@@ -56,6 +58,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     private void StartDrag()
     {
+      AudioFacade.Instance.PlayClick();
       if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
       _isDragging = true;
       _stack.SetDragged(_isDragging);

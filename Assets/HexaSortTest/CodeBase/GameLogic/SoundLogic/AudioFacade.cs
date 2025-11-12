@@ -34,7 +34,7 @@ namespace HexaSortTest.CodeBase.GameLogic.SoundLogic
     public void PlayOpen() => PlayFX(_sounds[1]);
     public void PlayClose() => PlayFX(_sounds[2]);
     public void PlaySort() => PlayFX(_sounds[3]);
-    public void PlayShuffle() => PlayFX(_sounds[4]);
+    public void PlaySpawn() => PlayFX(_sounds[4]);
 
     public void SetMusicEnabled(bool enabled)
     {

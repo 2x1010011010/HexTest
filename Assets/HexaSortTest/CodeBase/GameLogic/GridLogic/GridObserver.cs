@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.Data;
+using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
@@ -275,9 +276,15 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         Quaternion prefabRotation = Quaternion.Euler(90f, 90f, 0f);
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection) * Quaternion.Euler(270f, 90f, 0f);
 
+        AudioFacade.Instance.PlaySort();
+        
         go.transform.DOPath(path, moveDuration, PathType.CatmullRom)
           .SetDelay(delay)
-          .SetEase(Ease.InOutSine);
+          .SetEase(Ease.InOutSine)
+          .OnStart(() =>
+          {
+            AudioFacade.Instance.PlaySort();
+          });
 
         go.transform.DORotateQuaternion(targetRotation, moveDuration)
           .SetDelay(delay)

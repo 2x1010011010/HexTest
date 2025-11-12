@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
+using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
@@ -47,6 +48,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       _isSpawned = true;
       for (int i = 0; i < _spawnPoints.Count; i++)
       {
+        AudioFacade.Instance.PlaySpawn();
         _spawnedStacks[i].GetComponent<Stack>().SetActive(true);
       }
 
