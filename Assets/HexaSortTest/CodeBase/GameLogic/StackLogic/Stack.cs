@@ -15,6 +15,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private Transform _defaultParent;
     private ObjectPool<Cell> _poolInstance;
     private Cell _parentCell;
+    private bool _isDragged;
 
     private const int COLOR_THRESHOLD = 20;
 
@@ -23,6 +24,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public Transform Parent => _parent;
     public Transform DefaultParent => _defaultParent;
     public Cell Cell => _parentCell;
+    public bool IsDragged => _isDragged;
 
     public void Initialize(ObjectPool<Cell> poolInstance)
     {
@@ -64,6 +66,9 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         if (go != null)
           go.SetActive(active);
     }
+    
+    public void SetDragged(bool dragged) => 
+      _isDragged = dragged;
 
     public Color GetLastCellColor()
     {
@@ -115,8 +120,10 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
           {
-            cell.gameObject.SetActive(false);
+            cell.SetActive(false);
             cell.transform.localScale = startScale;
+            cell.transform.position = Vector3.zero;
+            cell.Color = Color.white;
             _poolInstance?.ReturnObject(cell);
           });
 

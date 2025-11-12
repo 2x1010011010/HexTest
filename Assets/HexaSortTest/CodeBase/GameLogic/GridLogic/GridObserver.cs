@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
+using HexaSortTest.CodeBase.GameLogic.Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
@@ -52,7 +53,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       foreach (var cell in _grid.Cells)
       {
         var stack = cell.GetComponentInChildren<Stack>();
-        if (stack != null)
+        if (stack != null && !stack.IsDragged)
           _stacksOnGrid.Add(stack);
       }
 
@@ -64,7 +65,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       foreach (var cell in _grid.Cells)
       {
         var stack = cell.GetComponentInChildren<Stack>();
-        if (stack == null) continue;
+        if (stack.IsDestroyed()) continue;
         if (_stacksOnGrid.Contains(stack)) continue;
 
         _stacksOnGrid.Add(stack);
@@ -83,7 +84,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       {
         merged = false;
         var stacks = _grid.Cells
-          .Where(c => c.GetComponentInChildren<Stack>() != null)
+          .Where(c => c.GetComponentInChildren<Stack>() != null && !c.GetComponentInChildren<Stack>().IsDragged)
           .ToList();
 
         foreach (var cell in stacks)

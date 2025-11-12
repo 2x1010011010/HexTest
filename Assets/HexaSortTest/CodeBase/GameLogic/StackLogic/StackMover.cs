@@ -44,6 +44,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     {
       transform.position = _stack.Parent.position + Vector3.up * 0.5f;
       _isDragging = false;
+      _stack.SetDragged(_isDragging);
       MoveToParent();
     }
 
@@ -57,6 +58,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     {
       if (_stack.Parent.GetComponentInParent<HexGrid>()) return;
       _isDragging = true;
+      _stack.SetDragged(_isDragging);
       _startPosition = _stack.Parent.position;
       _stack.transform.position = _stack.Parent.position + Vector3.up * _verticalShift;
     }
