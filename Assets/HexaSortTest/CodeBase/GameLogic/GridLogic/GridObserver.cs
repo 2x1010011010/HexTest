@@ -39,7 +39,11 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       {
         if (RescanForNewStacks(out var newCell))
         {
+          ScanAndRegisterStacks();
           _lastAddedCell = newCell;
+          foreach (var stack in _stacksOnGrid)
+            stack.transform.position = stack.Parent.position;
+          
           await ProcessMergesFromCellAsync(_lastAddedCell);
         }
       }
@@ -172,7 +176,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (cellsToMove == null || targetStack == null) return;
 
       List<GameObject> movedTiles = new List<GameObject>();
-      List<Vector3> moveDirections = new List<Vector3>();
+      Vector3 moveDirection = Vector3.forward;
       Stack prevStack = null;
 
       for (int i = cellsToMove.Count - 1; i >= 0; i--)
@@ -191,10 +195,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         Vector3 direction = (targetStack.transform.position - prevStack.transform.position).normalized;
 
         movedTiles.Add(cell.gameObject);
-        moveDirections.Add(direction);
+        moveDirection = direction;
       }
 
-      await RecalcStackPositionsAsync(targetStack, movedTiles, moveDirections);
+      await RecalcStackPositionsAsync(targetStack, movedTiles, moveDirection);
 
       targetStack.CheckForColorThreshold();
     }
@@ -213,10 +217,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       Destroy(stack.gameObject);
     }
 
-    private Task RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, List<Vector3> moveDirections)
+    private Task RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, Vector3 moveDirection)
     {
       var tcs = new TaskCompletionSource<bool>();
-      if (stack == null || movedTiles == null || moveDirections == null)
+      if (stack == null || movedTiles == null || moveDirection == null)
       {
         tcs.SetResult(true);
         return tcs.Task;
@@ -249,8 +253,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         Vector3[] path = new Vector3[] { startPosition, aboveOldStack, aboveNewStack, targetPosition };
 
         Quaternion prefabRotation = Quaternion.Euler(90f, 90f, 0f);
-        Vector3 direction = moveDirections[i];
-        Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up) * prefabRotation;
+        Quaternion targetRotation = Quaternion.LookRotation(moveDirection) * Quaternion.Euler(270f, 90f, 0f);
 
         var moveTween = go.transform.DOPath(path, moveDuration, PathType.CatmullRom)
           .SetDelay(delay)

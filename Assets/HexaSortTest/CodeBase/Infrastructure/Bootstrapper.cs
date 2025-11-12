@@ -15,6 +15,7 @@ namespace HexaSortTest.CodeBase.Infrastructure
     {
       Application.targetFrameRate = 60;
       Screen.orientation = ScreenOrientation.Portrait;
+      Input.multiTouchEnabled = false;
      
       _game = new Game(this, _loadingCurtain);
       _game.StateMachine.Enter<BootstrapState>();

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.Cells;
@@ -75,41 +76,62 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public void Clear() => _stack.Clear();
 
-    public void CheckForColorThreshold()
+    public async Task CheckForColorThreshold()
     {
       if (_stack.Count < COLOR_THRESHOLD)
+      {
+        CheckForEmptyStack();
         return;
+      }
 
       List<Cell> colorGroups = new();
       Color color = GetLastCellColor();
+
       for (int i = _stack.Count - 1; i >= 0; i--)
       {
         if (Cells[i].Color != color) break;
         colorGroups.Add(Cells[i]);
       }
 
-      if (colorGroups.Count < COLOR_THRESHOLD) return;
+      if (colorGroups.Count < COLOR_THRESHOLD)
+      {
+        CheckForEmptyStack();
+        return;
+      }
+
+      float delay = 0.3f;
+      float pauseBetween = 0.2f;
+      float scaleDuration = 0.7f;
 
       foreach (var cell in colorGroups)
       {
+        if (cell == null) continue;
+
         _stack.Remove(cell.gameObject);
         var startScale = cell.transform.localScale;
-        cell.transform.DOScale(Vector3.zero, 0.7f)
-          .SetDelay(0.2f)
+
+        cell.transform.DOScale(Vector3.zero, scaleDuration)
+          .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
           {
             cell.gameObject.SetActive(false);
-            cell.transform.DOScale(startScale, 0.2f).SetEase(Ease.Linear);
+            cell.transform.localScale = startScale;
             _poolInstance?.ReturnObject(cell);
-            CheckForEmptyStack();
           });
+
+        delay += pauseBetween;
       }
 
-      Debug.Log($"Removed {colorGroups.Count()} tiles of color {color}");
+      Debug.Log($"Removed {colorGroups.Count} tiles of color {color}");
+      
+      float totalAnimationTime = delay + scaleDuration;
+      await Task.Delay(Mathf.RoundToInt(totalAnimationTime * 1000f));
+
+      CheckForEmptyStack();
     }
-    
-    private void CheckForEmptyStack() 
+
+    private void CheckForEmptyStack()
     {
       if (_stack.Count == 0)
       {

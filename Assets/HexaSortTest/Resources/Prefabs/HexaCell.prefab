@@ -49,6 +49,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 2766082983859805092}
   _isSpawner: 0
+  _isActive: 0
+  _isEmpty: 0
 --- !u!64 &4186776061567559479
 MeshCollider:
   m_ObjectHideFlags: 0

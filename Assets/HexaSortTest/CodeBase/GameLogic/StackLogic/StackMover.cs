@@ -91,8 +91,16 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       OnStackParentChange?.Invoke(_stack);
     }
 
-    private Ray GetRay() =>
-      _camera.ScreenPointToRay(Input.mousePosition);
+    private Ray GetRay()
+    {
+#if UNITY_EDITOR
+      return _camera.ScreenPointToRay(Input.mousePosition);
+#else
+    if (Input.touchCount > 0)
+        return _camera.ScreenPointToRay(Input.GetTouch(0).position);
+    return _camera.ScreenPointToRay(Input.mousePosition);
+#endif
+    }
 
     private bool GetHit() =>
       Physics.Raycast(GetRay(), out _hit, 100);
