@@ -1,10 +1,8 @@
-using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
-using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Boosters;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using Random = UnityEngine.Random;
@@ -122,17 +120,26 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     private void GetRandomBooster()
     {
-      var randomBooster = Random.Range(0, 2);
+      var randomBooster = Random.Range(0, 32);
       switch (randomBooster)
       {
         case 0:
+        case 5:
+        case 12:
+        case 23:
+        case 29:
           _hammerCounterImage.transform
             .DOPunchScale(Vector3.one * 2f, 0.5f, 10, 0.5f)
             .SetEase(Ease.OutBounce);
           _hammerBoosterCount++;
           _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
           break;
+        
         case 1:
+        case 8:
+        case 15:
+        case 24:
+        case 26:
           _handCounterImage.transform
             .DOPunchScale(Vector3.one * 2f, 0.5f, 10, 0.5f)
             .SetEase(Ease.OutBounce);

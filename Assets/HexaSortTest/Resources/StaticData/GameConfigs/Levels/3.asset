@@ -22,3 +22,4 @@ MonoBehaviour:
   - {r: 0.7207546, g: 0.11287284, b: 0.7207546, a: 0}
   <GridPrefab>k__BackingField: {fileID: 5100780322026002613, guid: 75f10c323b1a3dd4298fe1298ae5daf8, type: 3}
   <FieldOfView>k__BackingField: 50
+  <WinCondition>k__BackingField: 350
