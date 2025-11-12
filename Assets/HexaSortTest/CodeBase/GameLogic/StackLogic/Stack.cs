@@ -104,9 +104,9 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         return;
       }
 
-      float delay = 0.3f;
+      float delay = 0f;
       float pauseBetween = 0.2f;
-      float scaleDuration = 0.7f;
+      float scaleDuration = 0.25f;
 
       foreach (var cell in colorGroups)
       {
