@@ -42,6 +42,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         {
           _lastAddedCell = newCell;
           await ProcessMergesFromCellAsync(_lastAddedCell);
+          await CheckForLoseConditionAsync();
         }
       }
     }
@@ -99,6 +100,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       } while (merged);
 
       await CheckAllStacksForColorThresholdAsync();
+      await CheckForLoseConditionAsync(); // <-- проверка проигрыша после всех действий
     }
 
     private async Task<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
@@ -108,8 +110,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (centerStack == null || centerStack.IsDragged) return false;
 
       bool mergedAny = false;
-
       bool keepMerging;
+
       do
       {
         keepMerging = false;
@@ -314,6 +316,37 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         .Where(c => c != null && c != cell)
         .ToList();
       return result;
+    }
+    
+    private async Task CheckForLoseConditionAsync()
+    {
+      bool allFilled = _grid.Cells.All(c => !c.IsEmpty);
+
+      if (!allFilled) return;
+
+      foreach (var cell in _grid.Cells)
+      {
+        var stack = cell.GetComponentInChildren<Stack>();
+        if (stack == null) continue;
+
+        var color = stack.GetLastCellColor();
+        foreach (var neighbor in _neighbors[cell])
+        {
+          var neighborStack = neighbor.GetComponentInChildren<Stack>();
+          if (neighborStack == null) continue;
+          if (neighborStack.GetLastCellColor() == color)
+            return;
+        }
+      }
+
+      await ShowLosePopupAsync();
+    }
+
+    private Task ShowLosePopupAsync()
+    {
+      Debug.Log("Game Over! Showing restart popup.");
+
+      return Task.CompletedTask;
     }
   }
 }
