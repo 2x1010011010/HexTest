@@ -5,6 +5,7 @@ using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.InputService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
+using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
@@ -41,19 +42,19 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void RegisterServices()
     {
-      _serviceLocator.RegisterSingle<IInputService>(InputService());
       _serviceLocator.RegisterSingle<IAssetProvider>(new AssetProvider());
       _serviceLocator.RegisterSingle<IPersistentProgressService>(new PersistentProgressService());
       _serviceLocator.RegisterSingle<IGameFactory>(new GameFactory(_serviceLocator.Single<IAssetProvider>()));
       _serviceLocator.RegisterSingle<ISaveLoadService>(new SaveLoadService(_serviceLocator.Single<IPersistentProgressService>(), _serviceLocator.Single<IGameFactory>()));
+      _serviceLocator.RegisterSingle<IUIListenerService>(new RestartLevelService());
     }
 
-    private static IInputService InputService()
+    /*private static IInputService InputService()
     {
       if (Application.isMobilePlatform)
         return new MobileInputService();
       else
         return new DesktopInputService();
-    }
+    }*/
   }
 }

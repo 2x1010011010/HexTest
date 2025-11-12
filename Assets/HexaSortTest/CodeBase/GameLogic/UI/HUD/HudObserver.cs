@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 {
-  public class HudObserver : MonoBehaviour
+  public class HudObserver : UIWindow
   {
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HammerButton _hammerButton;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HandButton _handButton;
@@ -15,11 +15,15 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     
     private void OnEnable()
     {
+      _hammerButton.OnHammerButtonClick += OnHammerButtonClick;
+      _handButton.OnHandButtonClick += OnHandButtonClick;
       
+      Open();
     }
-    
+
     private void OnDisable()
     {
+      Close();
     }
 
     private void OnHammerButtonClick()
