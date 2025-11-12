@@ -104,47 +104,56 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       bool mergedAny = false;
 
-      var neighborCells = _neighbors[centerCell]
-        .Where(n => n != null && n.GetComponentInChildren<Stack>() != null)
-        .ToList();
-
-      if (neighborCells.Count == 0) return false;
-
-      Color baseColor;
-      try
+      bool keepMerging;
+      do
       {
-        baseColor = centerStack.GetLastCellColor();
-      }
-      catch
-      {
-        return false;
-      }
+        keepMerging = false;
 
-      var sameColorNeighbors = neighborCells
-        .Where(n =>
+        var neighborCells = _neighbors[centerCell]
+          .Where(n => n != null && n.GetComponentInChildren<Stack>() != null)
+          .ToList();
+
+        if (neighborCells.Count == 0)
+          break;
+
+        Color baseColor;
+        try
         {
-          var s = n.GetComponentInChildren<Stack>();
-          return s != null && s.GetLastCellColor() == baseColor;
-        })
-        .ToList();
+          baseColor = centerStack.GetLastCellColor();
+        }
+        catch
+        {
+          break;
+        }
 
-      if (sameColorNeighbors.Count == 0)
-        return false;
+        var sameColorNeighbors = neighborCells
+          .Where(n =>
+          {
+            var s = n.GetComponentInChildren<Stack>();
+            return s != null && s.GetLastCellColor() == baseColor;
+          })
+          .ToList();
 
-      foreach (var neighbor in sameColorNeighbors)
-      {
-        var neighborStack = neighbor.GetComponentInChildren<Stack>();
-        if (neighborStack == null) continue;
+        if (sameColorNeighbors.Count == 0)
+          break;
 
-        var tilesToMove = GetCellsToMove(neighborStack, baseColor);
-        if (tilesToMove.Count == 0) continue;
+        foreach (var neighbor in sameColorNeighbors)
+        {
+          var neighborStack = neighbor.GetComponentInChildren<Stack>();
+          if (neighborStack == null) continue;
 
-        await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
-        mergedAny = true;
-      }
+          var tilesToMove = GetCellsToMove(neighborStack, baseColor);
+          if (tilesToMove.Count == 0) continue;
 
-      if (mergedAny)
-        await CheckAllStacksForColorThresholdAsync();
+          await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
+          mergedAny = true;
+          keepMerging = true;
+        }
+
+        await centerStack.CheckForColorThreshold();
+
+        centerStack = centerCell.GetComponentInChildren<Stack>();
+      } while (keepMerging && centerStack != null && centerStack.Tiles.Count > 0);
 
       if (mergedAny && recursiveCheck)
         await CheckAllStacksForMergesAsync();
