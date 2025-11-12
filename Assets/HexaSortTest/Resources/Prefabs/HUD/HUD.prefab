@@ -1619,7 +1619,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41dc0e1e50974fbea12ff99f718abdc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Boosters.HammerBooster
-  _punchScale: 1.5
+  _punchScale: 0.042
   _punchDuration: 0.4
 --- !u!1 &4168937702809598729
 GameObject:
@@ -2017,7 +2017,6 @@ MonoBehaviour:
   _stackLayer:
     serializedVersion: 2
     m_Bits: 256
-  _camera: {fileID: 0}
 --- !u!1 &6269817082273129661
 GameObject:
   m_ObjectHideFlags: 0

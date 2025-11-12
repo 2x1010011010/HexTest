@@ -123,6 +123,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public void StartDragFromBooster()
     {
       _forcedDragByBooster = true;
+      var cell = _stack.Parent.GetComponent<Cell>();
+      cell.SetEmpty(true);
       StartDragInternal();
     }
 

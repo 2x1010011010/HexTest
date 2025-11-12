@@ -158,7 +158,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
     }
     
-    public async Task BreakStackByHammer(float punchScale = 1.5f, float duration = 0.4f)
+    public async Task BreakStackByHammer(float punchScale, float duration)
     {
       if (_stack.Count == 0)
       {
@@ -166,7 +166,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         return;
       }
       
-      var tiles = Cells.Where(c => c != null).ToList();
+      var tiles = Cells.Where(c => c != null).Reverse().ToList();
 
       float delay = 0f;
       float pauseBetween = 0.05f;

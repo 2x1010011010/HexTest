@@ -6,7 +6,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
 {
   public class HammerBooster : MonoBehaviour, IBooster
   {
-    [SerializeField, BoxGroup("SETUP")] private float _punchScale = 1.5f;
+    [SerializeField, BoxGroup("SETUP")] private float _punchScale = 1.01f;
     [SerializeField, BoxGroup("SETUP")] private float _punchDuration = 0.4f;
 
     public async void BoosterAction(Stack target)
