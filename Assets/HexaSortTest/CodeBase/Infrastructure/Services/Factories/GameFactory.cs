@@ -38,6 +38,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
         var cellPrefab = _assets.Instantiate(AssetPaths.CellPrefab);
         cellPoolInstance.AddToPool(cellPrefab.GetComponent<Cell>());
       }
+      
+      _instances.Add(container.gameObject);
 
       return cellPoolInstance;
     }
@@ -49,6 +51,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var configIndex = Random.Range(0, _levelConfigs.Levels.Count);
       _currentLevelConfig = _levelConfigs.Levels[configIndex];
       gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
+      
+      _instances.Add(gridSpawnerObject);
+      
       return gridSpawner;
     }
 
@@ -56,11 +61,21 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     {
       var stacksSpawnerObject = InstantiateRegistered(AssetPaths.StackSpawner);
       stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig, poolInstance, grid);
+      _instances.Add(stacksSpawnerObject);
     }
 
-    public void CreateHud() => 
-      InstantiateRegistered(AssetPaths.HUD);
-    
+    public void CreateHud()
+    {
+      var instance = InstantiateRegistered(AssetPaths.HUD);
+      _instances.Add(instance);
+    }
+
+    public void CreateMainMenu()
+    {
+      var instance = InstantiateRegistered(AssetPaths.MainMenuPath);
+      _instances.Add(instance);
+    }
+
 
     private GameObject InstantiateRegistered(string path)
     {
