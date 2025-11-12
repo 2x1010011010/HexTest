@@ -148,7 +148,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           var tilesToMove = GetCellsToMove(neighborStack, baseColor);
           if (tilesToMove.Count == 0) continue;
 
-          await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
+          await MoveCellsToOtherStackSequentialAsync(tilesToMove, centerStack);
+
           mergedAny = true;
           keepMerging = true;
         }
@@ -187,13 +188,12 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return result;
     }
 
-    private async Task MoveCellsToOtherStackAsync(List<Cell> cellsToMove, Stack targetStack)
+    private async Task MoveCellsToOtherStackSequentialAsync(List<Cell> cellsToMove, Stack targetStack)
     {
       if (cellsToMove == null || targetStack.IsDestroyed()) return;
 
-      for (int i = cellsToMove.Count - 1; i >= 0; i--)
+      foreach (var cell in cellsToMove)
       {
-        var cell = cellsToMove[i];
         if (cell.IsDestroyed()) continue;
 
         var prevStack = cell.GetComponentInParent<Stack>();
@@ -225,8 +225,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var tcs = new TaskCompletionSource<bool>();
 
         cell.transform.DOPath(path, 0.5f, PathType.CatmullRom)
-          .SetEase(Ease.InOutSine)
-          .OnComplete(() => { });
+          .SetEase(Ease.InOutSine);
 
         cell.transform.DORotateQuaternion(targetRotation, 0.5f)
           .SetEase(Ease.InOutSine)
@@ -259,14 +258,11 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private async Task CheckAllStacksForColorThresholdAsync()
     {
-      var tasks = new List<Task>();
       foreach (var stack in _stacksOnGrid.ToList())
       {
         if (!stack.IsDestroyed())
-          tasks.Add(stack.CheckForColorThreshold());
+          await stack.CheckForColorThreshold();
       }
-
-      await Task.WhenAll(tasks);
     }
 
     private List<Cell> GetNeighbors(Cell cell)
@@ -276,12 +272,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       LayerMask mask = 1 << cell.gameObject.layer;
       var hits = Physics.OverlapSphere(cell.transform.position, 5f, mask);
 
-      var result = hits
+      return hits
         .Select(h => h.GetComponent<Cell>())
         .Where(c => c != null && c != cell)
         .ToList();
-
-      return result;
     }
   }
 }
