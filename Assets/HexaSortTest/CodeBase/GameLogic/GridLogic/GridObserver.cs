@@ -3,10 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
-using HexaSortTest.CodeBase.GameLogic.StackLogic;
-using HexaSortTest.CodeBase.GameLogic.Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using HexaSortTest.CodeBase.GameLogic.StackLogic;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
@@ -53,7 +52,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       foreach (var cell in _grid.Cells)
       {
         var stack = cell.GetComponentInChildren<Stack>();
-        if (!stack.IsDestroyed())
+        if (stack != null)
           _stacksOnGrid.Add(stack);
       }
 
@@ -65,7 +64,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       foreach (var cell in _grid.Cells)
       {
         var stack = cell.GetComponentInChildren<Stack>();
-        if (stack.IsDestroyed()) continue;
+        if (stack == null) continue;
         if (_stacksOnGrid.Contains(stack)) continue;
 
         _stacksOnGrid.Add(stack);
@@ -84,15 +83,11 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       {
         merged = false;
         var stacks = _grid.Cells
-          .Select(c => c.GetComponentInChildren<Stack>())
-          .Where(s => !s.IsDestroyed())
+          .Where(c => c.GetComponentInChildren<Stack>() != null)
           .ToList();
 
-        foreach (var stack in stacks)
+        foreach (var cell in stacks)
         {
-          var cell = stack.Cell;
-          if (cell == null || cell.IsDestroyed()) continue;
-
           if (await ProcessMergesFromCellAsync(cell, recursiveCheck: false))
             merged = true;
         }
@@ -103,9 +98,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private async Task<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
     {
-      if (centerCell.IsDestroyed()) return false;
+      if (centerCell == null) return false;
       var centerStack = centerCell.GetComponentInChildren<Stack>();
-      if (centerStack.IsDestroyed()) return false;
+      if (centerStack == null) return false;
 
       bool mergedAny = false;
 
@@ -115,10 +110,11 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         keepMerging = false;
 
         var neighborCells = _neighbors[centerCell]
-          .Where(n => n != null && !n.IsDestroyed() && n.GetComponentInChildren<Stack>() != null)
+          .Where(n => n != null && n.GetComponentInChildren<Stack>() != null)
           .ToList();
 
-        if (neighborCells.Count == 0) break;
+        if (neighborCells.Count == 0)
+          break;
 
         Color baseColor;
         try
@@ -134,33 +130,30 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           .Where(n =>
           {
             var s = n.GetComponentInChildren<Stack>();
-            return !s.IsDestroyed() && s.GetLastCellColor() == baseColor;
+            return s != null && s.GetLastCellColor() == baseColor;
           })
           .ToList();
 
-        if (sameColorNeighbors.Count == 0) break;
+        if (sameColorNeighbors.Count == 0)
+          break;
 
         foreach (var neighbor in sameColorNeighbors)
         {
           var neighborStack = neighbor.GetComponentInChildren<Stack>();
-          if (neighborStack.IsDestroyed()) continue;
+          if (neighborStack == null) continue;
 
           var tilesToMove = GetCellsToMove(neighborStack, baseColor);
           if (tilesToMove.Count == 0) continue;
 
-          await MoveCellsToOtherStackSequentialAsync(tilesToMove, centerStack);
-
+          await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
           mergedAny = true;
           keepMerging = true;
         }
 
-        if (!centerStack.IsDestroyed())
-          await centerStack.CheckForColorThreshold();
+        await centerStack.CheckForColorThreshold();
 
-        if (centerCell.IsDestroyed()) break;
         centerStack = centerCell.GetComponentInChildren<Stack>();
-        if (centerStack.IsDestroyed()) break;
-      } while (keepMerging && !centerStack.IsDestroyed() && centerStack.Tiles.Count > 0);
+      } while (keepMerging && centerStack != null && centerStack.Tiles.Count > 0);
 
       if (mergedAny && recursiveCheck)
         await CheckAllStacksForMergesAsync();
@@ -171,7 +164,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private List<Cell> GetCellsToMove(Stack stack, Color color)
     {
       var result = new List<Cell>();
-      if (stack.IsDestroyed() || stack.Tiles == null) return result;
+      if (stack == null || stack.Tiles == null) return result;
 
       for (int i = stack.Tiles.Count - 1; i >= 0; i--)
       {
@@ -188,66 +181,42 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return result;
     }
 
-    private async Task MoveCellsToOtherStackSequentialAsync(List<Cell> cellsToMove, Stack targetStack)
+    private async Task MoveCellsToOtherStackAsync(List<Cell> cellsToMove, Stack targetStack)
     {
-      if (cellsToMove == null || targetStack.IsDestroyed()) return;
+      if (cellsToMove == null || targetStack == null) return;
 
-      foreach (var cell in cellsToMove)
+      List<GameObject> movedTiles = new List<GameObject>();
+      Vector3 moveDirection = Vector3.forward;
+      Stack prevStack = null;
+
+      for (int i = cellsToMove.Count - 1; i >= 0; i--)
       {
-        if (cell.IsDestroyed()) continue;
+        var cell = cellsToMove[i];
+        if (cell == null) continue;
 
-        var prevStack = cell.GetComponentInParent<Stack>();
-        if (prevStack.IsDestroyed()) continue;
+        prevStack = cell.GetComponentInParent<Stack>();
+        if (prevStack == null) continue;
 
         prevStack.Remove(cell.gameObject);
 
         if (prevStack.Tiles.Count == 0)
           RemoveStack(prevStack);
 
-        cell.SetParent(targetStack.transform);
-        targetStack.Add(cell.gameObject);
+        Vector3 direction = (targetStack.transform.position - prevStack.transform.position).normalized;
 
-        Vector3 startPosition = cell.transform.position;
-        Vector3 targetPosition = targetStack.transform.position +
-                                 Vector3.up * (0.5f * targetStack.Tiles.IndexOf(cell.gameObject));
-        Vector3[] path = new Vector3[]
-        {
-          startPosition,
-          startPosition + Vector3.up * 2f,
-          targetPosition + Vector3.up * 2f,
-          targetPosition
-        };
-
-        Quaternion startRotation = cell.transform.rotation;
-        Quaternion targetRotation = Quaternion.LookRotation((targetPosition - startPosition).normalized) *
-                                    Quaternion.Euler(270f, 90f, 0f);
-
-        var tcs = new TaskCompletionSource<bool>();
-
-        cell.transform.DOPath(path, 0.5f, PathType.CatmullRom)
-          .SetEase(Ease.InOutSine);
-
-        cell.transform.DORotateQuaternion(targetRotation, 0.5f)
-          .SetEase(Ease.InOutSine)
-          .OnComplete(() =>
-          {
-            if (!cell.IsDestroyed())
-              cell.transform.rotation = Quaternion.Euler(90f, 90f, 0f);
-            tcs.TrySetResult(true);
-          });
-
-        await tcs.Task;
+        movedTiles.Add(cell.gameObject);
+        moveDirection = direction;
       }
+
+      await RecalcStackPositionsAsync(targetStack, movedTiles, moveDirection);
     }
 
     private void RemoveStack(Stack stack)
     {
-      if (stack.IsDestroyed()) return;
-
+      if (stack == null) return;
       _stacksOnGrid.Remove(stack);
-
       var cell = stack.Cell;
-      if (cell != null && !cell.IsDestroyed())
+      if (cell != null)
       {
         cell.SetEmpty(true);
         cell.ShineOff();
@@ -256,26 +225,85 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       Destroy(stack.gameObject);
     }
 
+    private Task RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, Vector3 moveDirection)
+    {
+      var tcs = new TaskCompletionSource<bool>();
+      if (stack == null || movedTiles == null)
+      {
+        tcs.SetResult(true);
+        return tcs.Task;
+      }
+
+      float delay = 0f;
+      float pauseBetween = 0.3f;
+      float moveDuration = 0.5f;
+
+      int completed = 0;
+      int total = movedTiles.Count;
+
+      for (int i = movedTiles.Count - 1; i >= 0; i--)
+      {
+        var go = movedTiles[i];
+        if (go == null)
+        {
+          completed++;
+          continue;
+        }
+
+        var cell = go.GetComponent<Cell>();
+        cell.SetParent(stack.transform);
+        stack.Add(cell.gameObject);
+
+        Vector3 targetPosition = stack.transform.position + Vector3.up * (0.5f * stack.Tiles.IndexOf(go));
+        Vector3 startPosition = go.transform.position;
+        Vector3 aboveOldStack = startPosition + Vector3.up * 2f;
+        Vector3 aboveNewStack = targetPosition + Vector3.up * 2f;
+        Vector3[] path = new Vector3[] { startPosition, aboveOldStack, aboveNewStack, targetPosition };
+
+        Quaternion prefabRotation = Quaternion.Euler(90f, 90f, 0f);
+        Quaternion targetRotation = Quaternion.LookRotation(moveDirection) * Quaternion.Euler(270f, 90f, 0f);
+
+        go.transform.DOPath(path, moveDuration, PathType.CatmullRom)
+          .SetDelay(delay)
+          .SetEase(Ease.InOutSine);
+
+        go.transform.DORotateQuaternion(targetRotation, moveDuration)
+          .SetDelay(delay)
+          .SetEase(Ease.InOutSine)
+          .OnComplete(() =>
+          {
+            go.transform.rotation = prefabRotation;
+            completed++;
+            if (completed >= total)
+              tcs.TrySetResult(true);
+          });
+
+        delay += pauseBetween;
+      }
+
+      return tcs.Task;
+    }
+
     private async Task CheckAllStacksForColorThresholdAsync()
     {
-      foreach (var stack in _stacksOnGrid.ToList())
+      var stacksSnapshot = _stacksOnGrid.ToList();
+      foreach (var stack in stacksSnapshot)
       {
-        if (!stack.IsDestroyed())
+        if (stack != null)
           await stack.CheckForColorThreshold();
       }
     }
 
     private List<Cell> GetNeighbors(Cell cell)
     {
-      if (cell == null || cell.IsDestroyed()) return new List<Cell>();
-
+      if (cell == null) return new List<Cell>();
       LayerMask mask = 1 << cell.gameObject.layer;
       var hits = Physics.OverlapSphere(cell.transform.position, 5f, mask);
-
-      return hits
+      var result = hits
         .Select(h => h.GetComponent<Cell>())
         .Where(c => c != null && c != cell)
         .ToList();
+      return result;
     }
   }
 }
