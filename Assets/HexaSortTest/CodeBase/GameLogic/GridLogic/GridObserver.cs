@@ -8,6 +8,8 @@ using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
+using HexaSortTest.CodeBase.GameLogic.UI;
+using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
@@ -18,6 +20,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private readonly Dictionary<Cell, List<Cell>> _neighbors = new();
     private readonly HashSet<Stack> _stacksOnGrid = new();
     private Cell _lastAddedCell;
+    private UIWindow _mainMenu;
+
+    public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
 
     public void Init(HexGrid grid) => _grid = grid;
 
@@ -101,7 +106,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       } while (merged);
 
       await CheckAllStacksForColorThresholdAsync();
-      await CheckForLoseConditionAsync(); // <-- проверка проигрыша после всех действий
+      await CheckForLoseConditionAsync();
     }
 
     private async Task<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
@@ -351,7 +356,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private Task ShowLosePopupAsync()
     {
-      Debug.Log("Game Over! Showing restart popup.");
+      _mainMenu.Open();
 
       return Task.CompletedTask;
     }

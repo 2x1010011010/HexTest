@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Boosters;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
+using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using Random = UnityEngine.Random;
 
 namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
@@ -27,6 +28,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     public static HudObserver Instance { get; private set; }
 
+    private UIWindow _mainMenu;
     private int _winCondition;
     private int _coisnsCount;
     private int _tilesCount;
@@ -51,7 +53,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounterSlider.value = _tilesCount;
     }
 
-    public void SetConfig(int configWinCondition) => _winCondition = configWinCondition;
+    public void Init(int configWinCondition, MainMenuObserver mainMenu)
+    {
+      _winCondition = configWinCondition;
+      _mainMenu = mainMenu;
+    }
 
     private void OnEnable()
     {
@@ -112,7 +118,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       {
         _tilesCounterSliderFill = 0;
         GetRandomBooster();
-        //win condition reached
+        _mainMenu.Open();
       }
 
       _tilesCounterSlider.value = _tilesCounterSliderFill;

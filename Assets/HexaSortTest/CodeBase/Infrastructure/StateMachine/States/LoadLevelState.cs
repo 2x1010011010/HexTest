@@ -47,15 +47,15 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void InitGameWorld()
     {
+      var mainMenuInstance = _gameFactory.CreateMainMenu();
       var poolInstance = _gameFactory.CreateCellPool();
-      
-      var gridSpawner = _gameFactory.CreateGridSpawner(poolInstance);
+
+      var gridSpawner = _gameFactory.CreateGridSpawner(poolInstance, mainMenuInstance);
       var gridInstance = gridSpawner.SpawnGrid();
 
       _gameFactory.CreateStacksSpawner(poolInstance, gridInstance.GetComponent<HexGrid>());
 
-      _gameFactory.CreateHud();
-      _gameFactory.CreateMainMenu();
+      _gameFactory.CreateHud(mainMenuInstance);
     }
 
     private void CameraSetup(GameObject target)

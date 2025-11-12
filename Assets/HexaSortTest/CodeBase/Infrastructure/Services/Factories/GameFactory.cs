@@ -4,6 +4,7 @@ using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
+using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -45,13 +46,15 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return cellPoolInstance;
     }
 
-    public GridSpawner CreateGridSpawner(ObjectPool<Cell> poolInstance)
+    public GridSpawner CreateGridSpawner(ObjectPool<Cell> poolInstance, MainMenuObserver mainMenu)
     {
       var gridSpawnerObject = InstantiateRegistered(AssetPaths.GridSpawner);
+      gridSpawnerObject.GetComponent<GridObserver>().SetMainMenu(mainMenu);
       var gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
       var configIndex = Random.Range(0, _levelConfigs.Levels.Count);
       _currentLevelConfig = _levelConfigs.Levels[configIndex];
       gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
+      
       
       _instances.Add(gridSpawnerObject);
       
@@ -65,17 +68,18 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       _instances.Add(stacksSpawnerObject);
     }
 
-    public void CreateHud()
+    public void CreateHud(MainMenuObserver mainMenu)
     {
       var instance = InstantiateRegistered(AssetPaths.HUD);
-      instance.GetComponent<HudObserver>().SetConfig(_currentLevelConfig.WinCondition);
+      instance.GetComponent<HudObserver>().Init(_currentLevelConfig.WinCondition, mainMenu);
       _instances.Add(instance);
     }
 
-    public void CreateMainMenu()
+    public MainMenuObserver CreateMainMenu()
     {
       var instance = InstantiateRegistered(AssetPaths.MainMenuPath);
       _instances.Add(instance);
+      return instance.GetComponent<MainMenuObserver>();
     }
 
 
