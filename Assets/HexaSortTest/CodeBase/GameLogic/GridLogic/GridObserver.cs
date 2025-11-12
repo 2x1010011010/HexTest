@@ -1,11 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Stack = HexaSortTest.CodeBase.GameLogic.StackLogic.Stack;
+using HexaSortTest.CodeBase.GameLogic.StackLogic;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
@@ -33,14 +33,14 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       ScanAndRegisterStacks();
     }
 
-    private void Update()
+    private async void Update()
     {
       if (Input.GetMouseButtonUp(0))
       {
         if (RescanForNewStacks(out var newCell))
         {
           _lastAddedCell = newCell;
-          ProcessMergesFromCell(_lastAddedCell);
+          await ProcessMergesFromCellAsync(_lastAddedCell);
         }
       }
     }
@@ -55,8 +55,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         if (stack != null)
           _stacksOnGrid.Add(stack);
       }
-      
-      CheckAllStacksForMerges();
+
+      _ = CheckAllStacksForMergesAsync();
     }
 
     private bool RescanForNewStacks(out Cell newCell)
@@ -76,7 +76,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return false;
     }
 
-    private void CheckAllStacksForMerges()
+    private async Task CheckAllStacksForMergesAsync()
     {
       bool merged;
       do
@@ -88,13 +88,13 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
         foreach (var cell in stacks)
         {
-          if (ProcessMergesFromCell(cell, recursiveCheck: false))
+          if (await ProcessMergesFromCellAsync(cell, recursiveCheck: false))
             merged = true;
         }
       } while (merged);
     }
 
-    private bool ProcessMergesFromCell(Cell centerCell, bool recursiveCheck = true)
+    private async Task<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
     {
       if (centerCell == null) return false;
       var centerStack = centerCell.GetComponentInChildren<Stack>();
@@ -109,8 +109,14 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (neighborCells.Count == 0) return false;
 
       Color baseColor;
-      try { baseColor = centerStack.GetLastCellColor(); }
-      catch { return false; }
+      try
+      {
+        baseColor = centerStack.GetLastCellColor();
+      }
+      catch
+      {
+        return false;
+      }
 
       var sameColorNeighbors = neighborCells
         .Where(n =>
@@ -131,17 +137,12 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var tilesToMove = GetCellsToMove(neighborStack, baseColor);
         if (tilesToMove.Count == 0) continue;
 
-        MoveCellsToOtherStack(tilesToMove, centerStack);
+        await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
         mergedAny = true;
       }
 
-      if (mergedAny)
-      {
-        RecalcStackPositions(centerStack);
-
-        if (recursiveCheck)
-          CheckAllStacksForMerges();
-      }
+      if (mergedAny && recursiveCheck)
+        await CheckAllStacksForMergesAsync();
 
       return mergedAny;
     }
@@ -162,17 +163,24 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
         result.Add(cell);
       }
+
       return result;
     }
 
-    private void MoveCellsToOtherStack(List<Cell> cellsToMove, Stack targetStack)
+    private async Task MoveCellsToOtherStackAsync(List<Cell> cellsToMove, Stack targetStack)
     {
+      if (cellsToMove == null || targetStack == null) return;
+
+      List<GameObject> movedTiles = new List<GameObject>();
+      List<Vector3> moveDirections = new List<Vector3>();
+      Stack prevStack = null;
+
       for (int i = cellsToMove.Count - 1; i >= 0; i--)
       {
         var cell = cellsToMove[i];
         if (cell == null) continue;
 
-        var prevStack = cell.GetComponentInParent<Stack>();
+        prevStack = cell.GetComponentInParent<Stack>();
         if (prevStack == null) continue;
 
         prevStack.Remove(cell.gameObject);
@@ -180,11 +188,15 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         if (prevStack.Tiles.Count == 0)
           RemoveStack(prevStack);
 
-        cell.SetParent(targetStack.transform);
-        targetStack.Add(cell.gameObject);
+        Vector3 direction = (targetStack.transform.position - prevStack.transform.position).normalized;
+
+        movedTiles.Add(cell.gameObject);
+        moveDirections.Add(direction);
       }
 
-      RecalcStackPositions(targetStack);
+      await RecalcStackPositionsAsync(targetStack, movedTiles, moveDirections);
+
+      targetStack.CheckForColorThreshold();
     }
 
     private void RemoveStack(Stack stack)
@@ -197,18 +209,68 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         cell.SetEmpty(true);
         cell.ShineOff();
       }
+
       Destroy(stack.gameObject);
     }
 
-    private void RecalcStackPositions(Stack stack)
+    private Task RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, List<Vector3> moveDirections)
     {
-      if (stack == null || stack.Tiles == null) return;
-      for (int i = 0; i < stack.Tiles.Count; i++)
+      var tcs = new TaskCompletionSource<bool>();
+      if (stack == null || movedTiles == null || moveDirections == null)
       {
-        var go = stack.Tiles[i];
-        if (go == null) continue;
-        go.transform.position = stack.transform.position + Vector3.up * (i * 0.5f);
+        tcs.SetResult(true);
+        return tcs.Task;
       }
+
+      float delay = 0f;
+      float pauseBetween = 0.3f;
+      float moveDuration = 0.5f;
+
+      int completed = 0;
+      int total = movedTiles.Count;
+
+      for (int i = movedTiles.Count - 1; i >= 0; i--)
+      {
+        var go = movedTiles[i];
+        if (go == null)
+        {
+          completed++;
+          continue;
+        }
+
+        var cell = go.GetComponent<Cell>();
+        cell.SetParent(stack.transform);
+        stack.Add(cell.gameObject);
+
+        Vector3 targetPosition = stack.transform.position + Vector3.up * (0.5f * stack.Tiles.IndexOf(go));
+        Vector3 startPosition = go.transform.position;
+        Vector3 aboveOldStack = startPosition + Vector3.up * 2f;
+        Vector3 aboveNewStack = targetPosition + Vector3.up * 2f;
+        Vector3[] path = new Vector3[] { startPosition, aboveOldStack, aboveNewStack, targetPosition };
+
+        Quaternion prefabRotation = Quaternion.Euler(90f, 90f, 0f);
+        Vector3 direction = moveDirections[i];
+        Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up) * prefabRotation;
+
+        var moveTween = go.transform.DOPath(path, moveDuration, PathType.CatmullRom)
+          .SetDelay(delay)
+          .SetEase(Ease.InOutSine);
+
+        go.transform.DORotateQuaternion(targetRotation, moveDuration)
+          .SetDelay(delay)
+          .SetEase(Ease.InOutSine)
+          .OnComplete(() =>
+          {
+            go.transform.rotation = prefabRotation;
+            completed++;
+            if (completed >= total)
+              tcs.TrySetResult(true);
+          });
+
+        delay += pauseBetween;
+      }
+
+      return tcs.Task;
     }
 
     private List<Cell> GetNeighbors(Cell cell)

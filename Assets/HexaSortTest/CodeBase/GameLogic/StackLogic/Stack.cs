@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
@@ -16,7 +17,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     private const int COLOR_THRESHOLD = 20;
 
-    public IReadOnlyList<GameObject> Tiles => _stack;
+    public List<GameObject> Tiles => _stack;
     public List<Cell> Cells => _stack.Select(go => go.GetComponent<Cell>()).ToList();
     public Transform Parent => _parent;
     public Transform DefaultParent => _defaultParent;
@@ -48,14 +49,12 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     {
       if (cell == null) return;
       _stack.Add(cell);
-      CheckForColorThreshold();
     }
 
     public void Remove(GameObject cell)
     {
       if (cell == null) return;
       _stack.Remove(cell);
-      CheckForColorThreshold();
     }
 
     public void SetActive(bool active)
@@ -76,7 +75,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public void Clear() => _stack.Clear();
 
-    private void CheckForColorThreshold()
+    public void CheckForColorThreshold()
     {
       if (_stack.Count < COLOR_THRESHOLD)
         return;
@@ -90,16 +89,28 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
 
       if (colorGroups.Count < COLOR_THRESHOLD) return;
-      
+
       foreach (var cell in colorGroups)
       {
         _stack.Remove(cell.gameObject);
-        cell.gameObject.SetActive(false);
-        _poolInstance?.ReturnObject(cell);
+        var startScale = cell.transform.localScale;
+        cell.transform.DOScale(Vector3.zero, 0.7f)
+          .SetDelay(0.2f)
+          .SetEase(Ease.InOutSine)
+          .OnComplete(() =>
+          {
+            cell.gameObject.SetActive(false);
+            cell.transform.DOScale(startScale, 0.2f).SetEase(Ease.Linear);
+            _poolInstance?.ReturnObject(cell);
+            CheckForEmptyStack();
+          });
       }
 
       Debug.Log($"Removed {colorGroups.Count()} tiles of color {color}");
-
+    }
+    
+    private void CheckForEmptyStack() 
+    {
       if (_stack.Count == 0)
       {
         var parent = _parentCell;
