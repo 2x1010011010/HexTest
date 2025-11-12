@@ -39,11 +39,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       {
         if (RescanForNewStacks(out var newCell))
         {
-          ScanAndRegisterStacks();
           _lastAddedCell = newCell;
-          foreach (var stack in _stacksOnGrid)
-            stack.transform.position = stack.Parent.position;
-          
           await ProcessMergesFromCellAsync(_lastAddedCell);
         }
       }
@@ -96,6 +92,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
             merged = true;
         }
       } while (merged);
+
+      await CheckAllStacksForColorThresholdAsync();
     }
 
     private async Task<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
@@ -133,6 +131,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (sameColorNeighbors.Count == 0)
         return false;
 
+      List<Task> moveTasks = new();
+
       foreach (var neighbor in sameColorNeighbors)
       {
         var neighborStack = neighbor.GetComponentInChildren<Stack>();
@@ -141,9 +141,14 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var tilesToMove = GetCellsToMove(neighborStack, baseColor);
         if (tilesToMove.Count == 0) continue;
 
-        await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
+        moveTasks.Add(MoveCellsToOtherStackAsync(tilesToMove, centerStack));
         mergedAny = true;
       }
+
+      await Task.WhenAll(moveTasks);
+      
+      if (mergedAny)
+        await CheckAllStacksForColorThresholdAsync();
 
       if (mergedAny && recursiveCheck)
         await CheckAllStacksForMergesAsync();
@@ -199,8 +204,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       }
 
       await RecalcStackPositionsAsync(targetStack, movedTiles, moveDirection);
-
-      targetStack.CheckForColorThreshold();
     }
 
     private void RemoveStack(Stack stack)
@@ -220,7 +223,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private Task RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, Vector3 moveDirection)
     {
       var tcs = new TaskCompletionSource<bool>();
-      if (stack == null || movedTiles == null || moveDirection == null)
+      if (stack == null || movedTiles == null)
       {
         tcs.SetResult(true);
         return tcs.Task;
@@ -255,7 +258,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         Quaternion prefabRotation = Quaternion.Euler(90f, 90f, 0f);
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection) * Quaternion.Euler(270f, 90f, 0f);
 
-        var moveTween = go.transform.DOPath(path, moveDuration, PathType.CatmullRom)
+        go.transform.DOPath(path, moveDuration, PathType.CatmullRom)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine);
 
@@ -274,6 +277,17 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       }
 
       return tcs.Task;
+    }
+
+    private async Task CheckAllStacksForColorThresholdAsync()
+    {
+      var tasks = new List<Task>();
+      foreach (var stack in _stacksOnGrid.ToList())
+      {
+        if (stack != null)
+          tasks.Add(stack.CheckForColorThreshold());
+      }
+      await Task.WhenAll(tasks);
     }
 
     private List<Cell> GetNeighbors(Cell cell)

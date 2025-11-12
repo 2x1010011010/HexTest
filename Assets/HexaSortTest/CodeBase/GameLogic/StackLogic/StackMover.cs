@@ -42,6 +42,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public void Drop()
     {
+      transform.position = _stack.Parent.position + Vector3.up * 0.5f;
       _isDragging = false;
       MoveToParent();
     }
