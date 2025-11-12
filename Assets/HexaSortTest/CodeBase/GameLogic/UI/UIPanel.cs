@@ -4,7 +4,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI
 {
   public class UIPanel : MonoBehaviour
   {
-    public bool IsOpen { get; private set; }
+    public bool IsOpen { get; protected set; }
     
     private void Awake() => Close();
     

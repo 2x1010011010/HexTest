@@ -11,6 +11,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     [SerializeField, BoxGroup("SETTINGS PANEL SETUP")] private float _openYPosition;
     [SerializeField, BoxGroup("SETTINGS PANEL SETUP")] private SettingsButton _settingsButton;
 
+    private void Awake() => Close();
+    
     private void OnEnable()
     {
       _settingsButton.OnSettingsButtonClick += Action;
@@ -29,15 +31,26 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     public override void Open()
     {
-      base.Open();
-      transform.DOMoveY(_openYPosition, _panelOpenDuration).SetEase(Ease.Linear);
+      if (IsOpen) return;
+      gameObject.SetActive(true);
+      transform.DOLocalMoveY(_openYPosition, _panelOpenDuration)
+        .SetEase(Ease.Linear)
+        .OnComplete(() =>
+        {
+          IsOpen = true;
+        });
     }
     
     public override void Close()
     {
-      transform.DOMoveY(_closeYPosition, _panelOpenDuration)
+      if (!IsOpen) return;
+      transform.DOLocalMoveY(_closeYPosition, _panelOpenDuration)
         .SetEase(Ease.Linear)
-        .OnComplete(() => base.Close());
+        .OnComplete(() =>
+        {
+          IsOpen = false;
+          gameObject.SetActive(false);
+        });
     }
   }
 }

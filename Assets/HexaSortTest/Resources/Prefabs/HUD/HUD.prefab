@@ -553,7 +553,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 234.4}
+  m_AnchoredPosition: {x: 0, y: 237}
   m_SizeDelta: {x: 100, y: 233}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &588624608425203600
@@ -606,10 +606,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8cc7dfe22e44429bde33c37061512f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.SettingsPanel
-  _panelOpenDuration: 0.7
-  _closeYPosition: 235
-  _openYPosition: 0
-  _settingsButton: {fileID: 0}
+  _panelOpenDuration: 0.4
+  _closeYPosition: 237
+  _openYPosition: 1
+  _settingsButton: {fileID: 3001597860726893798}
 --- !u!114 &8094504537969149020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -771,8 +771,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.MusicSwitchButton
   _button: {fileID: 3913668244297950757}
   _image: {fileID: 7462380749471372515}
-  _musicOnSprite: {fileID: -3068078779204829351, guid: ea901bf5143a222429512fc4c0cd6739, type: 3}
-  _musicOffSprite: {fileID: 2664842629343753246, guid: bc97fc1a9ef9c1a41a3e672aa16a5ae9, type: 3}
+  _musicOnSprite: {fileID: 6593850870607293270, guid: c7ec1e0c183e33547870ad852731f817, type: 3}
+  _musicOffSprite: {fileID: -6767842800683500317, guid: a6b17d3251f47cf49a9ba87ec4ae989c, type: 3}
 --- !u!1 &2630315216771577122
 GameObject:
   m_ObjectHideFlags: 0
@@ -809,7 +809,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -116.49715}
+  m_AnchoredPosition: {x: 0, y: -134}
   m_SizeDelta: {x: 102, y: 232.9943}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4834905452022871488

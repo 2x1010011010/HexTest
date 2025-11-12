@@ -20,7 +20,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     {
       AudioFacade.Instance.PlayClick();
       AudioFacade.Instance.SetMusicEnabled(!AudioFacade.Instance.IsMusicEnabled);
-      _image.sprite = AudioFacade.Instance.IsFXEnabled ? _musicOnSprite : _musicOffSprite;
+      _image.sprite = AudioFacade.Instance.IsMusicEnabled ? _musicOnSprite : _musicOffSprite;
     }
   }
 }
