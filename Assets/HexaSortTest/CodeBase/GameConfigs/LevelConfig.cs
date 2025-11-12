@@ -13,5 +13,7 @@ namespace HexaSortTest.CodeBase.GameConfigs
     [field: SerializeField, BoxGroup("GRID SETTINGS")] public GameObject GridPrefab { get; private set; }
 
     [field: SerializeField, Range(45, 80), BoxGroup("CAMERA SETUP")] public float FieldOfView { get; private set; } = 50f;
+    
+    [field: SerializeField, BoxGroup("WIN CONDITIONS SETTINGS")] public int WinCondition { get; private set; }
   }
 }
