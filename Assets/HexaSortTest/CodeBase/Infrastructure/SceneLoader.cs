@@ -8,11 +8,11 @@ namespace HexaSortTest.CodeBase.Infrastructure
   public class SceneLoader
   {
     private readonly ICoroutineRunner _coroutineRunner;
-    
-    public SceneLoader(ICoroutineRunner coroutineRunner) => 
+
+    public SceneLoader(ICoroutineRunner coroutineRunner) =>
       _coroutineRunner = coroutineRunner;
 
-    public void Load(string sceneName, Action onLoaded = null) => 
+    public void Load(string sceneName, Action onLoaded = null) =>
       _coroutineRunner.StartCoroutine(LoadScene(sceneName, onLoaded));
 
     private IEnumerator LoadScene(string sceneName, Action onLoaded = null)
@@ -22,12 +22,11 @@ namespace HexaSortTest.CodeBase.Infrastructure
         onLoaded?.Invoke();
         yield break;
       }
-      
+
       AsyncOperation waitNextScene = SceneManager.LoadSceneAsync(sceneName);
-      
       while (waitNextScene is { isDone: false })
         yield return null;
-      
+
       onLoaded?.Invoke();
     }
   }

@@ -1,6 +1,4 @@
-using System;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
-using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using UnityEngine;
 
@@ -24,7 +22,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     }
 
     public void Clear() => 
-      Destroy(_grid);
+      DestroyImmediate(_grid, true);
 
     public void SetMainMenu(MainMenuObserver mainMenu) => 
       _mainMenu = mainMenu;

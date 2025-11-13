@@ -8,6 +8,7 @@ using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
+using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
@@ -19,9 +20,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     private LevelConfig _currentLevelConfig;
     
     private List<GameObject> _instances = new List<GameObject>();
-
+    private GridSpawner _gridSpawner;
     public List<IProgressReader> ProgressReaders { get; } = new List<IProgressReader>();
-
     public List<IProgressSaver> ProgressSavers { get; } = new List<IProgressSaver>();
 
 
@@ -49,15 +49,15 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     public GridSpawner CreateGridSpawner(ObjectPool<Cell> poolInstance, MainMenuObserver mainMenu)
     {
       var gridSpawnerObject = InstantiateRegistered(AssetPaths.GridSpawner);
-      var gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
+       _gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
       var configIndex = Random.Range(0, _levelConfigs.Levels.Count);
       _currentLevelConfig = _levelConfigs.Levels[configIndex];
-      gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
-      gridSpawner.SetMainMenu(mainMenu);
+      _gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
+      _gridSpawner.SetMainMenu(mainMenu);
       
       _instances.Add(gridSpawnerObject);
       
-      return gridSpawner;
+      return _gridSpawner;
     }
 
     public void CreateStacksSpawner(ObjectPool<Cell> poolInstance, HexGrid grid)
@@ -112,11 +112,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
     public void Clear()
     {
-      foreach (GameObject instance in _instances)
-      {
-        Object.Destroy(instance);
-      }
-      _instances.Clear();
       ProgressReaders.Clear();
       ProgressSavers.Clear();
     }

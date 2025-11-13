@@ -1,6 +1,7 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
+using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
@@ -17,12 +18,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _loadingCurtain = curtain;
       _uiListenerService = uiListenerService;
       _gameFactory = gameFactory;
+      
     }
 
     public void Enter()
     {
-      _loadingCurtain.Hide();
       _uiListenerService.ActionRequired += ClearScene;
+      _loadingCurtain.Hide();
     }
 
     public void Exit()
@@ -32,9 +34,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void ClearScene()
     {
+      Debug.Log("$\"[GameLoopState] ClearScene() called. Instances before clear: {_gameFactory.InstancesCount}");
       _loadingCurtain.Show();
       _gameFactory.Clear();
-      _gameStateMachine.Enter<LoadLevelState, string>("Game");
+      _gameStateMachine.Enter<LoadLevelState, string>(Constants.GameScene);
     }
   }
 }

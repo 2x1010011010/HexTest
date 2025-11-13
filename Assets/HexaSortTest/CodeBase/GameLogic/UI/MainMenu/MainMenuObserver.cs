@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.Infrastructure.Services;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -10,9 +11,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.MainMenu
 
     private IUIListenerService _uiService;
 
-    public void Initialize(IUIListenerService uiService)
+    public void Start()
     {
-      _uiService = uiService;
+      _uiService = ServiceLocator.Container.Single<IUIListenerService>();
     }
 
     private void OnEnable() => 

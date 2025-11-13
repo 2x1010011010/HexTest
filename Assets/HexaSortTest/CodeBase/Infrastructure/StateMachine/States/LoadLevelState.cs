@@ -47,6 +47,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void InitGameWorld()
     {
+      
       var mainMenuInstance = _gameFactory.CreateMainMenu();
       var poolInstance = _gameFactory.CreateCellPool();
 
