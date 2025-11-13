@@ -117,7 +117,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_tilesCounterSliderFill >= _tilesCounterSlider.maxValue)
       {
         _tilesCounterSliderFill = 0;
-        GetRandomBooster();
         _mainMenu.Open();
       }
 

@@ -24,8 +24,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
     private void Update()
     {
       if (!_isBoosterActive) return;
-
-#if UNITY_EDITOR
       if (Input.GetMouseButtonDown(0))
       {
         TryApplyBoosterAtScreenPoint(Input.mousePosition);
@@ -33,17 +31,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
       
       if (_isBoosterApplied && Input.GetMouseButtonUp(0))
         DeactivateBooster();
-#else
-      if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began)
-      {
-        TryApplyBoosterAtScreenPoint(Input.GetTouch(0).position);
-      }
-      
-      if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.End)
-      {
-        DeactivateBooster();
-      }
-#endif
     }
 
     private void TryApplyBoosterAtScreenPoint(Vector2 screenPoint)
