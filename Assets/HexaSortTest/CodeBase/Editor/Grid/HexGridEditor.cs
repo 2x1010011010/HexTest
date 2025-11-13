@@ -333,7 +333,6 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       GameObject root = new GameObject("HexGrid");
       Quaternion rotationFix = _autoRotate ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
       var grid = root.AddComponent<HexGrid>();
-      root.AddComponent<GridRotator>();
       var observer =root.AddComponent<GridObserver>();
       observer.Init(grid);
 

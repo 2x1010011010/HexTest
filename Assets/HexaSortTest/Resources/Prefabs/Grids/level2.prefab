@@ -2003,7 +2003,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5538361314075370602}
   - component: {fileID: 6079226718718879825}
-  - component: {fileID: 8903056550500704492}
   - component: {fileID: 1656107456057581227}
   m_Layer: 6
   m_Name: level2
@@ -2076,20 +2075,6 @@ MonoBehaviour:
   - {fileID: 7974385234807613060}
   - {fileID: 8315944847804022008}
   - {fileID: 2013868320432572968}
---- !u!114 &8903056550500704492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4653315165957556375}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d6561c769884580a722eb49e89a3707, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.GridRotator
-  _angle: 25
-  _axis: {x: 0, y: 1, z: 0}
 --- !u!114 &1656107456057581227
 MonoBehaviour:
   m_ObjectHideFlags: 0

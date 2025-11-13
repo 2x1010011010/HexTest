@@ -296,7 +296,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
           {
-            go.transform.rotation = prefabRotation;
+            go.transform.rotation = Quaternion.Euler(Vector3.up * go.GetComponent<Stack>().Parent.localEulerAngles.y);
             completed++;
             if (completed >= total)
               tcs.TrySetResult(true);
