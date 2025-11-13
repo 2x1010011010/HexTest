@@ -2215,8 +2215,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d6561c769884580a722eb49e89a3707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.GridRotator
-  _angle: 0
-  _axis: {x: 0, y: 0, z: 0}
+  _angle: 25
+  _axis: {x: 0, y: 1, z: 0}
 --- !u!114 &5890450227748876214
 MonoBehaviour:
   m_ObjectHideFlags: 0

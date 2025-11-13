@@ -360,5 +360,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       return Task.CompletedTask;
     }
+
+    public void RemoveStackFromCellByBooster(Cell cell)
+    {
+      _stacksOnGrid.Remove(cell.GetComponentInChildren<Stack>());
+    }
   }
 }
