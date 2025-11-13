@@ -14,6 +14,10 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
   public class Stack : MonoBehaviour
   {
     [SerializeField, BoxGroup("STACK SETUP")] private List<GameObject> _stack = new();
+    
+    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _pauseBetween = 0.05f;
+    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _scaleDuration = 0.2f;
+    
     private Transform _parent;
     private Transform _defaultParent;
     private ObjectPool<Cell> _poolInstance;
@@ -108,8 +112,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
 
       float delay = 0f;
-      float pauseBetween = 0.1f;
-      float scaleDuration = 0.8f;
 
       foreach (var cell in colorGroups)
       {
@@ -118,7 +120,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         _stack.Remove(cell.gameObject);
         var startScale = cell.transform.localScale;
 
-        cell.transform.DOScale(Vector3.zero, scaleDuration)
+        cell.transform.DOScale(Vector3.zero, _scaleDuration)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnStart(() =>
@@ -135,12 +137,12 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
             _poolInstance?.ReturnObject(cell);
           });
 
-        delay += pauseBetween;
+        delay += _pauseBetween;
       }
 
       Debug.Log($"Removed {colorGroups.Count} tiles of color {color}");
 
-      float totalAnimationTime = delay + scaleDuration;
+      float totalAnimationTime = delay + _scaleDuration;
       await Task.Delay(Mathf.RoundToInt(totalAnimationTime * 1000f));
 
       CheckForEmptyStack();
@@ -169,7 +171,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       var tiles = Cells.Where(c => c != null).Reverse().ToList();
 
       float delay = 0f;
-      float pauseBetween = 0.05f;
 
       foreach (var cell in tiles)
       {
@@ -197,7 +198,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
             _poolInstance?.ReturnObject(cell);
           });
 
-        delay += pauseBetween;
+        delay += _pauseBetween;
       }
 
       float totalTime = delay + duration;

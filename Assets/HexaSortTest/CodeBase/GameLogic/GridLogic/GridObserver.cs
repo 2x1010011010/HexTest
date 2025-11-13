@@ -16,6 +16,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
   public class GridObserver : MonoBehaviour
   {
     [SerializeField, BoxGroup("SETUP")] private HexGrid _grid;
+    
+    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _pauseBetween = 0.2f;
+    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _moveDuration = 0.4f;
 
     private readonly Dictionary<Cell, List<Cell>> _neighbors = new();
     private readonly HashSet<Stack> _stacksOnGrid = new();
@@ -251,10 +254,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         tcs.SetResult(true);
         return tcs.Task;
       }
-
+      
       float delay = 0f;
-      float pauseBetween = 0.2f;
-      float moveDuration = 0.4f;
 
       int completed = 0;
       int total = movedTiles.Count;
@@ -283,7 +284,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
         AudioFacade.Instance.PlaySort();
         
-        go.transform.DOPath(path, moveDuration, PathType.CatmullRom)
+        go.transform.DOPath(path, _moveDuration, PathType.CatmullRom)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnStart(() =>
@@ -291,7 +292,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
             AudioFacade.Instance.PlaySort();
           });
 
-        go.transform.DORotateQuaternion(targetRotation, moveDuration)
+        go.transform.DORotateQuaternion(targetRotation, _moveDuration)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
@@ -302,7 +303,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
               tcs.TrySetResult(true);
           });
 
-        delay += pauseBetween;
+        delay += _pauseBetween;
       }
 
       return tcs.Task;

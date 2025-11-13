@@ -19,6 +19,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     [SerializeField, BoxGroup("DROP AND DRAG SETTINGS")] private float _verticalShift = 2.5f;
     [SerializeField, BoxGroup("DROP AND DRAG SETTINGS")] private float _movementSpeed = 250f;
+    
+    
 
     private bool _isDragging = false;
     private Vector3 _startPosition;
