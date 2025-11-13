@@ -49,12 +49,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     public GridSpawner CreateGridSpawner(ObjectPool<Cell> poolInstance, MainMenuObserver mainMenu)
     {
       var gridSpawnerObject = InstantiateRegistered(AssetPaths.GridSpawner);
-      gridSpawnerObject.GetComponent<GridObserver>().SetMainMenu(mainMenu);
       var gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
       var configIndex = Random.Range(0, _levelConfigs.Levels.Count);
       _currentLevelConfig = _levelConfigs.Levels[configIndex];
       gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
-      
+      gridSpawner.SetMainMenu(mainMenu);
       
       _instances.Add(gridSpawnerObject);
       
