@@ -48,6 +48,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.Stack
   _stack: []
+  _pauseBetween: 0.05
+  _scaleDuration: 0.2
 --- !u!114 &5937415863697100280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,7 +72,8 @@ MonoBehaviour:
   _cellLayer:
     serializedVersion: 2
     m_Bits: 256
-  _verticalShift: 0.8
+  _verticalShift: 1
+  _movementSpeed: 250
 --- !u!114 &3673557651193220927
 MonoBehaviour:
   m_ObjectHideFlags: 0

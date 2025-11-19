@@ -31,12 +31,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     private void Awake() => _camera = Camera.main;
 
-    private void Update()
-    {
-      if (_isDragging)
-        Move();
-    }
-
     public void Move()
     {
       if (!_isDragging)
