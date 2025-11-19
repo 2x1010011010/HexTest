@@ -118,7 +118,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public void StartDragFromBooster()
     {
       _forcedDragByBooster = true;
-      var cell = _stack.Parent.GetComponent<Cell>();
+      var cell = _stack.Cell;
       cell.SetEmpty(true);
       cell.GetComponentInParent<GridObserver>().RemoveStackFromCellByBooster(cell);
       
