@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.Data;
@@ -10,13 +9,14 @@ using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
+using Cysharp.Threading.Tasks;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
   public class GridObserver : MonoBehaviour
   {
     [SerializeField, BoxGroup("SETUP")] private HexGrid _grid;
-    
+
     [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _pauseBetween = 0.2f;
     [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _moveDuration = 0.4f;
 
@@ -26,7 +26,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private UIWindow _mainMenu;
 
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
-
     public void Init(HexGrid grid) => _grid = grid;
 
     private void Start()
@@ -41,9 +40,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         _neighbors[cell] = GetNeighbors(cell);
 
       ScanAndRegisterStacks();
+      CheckAllStacksForMergesAsync().Forget();
     }
 
-    private async void Update()
+    private async UniTaskVoid Update()
     {
       if (Input.GetMouseButtonUp(0))
       {
@@ -67,7 +67,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           _stacksOnGrid.Add(stack);
       }
 
-      _ = CheckAllStacksForMergesAsync();
+      CheckAllStacksForMergesAsync().Forget();
     }
 
     private bool RescanForNewStacks(out Cell newCell)
@@ -75,7 +75,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       foreach (var cell in _grid.Cells)
       {
         var stack = cell.GetComponentInChildren<Stack>();
-        if (stack.IsDestroyed() || stack.IsDragged) continue;
+        if (stack == null || stack.IsDestroyed() || stack.IsDragged) continue;
         if (_stacksOnGrid.Contains(stack)) continue;
 
         _stacksOnGrid.Add(stack);
@@ -87,7 +87,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return false;
     }
 
-    private async Task CheckAllStacksForMergesAsync()
+    private async UniTask CheckAllStacksForMergesAsync()
     {
       bool merged;
       do
@@ -112,7 +112,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       await CheckForLoseConditionAsync();
     }
 
-    private async Task<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
+    private async UniTask<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
     {
       if (centerCell == null) return false;
       var centerStack = centerCell.GetComponentInChildren<Stack>();
@@ -202,7 +202,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return result;
     }
 
-    private async Task MoveCellsToOtherStackAsync(List<StackTile> cellsToMove, Stack targetStack)
+    private async UniTask MoveCellsToOtherStackAsync(List<StackTile> cellsToMove, Stack targetStack)
     {
       if (cellsToMove == null || targetStack == null || targetStack.IsDragged) return;
 
@@ -246,17 +246,16 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       Destroy(stack.gameObject);
     }
 
-    private Task RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, Vector3 moveDirection)
+    private UniTask RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, Vector3 moveDirection)
     {
-      var tcs = new TaskCompletionSource<bool>();
-      if (stack == null || movedTiles == null)
+      var uts = new UniTaskCompletionSource();
+      if (stack == null || movedTiles == null || movedTiles.Count == 0)
       {
-        tcs.SetResult(true);
-        return tcs.Task;
+        uts.TrySetResult();
+        return uts.Task;
       }
-      
-      float delay = 0f;
 
+      float delay = 0f;
       int completed = 0;
       int total = movedTiles.Count;
 
@@ -283,8 +282,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection) * Quaternion.Euler(270f, 90f, 0f);
 
         AudioFacade.Instance.PlaySort();
-        
-        go.transform.DOPath(path, _moveDuration, PathType.CatmullRom)
+
+        var pathTween = go.transform.DOPath(path, _moveDuration, PathType.CatmullRom)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnStart(() =>
@@ -292,7 +291,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
             AudioFacade.Instance.PlaySort();
           });
 
-        go.transform.DORotateQuaternion(targetRotation, _moveDuration)
+        var rotTween = go.transform.DORotateQuaternion(targetRotation, _moveDuration)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
@@ -300,16 +299,21 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
             go.transform.rotation = prefabRotation;
             completed++;
             if (completed >= total)
-              tcs.TrySetResult(true);
+            {
+              uts.TrySetResult();
+            }
           });
 
         delay += _pauseBetween;
       }
 
-      return tcs.Task;
+      if (completed >= total)
+        uts.TrySetResult();
+
+      return uts.Task;
     }
 
-    private async Task CheckAllStacksForColorThresholdAsync()
+    private async UniTask CheckAllStacksForColorThresholdAsync()
     {
       var stacksSnapshot = _stacksOnGrid.ToList();
       foreach (var stack in stacksSnapshot)
@@ -330,8 +334,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         .ToList();
       return result;
     }
-    
-    private async Task CheckForLoseConditionAsync()
+
+    private async UniTask CheckForLoseConditionAsync()
     {
       bool allFilled = _grid.Cells.All(c => !c.IsEmpty);
 
@@ -342,7 +346,16 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var stack = cell.GetComponentInChildren<Stack>();
         if (stack == null) continue;
 
-        var color = stack.GetLastCellColor();
+        Color color;
+        try
+        {
+          color = stack.GetLastCellColor();
+        }
+        catch
+        {
+          continue;
+        }
+
         foreach (var neighbor in _neighbors[cell])
         {
           var neighborStack = neighbor.GetComponentInChildren<Stack>();
@@ -355,11 +368,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       await ShowLosePopupAsync();
     }
 
-    private Task ShowLosePopupAsync()
+    private UniTask ShowLosePopupAsync()
     {
       _mainMenu.Open();
-
-      return Task.CompletedTask;
+      return UniTask.CompletedTask;
     }
 
     public void RemoveStackFromCellByBooster(Cell cell)
