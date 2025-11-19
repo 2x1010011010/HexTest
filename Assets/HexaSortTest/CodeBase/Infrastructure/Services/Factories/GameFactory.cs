@@ -3,6 +3,7 @@ using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
+using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
@@ -31,14 +32,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       _levelConfigs = Resources.Load<LevelConfigsList>(AssetPaths.LevelConfigs);
     }
 
-    public ObjectPool<Cell> CreateCellPool()
+    public ObjectPool<StackTile> CreateCellPool()
     {
       Transform container = new GameObject("PoolContainer").transform;
-      var cellPoolInstance = new ObjectPool<Cell>(container);
+      var cellPoolInstance = new ObjectPool<StackTile>(container);
       for (int i = 0; i < 250; i++)
       {
         var cellPrefab = _assets.Instantiate(AssetPaths.CellPrefab);
-        cellPoolInstance.AddToPool(cellPrefab.GetComponent<Cell>());
+        cellPoolInstance.AddToPool(cellPrefab.GetComponent<StackTile>());
       }
       
       _instances.Add(container.gameObject);
@@ -46,7 +47,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return cellPoolInstance;
     }
 
-    public GridSpawner CreateGridSpawner(ObjectPool<Cell> poolInstance, MainMenuObserver mainMenu)
+    public GridSpawner CreateGridSpawner(ObjectPool<StackTile> poolInstance, MainMenuObserver mainMenu)
     {
       var gridSpawnerObject = InstantiateRegistered(AssetPaths.GridSpawner);
        _gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
@@ -60,7 +61,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return _gridSpawner;
     }
 
-    public void CreateStacksSpawner(ObjectPool<Cell> poolInstance, HexGrid grid)
+    public void CreateStacksSpawner(ObjectPool<StackTile> poolInstance, HexGrid grid)
     {
       var stacksSpawnerObject = InstantiateRegistered(AssetPaths.StackSpawner);
       stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig, poolInstance, grid);

@@ -269,7 +269,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           continue;
         }
 
-        var cell = go.GetComponent<Cell>();
+        var cell = go.GetComponent<StackTile>();
         cell.SetParent(stack.transform);
         stack.Add(cell.gameObject);
 

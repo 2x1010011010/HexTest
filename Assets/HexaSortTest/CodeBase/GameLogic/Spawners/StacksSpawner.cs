@@ -26,11 +26,11 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     private LevelConfig _levelConfig;
     private GameObject _stack;
     private HexGrid _grid;
-    private ObjectPool<Cell> _poolInstance;
+    private ObjectPool<StackTile> _poolInstance;
     private List<GameObject> _spawnedStacks = new();
     private bool _isSpawned = false;
 
-    public void Initialize(LevelConfig levelConfig, ObjectPool<Cell> poolInstance, HexGrid grid)
+    public void Initialize(LevelConfig levelConfig, ObjectPool<StackTile> poolInstance, HexGrid grid)
     {
       foreach (var spawnPoint in _spawnPoints)
         spawnPoint.transform.SetParent(null);
@@ -88,7 +88,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
       stackObject.name = $"Stack {parent.GetSiblingIndex()}";
 
       Stack stack = stackObject.GetComponent<Stack>();
-      stack.SetParent(parent);
+      stack.SetParentCell(parent);
       stack.Initialize(_poolInstance);
 
       int tilesCount = Random.Range(_minTilesToSpawn, _maxTilesToSpawn);
@@ -99,7 +99,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
       for (int i = 0; i < tilesCount; i++)
       {
-        if (!_poolInstance.TryGetObject(out Cell tile)) return null;
+        if (!_poolInstance.TryGetObject(out StackTile tile)) return null;
         if (tile == null) continue;
 
         tile.Color = i < firstColorTilesCount ? firstRandomColor : secondRandomColor;

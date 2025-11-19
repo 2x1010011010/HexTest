@@ -20,7 +20,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     [SerializeField, BoxGroup("DROP AND DRAG SETTINGS")] private float _verticalShift = 2.5f;
     [SerializeField, BoxGroup("DROP AND DRAG SETTINGS")] private float _movementSpeed = 250f;
     
-    
 
     private bool _isDragging = false;
     private Vector3 _startPosition;
@@ -83,18 +82,18 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       if (Physics.Raycast(_stack.transform.position, Vector3.down, out var hitToCell, 100, _gridLayer))
       {
         if (hitToCell.collider.GetComponent<Cell>() == null) return;
-        _stack.SetParent(_stack.DefaultParent);
+        _stack.SetParentCell(_stack.DefaultParent);
 
         var cell = hitToCell.collider.GetComponent<Cell>();
         if (!cell.IsEmpty) return;
 
         cell.ShineOn();
         _currentGridCell = cell;
-        _stack.SetParent(cell.transform);
+        _stack.SetParentCell(cell.transform);
       }
       else
       {
-        _stack.SetParent(_stack.DefaultParent);
+        _stack.SetParentCell(_stack.DefaultParent);
       }
     }
 

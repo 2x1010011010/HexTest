@@ -20,25 +20,25 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     
     private Transform _parent;
     private Transform _defaultParent;
-    private ObjectPool<Cell> _poolInstance;
+    private ObjectPool<StackTile> _poolInstance;
     private Cell _parentCell;
     private bool _isDragged;
 
     private const int COLOR_THRESHOLD = 20;
 
     public List<GameObject> Tiles => _stack;
-    public List<Cell> Cells => _stack.Select(go => go.GetComponent<Cell>()).ToList();
+    public List<StackTile> Cells => _stack.Select(go => go.GetComponent<StackTile>()).ToList();
     public Transform Parent => _parent;
     public Transform DefaultParent => _defaultParent;
     public Cell Cell => _parentCell;
     public bool IsDragged => _isDragged;
 
-    public void Initialize(ObjectPool<Cell> poolInstance)
+    public void Initialize(ObjectPool<StackTile> poolInstance)
     {
       _poolInstance = poolInstance;
     }
 
-    public void SetParent(Transform parent)
+    public void SetParentCell(Transform parent)
     {
       _parent = parent;
       transform.SetParent(parent);
@@ -52,7 +52,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public void ResetParent()
     {
       if (_defaultParent != null)
-        SetParent(_defaultParent);
+        SetParentCell(_defaultParent);
     }
 
     public void Add(GameObject cell)
@@ -96,7 +96,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         return;
       }
 
-      List<Cell> colorGroups = new();
+      List<StackTile> colorGroups = new();
       Color color = GetLastCellColor();
 
       for (int i = _stack.Count - 1; i >= 0; i--)
