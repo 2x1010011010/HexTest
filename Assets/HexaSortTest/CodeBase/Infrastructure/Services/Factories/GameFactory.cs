@@ -38,7 +38,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var cellPoolInstance = new ObjectPool<StackTile>(container);
       for (int i = 0; i < 250; i++)
       {
-        var cellPrefab = _assets.Instantiate(AssetPaths.CellPrefab);
+        var cellPrefab = _assets.Instantiate(AssetPaths.StackTile);
         cellPoolInstance.AddToPool(cellPrefab.GetComponent<StackTile>());
       }
       

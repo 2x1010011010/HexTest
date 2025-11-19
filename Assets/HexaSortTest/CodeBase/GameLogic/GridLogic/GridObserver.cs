@@ -182,9 +182,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return mergedAny;
     }
 
-    private List<Cell> GetCellsToMove(Stack stack, Color color)
+    private List<StackTile> GetCellsToMove(Stack stack, Color color)
     {
-      var result = new List<Cell>();
+      var result = new List<StackTile>();
       if (stack == null || stack.Tiles == null || stack.IsDragged) return result;
 
       for (int i = stack.Tiles.Count - 1; i >= 0; i--)
@@ -192,7 +192,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var go = stack.Tiles[i];
         if (go == null) break;
 
-        var cell = go.GetComponent<Cell>();
+        var cell = go.GetComponent<StackTile>();
         if (cell == null || cell.Color != color)
           break;
 
@@ -202,7 +202,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return result;
     }
 
-    private async Task MoveCellsToOtherStackAsync(List<Cell> cellsToMove, Stack targetStack)
+    private async Task MoveCellsToOtherStackAsync(List<StackTile> cellsToMove, Stack targetStack)
     {
       if (cellsToMove == null || targetStack == null || targetStack.IsDragged) return;
 
