@@ -115,7 +115,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
 
       Debug.Log($"Removed {colorGroups.Count} tiles of color {color}");
-      await _stackAnimator.ColorTreshold(colorGroups, this);
+      await _stackAnimator.DestroyTilesAnimation(colorGroups, this);
       CheckForEmptyStack();
     }
 
@@ -141,7 +141,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       
       var tiles = Cells.Where(c => c != null).Reverse().ToList();
 
-      await _stackAnimator.ColorTreshold(tiles, this);
+      await _stackAnimator.DestroyTilesAnimation(tiles, this);
 
       CheckForEmptyStack();
     }

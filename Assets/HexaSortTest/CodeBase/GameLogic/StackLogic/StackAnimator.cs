@@ -13,7 +13,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     [SerializeField, BoxGroup("SCALE")] private float _scaleDuration = 0.2f;
     [SerializeField, BoxGroup("SCALE")] private float _pauseBetween = 0.2f;
 
-    public async Task ColorTreshold(List<StackTile> tiles, Stack stack)
+    public async Task DestroyTilesAnimation(List<StackTile> tiles, Stack stack)
     {
       if (tiles == null || tiles.Count == 0)
         return;

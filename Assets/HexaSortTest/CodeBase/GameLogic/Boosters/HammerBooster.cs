@@ -8,7 +8,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
   {
     public async void BoosterAction(Stack target)
     {
-      if (target == null) return;
+      Debug.Log("Hammer Booster Action");
+      if (target == null) { Debug.Log("Stack is null"); return;}
       await target.BreakStackByHammer();
     }
   }
