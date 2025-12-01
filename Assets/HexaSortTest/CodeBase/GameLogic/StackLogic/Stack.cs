@@ -23,6 +23,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private ObjectPool<StackTile> _poolInstance;
     private Cell _parentCell;
     private bool _isDragged;
+    private StackAnimator _stackAnimator;
 
     private const int COLOR_THRESHOLD = 20;
 
@@ -32,10 +33,12 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public Transform DefaultParent => _defaultParent;
     public Cell Cell => _parentCell;
     public bool IsDragged => _isDragged;
+    public ObjectPool<StackTile> PoolInstance => _poolInstance;
 
     public void Initialize(ObjectPool<StackTile> poolInstance)
     {
       _poolInstance = poolInstance;
+      _stackAnimator = GetComponent<StackAnimator>();
     }
 
     public void SetParentCell(Transform parent)
@@ -111,40 +114,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         return;
       }
 
-      float delay = 0f;
-
-      foreach (var cell in colorGroups)
-      {
-        if (cell == null) continue;
-
-        _stack.Remove(cell.gameObject);
-        var startScale = cell.transform.localScale;
-
-        cell.transform.DOScale(Vector3.zero, _scaleDuration)
-          .SetDelay(delay)
-          .SetEase(Ease.InOutSine)
-          .OnStart(() =>
-          {
-            AudioFacade.Instance.PlayClose();
-            HudObserver.Instance.AddTiles(1);
-          })
-          .OnComplete(() =>
-          {
-            cell.SetActive(false);
-            cell.transform.localScale = startScale;
-            cell.transform.position = Vector3.zero;
-            cell.Color = Color.white;
-            _poolInstance?.ReturnObject(cell);
-          });
-
-        delay += _pauseBetween;
-      }
-
       Debug.Log($"Removed {colorGroups.Count} tiles of color {color}");
-
-      float totalAnimationTime = delay + _scaleDuration;
-      await Task.Delay(Mathf.RoundToInt(totalAnimationTime * 1000f));
-
+      await _stackAnimator.ColorTreshold(colorGroups, this);
       CheckForEmptyStack();
     }
 
@@ -160,7 +131,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
     }
     
-    public async Task BreakStackByHammer(float punchScale, float duration)
+    public async Task BreakStackByHammer()
     {
       if (_stack.Count == 0)
       {
@@ -170,39 +141,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       
       var tiles = Cells.Where(c => c != null).Reverse().ToList();
 
-      float delay = 0f;
-
-      foreach (var cell in tiles)
-      {
-        if (cell == null) continue;
-
-        _stack.Remove(cell.gameObject);
-        var startScale = cell.transform.localScale;
-
-        cell.transform.DOPunchScale(Vector3.one * punchScale, duration / 2f, 8, 0.5f)
-          .OnStart(() => AudioFacade.Instance.PlayClose());
-
-        cell.transform.DOScale(Vector3.zero, duration)
-          .SetDelay(delay)
-          .SetEase(Ease.InBack)
-          .OnStart(() =>
-          {
-            HudObserver.Instance.AddTiles(1);
-          })
-          .OnComplete(() =>
-          {
-            cell.SetActive(false);
-            cell.transform.localScale = startScale;
-            cell.transform.position = Vector3.zero;
-            cell.Color = Color.white;
-            _poolInstance?.ReturnObject(cell);
-          });
-
-        delay += _pauseBetween;
-      }
-
-      float totalTime = delay + duration;
-      await Task.Delay(Mathf.RoundToInt(totalTime * 1000f));
+      await _stackAnimator.ColorTreshold(tiles, this);
 
       CheckForEmptyStack();
     }
