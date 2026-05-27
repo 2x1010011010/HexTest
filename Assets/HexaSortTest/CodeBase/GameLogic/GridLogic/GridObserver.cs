@@ -13,43 +13,20 @@ using Cysharp.Threading.Tasks;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
-  /// <summary>
-  /// Наблюдатель за состоянием гекса-сетки.
-  /// Отслеживает появление стеков, запускает слияния, перемещения тайлов,
-  /// проверяет условия поражения.
-  /// </summary>
   public class GridObserver : MonoBehaviour
   {
-    [SerializeField, BoxGroup("SETUP")] private HexGrid _grid; // Сетка гекса-клеток
-
-    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")]
-    float _pauseBetween = 0.2f; // Пауза между перелётами тайлов
-
-    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")]
-    float _moveDuration = 0.4f; // Длительность одного перелёта
+    [SerializeField, BoxGroup("SETUP")] private HexGrid _grid;
+    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _pauseBetween = 0.2f;
+    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _moveDuration = 0.4f;
 
     private readonly Dictionary<Cell, List<Cell>> _neighbors = new();
-    // Список соседей для каждой клетки (кэшируется для скорости)
-
     private readonly HashSet<Stack> _stacksOnGrid = new();
-    // Список всех стеков, уже стоящих на клетках
+    private Cell _lastAddedCell; 
+    private UIWindow _mainMenu; 
 
-    private Cell _lastAddedCell; // Клетка, в которую игрок положил стек
-    private UIWindow _mainMenu; // Окно проигрыша
-
-    /// <summary>
-    /// Сохраняем ссылку на главное меню для показа при проигрыше.
-    /// </summary>
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
-
-    /// <summary>
-    /// Инициализация внешней HexGrid.
-    /// </summary>
     public void Init(HexGrid grid) => _grid = grid;
 
-    /// <summary>
-    /// Предвычисляет соседей, сканирует существующие стеки и запускает первичную проверку слияний.
-    /// </summary>
     private void Start()
     {
       if (_grid == null)
@@ -58,41 +35,27 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         return;
       }
 
-      // Предзагружаем соседей для всех клеток (ускоряет работу)
       foreach (var cell in _grid.Cells)
         _neighbors[cell] = GetNeighbors(cell);
 
       ScanAndRegisterStacks();
 
-      // Асинхронно запускаем глобальную проверку всех стеков
       CheckAllStacksForMergesAsync().Forget();
     }
 
-    /// <summary>
-    /// Отслеживает отпускание мыши.
-    /// Если появился новый стек — запускает проверку слияний и проверку поражения.
-    /// </summary>
     private async UniTaskVoid Update()
     {
       if (Input.GetMouseButtonUp(0))
       {
-        // Проверяем — появился ли новый стек на сетке
         if (RescanForNewStacks(out var newCell))
         {
           _lastAddedCell = newCell;
-
-          // Запускаем слияние от этой клетки
           await ProcessMergesFromCellAsync(_lastAddedCell);
-
-          // Проверка условий проигрыша
           await CheckForLoseConditionAsync();
         }
       }
     }
 
-    /// <summary>
-    /// Полное сканирование сетки, заносит все стеки в HashSet.
-    /// </summary>
     private void ScanAndRegisterStacks()
     {
       _stacksOnGrid.Clear();
@@ -100,18 +63,12 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       foreach (var cell in _grid.Cells)
       {
         var stack = cell.GetComponentInChildren<Stack>();
-
-        // Отсеиваем несуществующие и перетаскиваемые стеки
         if (stack != null && !stack.IsDragged)
           _stacksOnGrid.Add(stack);
       }
-
       CheckAllStacksForMergesAsync().Forget();
     }
 
-    /// <summary>
-    /// Определяет, появился ли новый стек после хода игрока.
-    /// </summary>
     private bool RescanForNewStacks(out Cell newCell)
     {
       foreach (var cell in _grid.Cells)
@@ -119,8 +76,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var stack = cell.GetComponentInChildren<Stack>();
         if (stack == null || stack.IsDestroyed() || stack.IsDragged)
           continue;
-
-        // Если этого стека ещё нет в HashSet — он новый
+        
         if (_stacksOnGrid.Contains(stack))
           continue;
 
@@ -133,10 +89,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return false;
     }
 
-    /// <summary>
-    /// Проверяет ВСЕ стеки на сетке.
-    /// Запускает слияния циклически, пока происходят изменения.
-    /// </summary>
     private async UniTask CheckAllStacksForMergesAsync()
     {
       bool merged;
@@ -156,23 +108,15 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           if (cell == null || stack.IsDragged)
             continue;
 
-          // Если слияние произошло — повторяем цикл
           if (await ProcessMergesFromCellAsync(cell, recursiveCheck: false))
             merged = true;
         }
       } while (merged);
 
-      // После полной стабилизации — проверяем пороги цвета
       await CheckAllStacksForColorThresholdAsync();
-
-      // И проверяем, не наступил ли проигрыш
       await CheckForLoseConditionAsync();
     }
 
-    /// <summary>
-    /// Выполняет цепочку слияний, начиная с одной клетки.
-    /// Механика похожа на "поглощение" соседних тайлов одного цвета.
-    /// </summary>
     private async UniTask<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
     {
       if (centerCell == null)
@@ -189,7 +133,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       {
         keepMerging = false;
 
-        // Список соседних клеток, в которых есть стеки
         var neighborCells = _neighbors[centerCell]
           .Where(n =>
           {
@@ -201,7 +144,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         if (neighborCells.Count == 0)
           break;
 
-        // Цвет верхнего тайла в центральном стеке
         Color baseColor;
 
         try
@@ -213,7 +155,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           break;
         }
 
-        // Соседи, у которых совпадают верхние цвета
         var sameColorNeighbors = neighborCells
           .Where(n =>
           {
@@ -225,7 +166,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         if (sameColorNeighbors.Count == 0)
           break;
 
-        // Начинаем перенос тайлов одного цвета
         foreach (var neighbor in sameColorNeighbors)
         {
           var neighborStack = neighbor.GetComponentInChildren<Stack>();
@@ -236,38 +176,30 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           if (tilesToMove.Count == 0)
             continue;
 
-          // Перелёт тайлов в центральный стек
           await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
 
           mergedAny = true;
           keepMerging = true;
         }
 
-        // Проверяем порог заполнения
         if (!centerStack.IsDragged)
           await centerStack.CheckForColorThreshold();
 
-        // Обновляем ссылку на центральный стек — вдруг он изменился
         centerStack = centerCell.GetComponentInChildren<Stack>();
       } while (keepMerging && centerStack != null && !centerStack.IsDragged && centerStack.Tiles.Count > 0);
 
-      // После цепного слияния запускаем глобальную проверку
       if (mergedAny && recursiveCheck)
         await CheckAllStacksForMergesAsync();
 
       return mergedAny;
     }
 
-    /// <summary>
-    /// Отбирает тайлы сверху вниз, пока их цвет совпадает с переданным.
-    /// </summary>
     private List<StackTile> GetCellsToMove(Stack stack, Color color)
     {
       var result = new List<StackTile>();
       if (stack == null || stack.Tiles == null || stack.IsDragged)
         return result;
 
-      // Проходим по стеку сверху вниз
       for (int i = stack.Tiles.Count - 1; i >= 0; i--)
       {
         var go = stack.Tiles[i];
@@ -276,7 +208,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
         var tile = go.GetComponent<StackTile>();
 
-        // Цвет не совпал → прекращаем
         if (tile.Color != color)
           break;
 
@@ -286,19 +217,15 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return result;
     }
 
-    /// <summary>
-    /// Удаляет тайлы из одного стека, переносит в другой и запускает анимации.
-    /// </summary>
     private async UniTask MoveCellsToOtherStackAsync(List<StackTile> cellsToMove, Stack targetStack)
     {
       if (cellsToMove == null || targetStack == null || targetStack.IsDragged)
         return;
 
       List<GameObject> movedTiles = new List<GameObject>();
-      Vector3 moveDirection = Vector3.forward; // направление перелёта
+      Vector3 moveDirection = Vector3.forward;
       Stack prevStack = null;
 
-      // Перебираем тайлы сверху вниз
       for (int i = cellsToMove.Count - 1; i >= 0; i--)
       {
         var tile = cellsToMove[i];
@@ -309,14 +236,11 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         if (prevStack == null || prevStack.IsDragged)
           continue;
 
-        // Удаляем тайл из старого стека
         prevStack.Remove(tile.gameObject);
 
-        // Если стек опустел — удаляем его
         if (prevStack.Tiles.Count == 0)
           RemoveStack(prevStack);
 
-        // Вычисляем направление перелёта
         moveDirection = (targetStack.transform.position - prevStack.transform.position).normalized;
 
         movedTiles.Add(tile.gameObject);
@@ -325,9 +249,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       await RecalcStackPositionsAsync(targetStack, movedTiles, moveDirection);
     }
 
-    /// <summary>
-    /// Полностью удаляет стек и освобождает клетку.
-    /// </summary>
     private void RemoveStack(Stack stack)
     {
       if (stack == null)
@@ -345,9 +266,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       Destroy(stack.gameObject);
     }
 
-    /// <summary>
-    /// Запускает анимацию перелёта всех тайлов в целевой стек.
-    /// </summary>
     private UniTask RecalcStackPositionsAsync(Stack stack, List<GameObject> movedTiles, Vector3 moveDirection)
     {
       var uts = new UniTaskCompletionSource();
@@ -373,15 +291,12 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
         var tile = go.GetComponent<StackTile>();
 
-        // Добавляем тайл в новый стек
         tile.SetParent(stack.transform);
         stack.Add(tile.gameObject);
 
-        // Позиция тайла сверху стека
         Vector3 targetPosition = stack.transform.position +
                                  Vector3.up * (0.5f * stack.Tiles.IndexOf(go));
-
-        // Траектория перелёта (дуга)
+        
         Vector3 startPosition = go.transform.position;
         Vector3 aboveOldStack = startPosition + Vector3.up * 2f;
         Vector3 aboveNewStack = targetPosition + Vector3.up * 2f;
@@ -393,22 +308,18 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           aboveNewStack,
           targetPosition
         };
+        
+        Quaternion prefabRotation = Quaternion.Euler(270f, 90f, 0f);
+        Vector3 flipAxis = Vector3.Cross(-Vector3.up, moveDirection).normalized;
+        Quaternion targetRotation = Quaternion.AngleAxis(180f, flipAxis) * prefabRotation;
 
-        Quaternion prefabRotation = Quaternion.Euler(90f, 90f, 0f);
-        Quaternion targetRotation =
-          Quaternion.LookRotation(moveDirection) *
-          Quaternion.Euler(270f, 90f, 0f);
-
-        // Звук перелёта
         AudioFacade.Instance.PlaySort();
 
-        // Анимация пути
         go.transform.DOPath(path, _moveDuration, PathType.CatmullRom)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine);
 
-        // Анимация вращения
-        go.transform.DORotateQuaternion(targetRotation, _moveDuration)
+        go.transform.DOLocalRotateQuaternion(targetRotation, _moveDuration)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
@@ -426,9 +337,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return uts.Task;
     }
 
-    /// <summary>
-    /// Проверяет все стеки на превышение порога одного цвета.
-    /// </summary>
     private async UniTask CheckAllStacksForColorThresholdAsync()
     {
       foreach (var stack in _stacksOnGrid.ToList())
@@ -438,9 +346,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       }
     }
 
-    /// <summary>
-    /// Находит всех соседей клетки на слое клеток через OverlapSphere.
-    /// </summary>
     private List<Cell> GetNeighbors(Cell cell)
     {
       if (cell == null)
@@ -456,11 +361,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         .ToList();
     }
 
-    /// <summary>
-    /// Проверка проигрыша:
-    /// — Все клетки заполнены.
-    /// — Нет соседей с одинаковыми цветами.
-    /// </summary>
     private async UniTask CheckForLoseConditionAsync()
     {
       bool allFilled = _grid.Cells.All(c => !c.IsEmpty);
@@ -468,7 +368,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (!allFilled)
         return;
 
-      // Проверяем, есть ли хотя бы одно возможное слияние
       foreach (var cell in _grid.Cells)
       {
         var stack = cell.GetComponentInChildren<Stack>();
@@ -493,29 +392,20 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
             continue;
 
           if (neighborStack.GetLastCellColor() == color)
-            return; // ход ещё возможен
+            return; 
         }
       }
 
-      // Ходов нет → проигрыш
       await ShowLosePopupAsync();
     }
 
-    /// <summary>
-    /// Показывает окно поражения.
-    /// </summary>
     private UniTask ShowLosePopupAsync()
     {
       _mainMenu.Open();
       return UniTask.CompletedTask;
     }
 
-    /// <summary>
-    /// Удаляет стек из HashSet по использованию бустера разрушения.
-    /// </summary>
-    public void RemoveStackFromCellByBooster(Cell cell)
-    {
+    public void RemoveStackFromCellByBooster(Cell cell) => 
       _stacksOnGrid.Remove(cell.GetComponentInChildren<Stack>());
-    }
   }
 }
