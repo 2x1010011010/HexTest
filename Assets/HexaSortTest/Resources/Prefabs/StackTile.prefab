@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8018756256356082069}
   - component: {fileID: 3068615307059526224}
   - component: {fileID: 4376525562129028036}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: StackTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -180,6 +180,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 55e01800be6a4ef41956f5703378c3b9, type: 3}
       propertyPath: m_Name
       value: hextile
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 55e01800be6a4ef41956f5703378c3b9, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7471988877278299484, guid: 55e01800be6a4ef41956f5703378c3b9, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

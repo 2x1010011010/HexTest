@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Boosters;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
+using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using Random = UnityEngine.Random;
 
@@ -18,8 +19,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _hammerCounterImage;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HandButton _handButton;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _handCounterImage;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private RespawnButton _respawnButton;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _respawnImage;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _hammerBoosterCounter;
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _handBoostaerCounter;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _handBoosterCounter;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _respawnBoosterCounter;
 
     //[SerializeField, BoxGroup("COINS COUNTER")] private TMP_Text _coinsCounter;
     [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _tilesCounter;
@@ -29,11 +33,13 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     public static HudObserver Instance { get; private set; }
 
     private UIWindow _mainMenu;
+    private StacksSpawner _stacksSpawner;
     private int _winCondition;
     private int _coisnsCount;
     private int _tilesCount;
     private int _hammerBoosterCount;
     private int _handBoosterCount;
+    private int _respawnBoosterCount;
     private int _tilesCounterSliderFill = 0;
 
     private void Awake()
@@ -43,26 +49,30 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       
       _hammerBoosterCount = 2;
       _handBoosterCount = 2;
+      _respawnBoosterCount = 2;
       _coisnsCount = 0;
       _tilesCount = 0;
 
       _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
-      _handBoostaerCounter.text = _handBoosterCount.ToString();
+      _handBoosterCounter.text = _handBoosterCount.ToString();
+      _respawnBoosterCounter.text = _respawnBoosterCount.ToString();
 //      _coinsCounter.text = _coisnsCount.ToString();
       _tilesCounter.text = _tilesCount.ToString();
       _tilesCounterSlider.value = _tilesCount;
     }
 
-    public void Init(int configWinCondition, MainMenuObserver mainMenu)
+    public void Init(int configWinCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner)
     {
       _winCondition = configWinCondition;
       _mainMenu = mainMenu;
+      _stacksSpawner = stacksSpawner;
     }
 
     private void OnEnable()
     {
       _hammerButton.OnHammerButtonClick += OnHammerButtonClick;
       _handButton.OnHandButtonClick += OnHandButtonClick;
+      _respawnButton.OnRespawnButtonClick += OnRespawnButtonClick;
 
       Open();
     }
@@ -80,6 +90,16 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       Close();
       _hammerButton.OnHammerButtonClick -= OnHammerButtonClick;
       _handButton.OnHandButtonClick -= OnHandButtonClick;
+      _respawnButton.OnRespawnButtonClick -= OnRespawnButtonClick;
+    }
+
+    private void OnRespawnButtonClick(IBooster booster)
+    {
+      AudioFacade.Instance.PlayClick();
+      if (_respawnBoosterCount <= 0) return;
+      _boosterTools.ActivateBooster(booster);
+      _respawnBoosterCount--;
+      _respawnBoosterCounter.text = _respawnBoosterCount.ToString();
     }
 
     private void OnHammerButtonClick(IBooster booster)
@@ -97,7 +117,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_handBoosterCount <= 0) return;
       _boosterTools.ActivateBooster(booster);
       _handBoosterCount--;
-      _handBoostaerCounter.text = _handBoosterCount.ToString();
+      _handBoosterCounter.text = _handBoosterCount.ToString();
     }
 
     private void OnCoinsCounterChanged(int value)
@@ -149,7 +169,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
             .DOPunchScale(Vector3.one * 2f, 0.5f, 10, 0.5f)
             .SetEase(Ease.OutBounce);
           _handBoosterCount++;
-          _handBoostaerCounter.text = _handBoosterCount.ToString();
+          _handBoosterCounter.text = _handBoosterCount.ToString();
           break;
       }
     }

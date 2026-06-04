@@ -313,8 +313,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         Vector3 flipAxis = Vector3.Cross(-Vector3.up, moveDirection).normalized;
         Quaternion targetRotation = Quaternion.AngleAxis(180f, flipAxis) * prefabRotation;
 
-        AudioFacade.Instance.PlaySort();
-
         go.transform.DOPath(path, _moveDuration, PathType.CatmullRom)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine);
@@ -324,13 +322,14 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
           {
+            AudioFacade.Instance.PlaySort();
             go.transform.rotation = prefabRotation;
 
             completed++;
             if (completed >= total)
               uts.TrySetResult();
           });
-
+        
         delay += _pauseBetween;
       }
 

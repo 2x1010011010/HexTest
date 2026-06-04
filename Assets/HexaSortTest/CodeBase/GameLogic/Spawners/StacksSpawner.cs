@@ -29,6 +29,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     private ObjectPool<StackTile> _poolInstance;
     private List<GameObject> _spawnedStacks = new();
     private bool _isSpawned = false;
+    
+    public List<Transform> SpawnPoints => _spawnPoints;
 
     public void Initialize(LevelConfig levelConfig, ObjectPool<StackTile> poolInstance, HexGrid grid)
     {

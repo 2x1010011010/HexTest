@@ -19,6 +19,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     private readonly IAssetProvider _assets;
     private readonly LevelConfigsList _levelConfigs;
     private LevelConfig _currentLevelConfig;
+    private StacksSpawner _stacksSpawner;
     
     private List<GameObject> _instances = new List<GameObject>();
     private GridSpawner _gridSpawner;
@@ -64,14 +65,15 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     public void CreateStacksSpawner(ObjectPool<StackTile> poolInstance, HexGrid grid)
     {
       var stacksSpawnerObject = InstantiateRegistered(AssetPaths.StackSpawner);
-      stacksSpawnerObject.GetComponent<StacksSpawner>().Initialize(_currentLevelConfig, poolInstance, grid);
+      _stacksSpawner = stacksSpawnerObject.GetComponent<StacksSpawner>();
+      _stacksSpawner.Initialize(_currentLevelConfig, poolInstance, grid);
       _instances.Add(stacksSpawnerObject);
     }
 
     public void CreateHud(MainMenuObserver mainMenu)
     {
       var instance = InstantiateRegistered(AssetPaths.HUD);
-      instance.GetComponent<HudObserver>().Init(_currentLevelConfig.WinCondition, mainMenu);
+      instance.GetComponent<HudObserver>().Init(_currentLevelConfig.WinCondition, mainMenu, _stacksSpawner);
       _instances.Add(instance);
     }
 

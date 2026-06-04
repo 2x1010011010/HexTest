@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.GameLogic.Spawners;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using Sirenix.OdinInspector;
@@ -8,10 +9,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
   {
     [SerializeField, BoxGroup("BOOSTERS")] private HammerBooster _hammerBooster;
     [SerializeField, BoxGroup("BOOSTERS")] private HandBooster _handBooster;
+    [SerializeField, BoxGroup("BOOSTERS")] private RespawnBooster _respawnBooster;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _stackLayer;
     
     private Camera _camera;
     private IBooster _currentBooster;
+    private StacksSpawner _stacksSpawner;
     private bool _isBoosterActive;
     private bool _isBoosterApplied;
 
@@ -24,6 +27,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
     private void Update()
     {
       if (!_isBoosterActive) return;
+
+      if (_currentBooster == typeof(RespawnBooster))
+      {
+        TryApplyRespawnBooster();
+      }
+
       if (Input.GetMouseButtonDown(0))
       {
         TryApplyBoosterAtScreenPoint(Input.mousePosition);
@@ -49,6 +58,20 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
         }
       }
     }
+
+    private void TryApplyRespawnBooster()
+    {
+      var spawnPoints = _stacksSpawner.SpawnPoints;
+      
+      foreach (var spawnPoint in spawnPoints)
+        _currentBooster.BoosterAction(spawnPoint.GetComponentInChildren<Stack>());
+      
+      _isBoosterApplied = true;
+      DeactivateBooster();
+    }
+
+    public void SetSpawner(StacksSpawner spawner) => 
+      _stacksSpawner = spawner;
 
     public void ActivateBooster(IBooster booster)
     {
