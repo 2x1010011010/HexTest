@@ -2055,8 +2055,11 @@ MonoBehaviour:
   _hammerCounterImage: {fileID: 4326875402890620845}
   _handButton: {fileID: 2645097333320019427}
   _handCounterImage: {fileID: 798576951410677622}
+  _respawnButton: {fileID: 3667746604051030764}
+  _respawnImage: {fileID: 2843479622313880335}
   _hammerBoosterCounter: {fileID: 5628681648913366698}
-  _handBoostaerCounter: {fileID: 5859929703249568370}
+  _handBoosterCounter: {fileID: 5859929703249568370}
+  _respawnBoosterCounter: {fileID: 6676258157140854442}
   _tilesCounter: {fileID: 90745094605889681}
   _winConditionText: {fileID: 8121669577943931381}
   _tilesCounterSlider: {fileID: 6200364540012284701}
@@ -2317,6 +2320,7 @@ GameObject:
   - component: {fileID: 656209568289789829}
   - component: {fileID: 31768100601483465}
   - component: {fileID: 5481633678159206253}
+  - component: {fileID: 3667746604051030764}
   m_Layer: 0
   m_Name: Respawn
   m_TagString: Untagged
@@ -2439,6 +2443,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd5d3a9d4041427c8b6a814c39e55a81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Boosters.RespawnBooster
+--- !u!114 &3667746604051030764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7050345931567822422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5688da8bd227416eb49a7488e27606e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.RespawnButton
+  _button: {fileID: 31768100601483465}
+  _hammerBooster: {fileID: 5481633678159206253}
 --- !u!1 &7762343514528733998
 GameObject:
   m_ObjectHideFlags: 0

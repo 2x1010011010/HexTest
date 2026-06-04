@@ -117,7 +117,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     private Color GetRandomColor() =>
       _levelConfig.CellColors[Random.Range(0, _levelConfig.CellColors.Count)];
 
-    private void StackParentChanged(Stack stack)
+    public void StackParentChanged(Stack stack)
     {
       _spawnedStacks.Remove(stack.gameObject);
 

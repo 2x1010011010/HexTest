@@ -66,6 +66,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _winCondition = configWinCondition;
       _mainMenu = mainMenu;
       _stacksSpawner = stacksSpawner;
+      _boosterTools.SetSpawner(_stacksSpawner);
     }
 
     private void OnEnable()

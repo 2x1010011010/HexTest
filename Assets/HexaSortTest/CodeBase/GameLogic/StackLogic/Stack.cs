@@ -115,7 +115,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
 
       Debug.Log($"Removed {colorGroups.Count} tiles of color {color}");
-      await _stackAnimator.DestroyTilesAnimation(colorGroups, this);
+      await _stackAnimator.DestroyTilesAnimation(colorGroups, this, 1);
       CheckForEmptyStack();
     }
 
@@ -131,7 +131,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       }
     }
     
-    public async Task BreakStackByHammer()
+    public async Task BreakStackByHammer(int tilesAddToCounter = 1)
     {
       if (_stack.Count == 0)
       {
@@ -141,7 +141,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       
       var tiles = Cells.Where(c => c != null).Reverse().ToList();
 
-      await _stackAnimator.DestroyTilesAnimation(tiles, this);
+      await _stackAnimator.DestroyTilesAnimation(tiles, this, tilesAddToCounter);
 
       CheckForEmptyStack();
     }

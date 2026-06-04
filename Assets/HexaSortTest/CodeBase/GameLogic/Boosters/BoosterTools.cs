@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
@@ -28,9 +29,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
     {
       if (!_isBoosterActive) return;
 
-      if (_currentBooster == typeof(RespawnBooster))
+      if (_currentBooster.GetType() == typeof(RespawnBooster))
       {
         TryApplyRespawnBooster();
+        return;
       }
 
       if (Input.GetMouseButtonDown(0))
@@ -64,10 +66,16 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
       var spawnPoints = _stacksSpawner.SpawnPoints;
       
       foreach (var spawnPoint in spawnPoints)
-        _currentBooster.BoosterAction(spawnPoint.GetComponentInChildren<Stack>());
+      {
+        var stack = spawnPoint.gameObject.GetComponentInChildren<Stack>();
+        if (stack == null) continue;
+        _currentBooster.BoosterAction(stack);
+        _stacksSpawner.StackParentChanged(stack);
+      }
       
       _isBoosterApplied = true;
       DeactivateBooster();
+      //_stacksSpawner.ClearSpawn();
     }
 
     public void SetSpawner(StacksSpawner spawner) => 

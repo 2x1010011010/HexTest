@@ -5,8 +5,9 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
 {
   public class RespawnBooster : MonoBehaviour, IBooster
   {
-    public void BoosterAction(Stack target)
+    public async void BoosterAction(Stack target)
     {
+      await target.BreakStackByHammer(0);
     }
   }
 }

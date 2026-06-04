@@ -13,7 +13,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     [SerializeField, BoxGroup("SCALE")] private float _scaleDuration = 0.2f;
     [SerializeField, BoxGroup("SCALE")] private float _pauseBetween = 0.2f;
 
-    public async Task DestroyTilesAnimation(List<StackTile> tiles, Stack stack)
+    public async Task DestroyTilesAnimation(List<StackTile> tiles, Stack stack, int tilesCount)
     {
       if (tiles == null || tiles.Count == 0)
         return;
@@ -48,7 +48,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
           .OnStart(() =>
           {
             AudioFacade.Instance.PlayClose();
-            HudObserver.Instance.AddTiles(1);
+            HudObserver.Instance.AddTiles(tilesCount);
           })
           .OnComplete(() =>
           {
