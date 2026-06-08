@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.Cells;
@@ -14,10 +15,10 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
   public class Stack : MonoBehaviour
   {
     [SerializeField, BoxGroup("STACK SETUP")] private List<GameObject> _stack = new();
-    
+
     [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _pauseBetween = 0.05f;
     [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _scaleDuration = 0.2f;
-    
+
     private Transform _parent;
     private Transform _defaultParent;
     private ObjectPool<StackTile> _poolInstance;
@@ -77,7 +78,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
           go.SetActive(active);
     }
 
-    public void SetDragged(bool dragged) => 
+    public void SetDragged(bool dragged) =>
       _isDragged = dragged;
 
     public Color GetLastCellColor()
@@ -130,7 +131,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         Destroy(gameObject);
       }
     }
-    
+
     public async Task BreakStackByHammer(int tilesAddToCounter = 1)
     {
       if (_stack.Count == 0)
@@ -138,12 +139,21 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         CheckForEmptyStack();
         return;
       }
-      
+
       var tiles = Cells.Where(c => c != null).Reverse().ToList();
 
       await _stackAnimator.DestroyTilesAnimation(tiles, this, tilesAddToCounter);
 
       CheckForEmptyStack();
+    }
+
+    /// <summary>
+    /// Plays the arc-move animation for tiles arriving into this stack from another.
+    /// Called by GridObserver after it has already reparented tiles out of their source stack.
+    /// </summary>
+    public UniTask AnimateMoveToStack(List<GameObject> incomingTiles, Vector3 moveDirection)
+    {
+      return _stackAnimator.MoveStackTilesAnimation(this, incomingTiles, moveDirection);
     }
   }
 }

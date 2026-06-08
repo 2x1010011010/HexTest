@@ -65,6 +65,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.StackLogic.StackAnimator
   _scaleDuration: 0.1
   _pauseBetween: 0.05
+  _movePauseBetween: 0.05
+  _moveDuration: 0.4
 --- !u!114 &5937415863697100280
 MonoBehaviour:
   m_ObjectHideFlags: 0
