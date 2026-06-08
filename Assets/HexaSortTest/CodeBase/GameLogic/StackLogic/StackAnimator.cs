@@ -10,8 +10,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class StackAnimator : MonoBehaviour
   {
-    [SerializeField, BoxGroup("SCALE")] private float _scaleDuration = 0.2f;
-    [SerializeField, BoxGroup("SCALE")] private float _pauseBetween = 0.2f;
+    [SerializeField, BoxGroup("SCALE")] private float _scaleDuration = 0.05f;
+    [SerializeField, BoxGroup("SCALE")] private float _pauseBetween = 0.05f;
 
     public async Task DestroyTilesAnimation(List<StackTile> tiles, Stack stack, int tilesCount)
     {

@@ -88,6 +88,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &266668447319501560
 GameObject:
@@ -177,6 +178,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &428842365855264907
 GameObject:
@@ -227,7 +229,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 3761999867276267940}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &1562198031311097034
 MeshCollider:
@@ -359,7 +360,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 3418025433581218955}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &8903166835555525849
 MeshCollider:
@@ -498,6 +498,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1813634260148006484
 GameObject:
@@ -548,7 +549,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 4092246174863655129}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &2436498863152080282
 MeshCollider:
@@ -719,6 +719,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2414498907082935013
 GameObject:
@@ -840,6 +841,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2571885461629117923
 GameObject:
@@ -890,7 +892,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 6341724631416462534}
   _isSpawner: 1
-  _isActive: 0
   _isEmpty: 0
 --- !u!64 &2321188351423990295
 MeshCollider:
@@ -1029,6 +1030,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2822466524198650795
 GameObject:
@@ -1111,7 +1113,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 5662342192941774589}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &6449258932260107205
 MeshCollider:
@@ -1243,7 +1244,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 8885081200942410400}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &5812864122994894618
 MeshCollider:
@@ -1382,6 +1382,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &3343711689183473504
 GameObject:
@@ -1432,7 +1433,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 2731636089188221319}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &7702866414832519517
 MeshCollider:
@@ -1532,7 +1532,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 2670324214272986809}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &9181642761409736032
 MeshCollider:
@@ -1703,6 +1702,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &3960404792895075754
 GameObject:
@@ -1753,7 +1753,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 2205038095000710524}
   _isSpawner: 1
-  _isActive: 0
   _isEmpty: 0
 --- !u!64 &7813494017492174245
 MeshCollider:
@@ -1892,6 +1891,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &4043857563372038494
 GameObject:
@@ -1942,7 +1942,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 211867333744925445}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &1362622989003946830
 MeshCollider:
@@ -2088,6 +2087,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.GridObserver
   _grid: {fileID: 6079226718718879825}
+  _pauseBetween: 0.08
+  _moveDuration: 0.8
 --- !u!1 &4946712200134766155
 GameObject:
   m_ObjectHideFlags: 0
@@ -2169,7 +2170,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 3854877539929593452}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &8420896052886583956
 MeshCollider:
@@ -2301,7 +2301,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 8693488591157663168}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &1803678143474083630
 MeshCollider:
@@ -2433,7 +2432,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 7791914889422705986}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &7287200170602702457
 MeshCollider:
@@ -2565,7 +2563,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 7626341660806806411}
   _isSpawner: 1
-  _isActive: 0
   _isEmpty: 0
 --- !u!64 &8698759944198544583
 MeshCollider:
@@ -2736,6 +2733,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5909052592281154240
 GameObject:
@@ -2889,6 +2887,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6158211235360382886
 GameObject:
@@ -3003,7 +3002,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 6812207535638117414}
   _isSpawner: 1
-  _isActive: 0
   _isEmpty: 0
 --- !u!64 &6819593441014068722
 MeshCollider:
@@ -3103,7 +3101,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 8150472315967476495}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &4555215141952795433
 MeshCollider:
@@ -3242,6 +3239,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6719771256085010137
 GameObject:
@@ -3292,7 +3290,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 4066545885846000050}
   _isSpawner: 0
-  _isActive: 0
   _isEmpty: 1
 --- !u!64 &8697974099409918737
 MeshCollider:
@@ -3431,6 +3428,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6996179735311503379
 GameObject:
@@ -3584,6 +3582,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7713365571571260306
 GameObject:
@@ -3673,6 +3672,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7735550788761099649
 GameObject:
@@ -3723,7 +3723,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Cell
   _renderer: {fileID: 8659121545397813427}
   _isSpawner: 1
-  _isActive: 0
   _isEmpty: 0
 --- !u!64 &4228016608438536567
 MeshCollider:
@@ -3862,6 +3861,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7823848233840626696
 GameObject:
@@ -3983,6 +3983,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &8324093455929986894
 GameObject:
@@ -4072,4 +4073,5 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}

@@ -16,8 +16,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
   public class GridObserver : MonoBehaviour
   {
     [SerializeField, BoxGroup("SETUP")] private HexGrid _grid;
-    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _pauseBetween = 0.2f;
-    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _moveDuration = 0.4f;
+    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _pauseBetween = 0.05f;
+    [SerializeField, BoxGroup("TILES MOVEMENT ANIMATION SETTINGS")] float _moveDuration = 0.05f;
 
     private readonly Dictionary<Cell, List<Cell>> _neighbors = new();
     private readonly HashSet<Stack> _stacksOnGrid = new();
