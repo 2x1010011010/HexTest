@@ -16,8 +16,12 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _movePauseBetween = 0.2f;
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _moveDuration = 0.4f;
-    [Range(0.1f,1f)]
+
+    [Range(0.1f,1f)] 
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _durationCent = 0.9f;
+    [SerializeField, BoxGroup("MOVE ANIMATION")]private float _curveHeight = 6f;
+
+    [SerializeField, BoxGroup("STACK PARAMETERS")] private float _verticalShift = 0.7f;
 
     public async Task DestroyTilesAnimation(List<StackTile> tiles, Stack stack, int tilesCount)
     {
@@ -106,11 +110,11 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         targetStack.Add(tile.gameObject);
 
         Vector3 targetPosition = targetStack.transform.position +
-                                 Vector3.up * (0.7f * targetStack.Tiles.IndexOf(go));
+                                 Vector3.up * (_verticalShift * targetStack.Tiles.IndexOf(go));
 
         Vector3 startPosition = go.transform.position;
-        Vector3 aboveOldStack = startPosition + Vector3.up * 6f;
-        Vector3 aboveNewStack = targetPosition + Vector3.up * 6f;
+        Vector3 aboveOldStack = startPosition + Vector3.up * _curveHeight;
+        Vector3 aboveNewStack = targetPosition + Vector3.up * _curveHeight;
         Vector3[] path = new Vector3[]
         {
           targetPosition,
