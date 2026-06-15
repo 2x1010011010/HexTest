@@ -21,7 +21,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _minTilesToSpawn = 3;
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxTilesToSpawn = 10;
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxColorsInStack = 3;
-    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private float _verticalShift = 0.5f;
+    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private float _verticalShift = 0.7f;
 
     private LevelConfig _levelConfig;
     private GameObject _stack;

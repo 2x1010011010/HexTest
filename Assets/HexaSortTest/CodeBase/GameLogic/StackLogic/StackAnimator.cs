@@ -16,6 +16,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _movePauseBetween = 0.2f;
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _moveDuration = 0.4f;
+    [Range(0.1f,1f)]
+    [SerializeField, BoxGroup("MOVE ANIMATION")] private float _durationCent = 0.9f;
 
     public async Task DestroyTilesAnimation(List<StackTile> tiles, Stack stack, int tilesCount)
     {
@@ -104,29 +106,28 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         targetStack.Add(tile.gameObject);
 
         Vector3 targetPosition = targetStack.transform.position +
-                                 Vector3.up * (0.5f * targetStack.Tiles.IndexOf(go));
+                                 Vector3.up * (0.7f * targetStack.Tiles.IndexOf(go));
 
         Vector3 startPosition = go.transform.position;
-        Vector3 aboveOldStack = startPosition + Vector3.up * 2f;
-        Vector3 aboveNewStack = targetPosition + Vector3.up * 2f;
-
+        Vector3 aboveOldStack = startPosition + Vector3.up * 6f;
+        Vector3 aboveNewStack = targetPosition + Vector3.up * 6f;
         Vector3[] path = new Vector3[]
         {
-          startPosition,
+          targetPosition,
           aboveOldStack,
-          aboveNewStack,
-          targetPosition
+          aboveNewStack
         };
+
 
         Quaternion prefabRotation = Quaternion.Euler(0f, 90f, 0f);
         Vector3 flipAxis = Vector3.Cross(-Vector3.up, moveDirection).normalized;
         Quaternion targetRotation = Quaternion.AngleAxis(180f, flipAxis) * prefabRotation;
 
-        go.transform.DOPath(path, _moveDuration, PathType.CatmullRom)
+        go.transform.DOPath(path, _moveDuration, PathType.CubicBezier)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine);
 
-        go.transform.DOLocalRotateQuaternion(targetRotation, _moveDuration)
+        go.transform.DOLocalRotateQuaternion(targetRotation, _moveDuration * _durationCent)
           .SetDelay(delay)
           .SetEase(Ease.InOutSine)
           .OnComplete(() =>
