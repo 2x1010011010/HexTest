@@ -1,4 +1,6 @@
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
@@ -12,7 +14,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
     [SerializeField, BoxGroup("BOOSTERS")] private HandBooster _handBooster;
     [SerializeField, BoxGroup("BOOSTERS")] private RespawnBooster _respawnBooster;
     [SerializeField, BoxGroup("SETUP")] private LayerMask _stackLayer;
-    
+
     private Camera _camera;
     private IBooster _currentBooster;
     private StacksSpawner _stacksSpawner;
@@ -39,7 +41,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
       {
         TryApplyBoosterAtScreenPoint(Input.mousePosition);
       }
-      
+
       if (_isBoosterApplied && Input.GetMouseButtonUp(0))
         DeactivateBooster();
     }
@@ -52,33 +54,33 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
       {
         Debug.Log("Layer hit:");
         var foundStack = hit.collider.GetComponentInParent<Stack>();
-        if (foundStack != null)
-        {
-          Debug.Log("Stack found");
-          _currentBooster?.BoosterAction(foundStack);
-          _isBoosterApplied = true;
-        }
+        if (foundStack == null) return;
+        if (foundStack.GetComponentInParent<Cell>() == null) return;
+        
+        Debug.Log("Stack found");
+        _currentBooster?.BoosterAction(foundStack);
+        _isBoosterApplied = true;
       }
     }
 
-    private void TryApplyRespawnBooster()
+    private async void TryApplyRespawnBooster()
     {
       var spawnPoints = _stacksSpawner.SpawnPoints;
-      
+
       foreach (var spawnPoint in spawnPoints)
       {
         var stack = spawnPoint.gameObject.GetComponentInChildren<Stack>();
         if (stack == null) continue;
-        _currentBooster.BoosterAction(stack);
+        await _currentBooster.BoosterAction(stack);
         _stacksSpawner.StackParentChanged(stack);
       }
-      
+
       _isBoosterApplied = true;
       DeactivateBooster();
       //_stacksSpawner.ClearSpawn();
     }
 
-    public void SetSpawner(StacksSpawner spawner) => 
+    public void SetSpawner(StacksSpawner spawner) =>
       _stacksSpawner = spawner;
 
     public void ActivateBooster(IBooster booster)
