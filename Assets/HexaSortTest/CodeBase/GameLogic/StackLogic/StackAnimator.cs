@@ -118,7 +118,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
           targetPosition
         };
 
-        Quaternion prefabRotation = Quaternion.Euler(270f, 90f, 0f);
+        Quaternion prefabRotation = Quaternion.Euler(0f, 90f, 0f);
         Vector3 flipAxis = Vector3.Cross(-Vector3.up, moveDirection).normalized;
         Quaternion targetRotation = Quaternion.AngleAxis(180f, flipAxis) * prefabRotation;
 

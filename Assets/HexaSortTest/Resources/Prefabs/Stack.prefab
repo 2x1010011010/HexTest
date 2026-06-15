@@ -63,10 +63,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f5fbadf08ce45809442a08ecdd65cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.StackLogic.StackAnimator
-  _scaleDuration: 0.1
+  _scaleDuration: 0.5
   _pauseBetween: 0.05
-  _movePauseBetween: 0.05
-  _moveDuration: 0.4
+  _movePauseBetween: 0.045
+  _moveDuration: 0.82
 --- !u!114 &5937415863697100280
 MonoBehaviour:
   m_ObjectHideFlags: 0
