@@ -1,14 +1,33 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services;
+using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
+using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
+using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine;
+using Zenject;
 
 namespace HexaSortTest.CodeBase.Infrastructure
 {
   public sealed class Game
   {
-    public readonly GameStateMachine StateMachine; 
+    public readonly GameStateMachine StateMachine;
 
-    public Game(ICoroutineRunner coroutineRunner, LoadingCurtain curtain) => 
-      StateMachine = new GameStateMachine(new SceneLoader(coroutineRunner), ServiceLocator.Container, curtain);
+    [Inject]
+    public Game(
+      ICoroutineRunner coroutineRunner,
+      LoadingCurtain curtain,
+      IPersistentProgressService progressService,
+      ISaveLoadService saveLoadService,
+      IGameFactory gameFactory,
+      IUIListenerService uiListenerService
+    ) =>
+      StateMachine = new GameStateMachine(
+        new SceneLoader(coroutineRunner),
+        curtain,
+        progressService,
+        saveLoadService,
+        gameFactory,
+        uiListenerService);
   }
 }

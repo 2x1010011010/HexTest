@@ -2,6 +2,7 @@ using HexaSortTest.CodeBase.Infrastructure.Services;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zenject;
 
 namespace HexaSortTest.CodeBase.GameLogic.UI.MainMenu
 {
@@ -9,7 +10,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.MainMenu
   {
     [SerializeField, BoxGroup("BUTTONS")] private RestartLevelButton _restartLevelButton;
 
-    private IUIListenerService _uiService;
+    [Inject] private IUIListenerService _uiService;
 
     public void Start()
     {

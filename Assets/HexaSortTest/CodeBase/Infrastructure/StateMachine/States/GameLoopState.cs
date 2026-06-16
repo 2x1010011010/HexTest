@@ -12,13 +12,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly IUIListenerService _uiListenerService;
     private readonly IGameFactory _gameFactory;
 
-    public GameLoopState(GameStateMachine gameStateMachine, LoadingCurtain curtain, IUIListenerService uiListenerService, IGameFactory gameFactory)
+    public GameLoopState(
+      GameStateMachine gameStateMachine,
+      LoadingCurtain curtain,
+      IUIListenerService uiListenerService,
+      IGameFactory gameFactory
+    )
     {
       _gameStateMachine = gameStateMachine;
       _loadingCurtain = curtain;
       _uiListenerService = uiListenerService;
       _gameFactory = gameFactory;
-      
     }
 
     public void Enter()

@@ -11,6 +11,7 @@ using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
 using UnityEngine;
+using Zenject;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 {
@@ -20,13 +21,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     private readonly LevelConfigsList _levelConfigs;
     private LevelConfig _currentLevelConfig;
     private StacksSpawner _stacksSpawner;
-    
+
     private List<GameObject> _instances = new List<GameObject>();
     private GridSpawner _gridSpawner;
     public List<IProgressReader> ProgressReaders { get; } = new List<IProgressReader>();
     public List<IProgressSaver> ProgressSavers { get; } = new List<IProgressSaver>();
 
 
+    [Inject]
     public GameFactory(IAssetProvider assets)
     {
       _assets = assets;
@@ -42,7 +44,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
         var cellPrefab = _assets.Instantiate(AssetPaths.StackTile);
         cellPoolInstance.AddToPool(cellPrefab.GetComponent<StackTile>());
       }
-      
+
       _instances.Add(container.gameObject);
 
       return cellPoolInstance;
@@ -51,14 +53,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     public GridSpawner CreateGridSpawner(ObjectPool<StackTile> poolInstance, MainMenuObserver mainMenu)
     {
       var gridSpawnerObject = InstantiateRegistered(AssetPaths.GridSpawner);
-       _gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
+      _gridSpawner = gridSpawnerObject.GetComponent<GridSpawner>();
       var configIndex = Random.Range(0, _levelConfigs.Levels.Count);
       _currentLevelConfig = _levelConfigs.Levels[configIndex];
       _gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
       _gridSpawner.SetMainMenu(mainMenu);
-      
+
       _instances.Add(gridSpawnerObject);
-      
+
       return _gridSpawner;
     }
 
@@ -91,7 +93,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       RegisterPlayerProgress(prefab);
       return prefab;
     }
-    
+
     private GameObject InstantiateRegistered(string path, Transform at)
     {
       GameObject prefab = _assets.Instantiate(path, at);
@@ -109,7 +111,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     {
       if (reader is IProgressSaver saver)
         ProgressSavers.Add(saver);
-      
+
       ProgressReaders.Add(reader);
     }
 

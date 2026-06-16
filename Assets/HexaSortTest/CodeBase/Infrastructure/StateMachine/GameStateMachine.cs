@@ -15,14 +15,20 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
     private readonly Dictionary<Type, IExitState> _states;
     private IExitState _currentState;
     
-    public GameStateMachine(SceneLoader sceneLoader, ServiceLocator serviceLocator, LoadingCurtain curtain)
+    public GameStateMachine(
+      SceneLoader               sceneLoader,
+      LoadingCurtain            curtain,
+      IPersistentProgressService progressService,
+      ISaveLoadService          saveLoadService,
+      IGameFactory              gameFactory,
+      IUIListenerService        uiListenerService)
     {
-      _states = new Dictionary<Type, IExitState>()
+      _states = new Dictionary<Type, IExitState>
       {
-        [typeof(BootstrapState)] = new BootstrapState(this, sceneLoader, serviceLocator, curtain),
-        [typeof(LoadProgressState)] = new LoadProgressState(this, serviceLocator.Single<IPersistentProgressService>(), serviceLocator.Single<ISaveLoadService>()),
-        [typeof(LoadLevelState)] = new LoadLevelState(this, sceneLoader, serviceLocator.Single<IGameFactory>(), serviceLocator.Single<IPersistentProgressService>()),
-        [typeof(GameLoopState)] = new GameLoopState(this, curtain, serviceLocator.Single<IUIListenerService>(), serviceLocator.Single<IGameFactory>()),
+        [typeof(BootstrapState)]    = new BootstrapState(this, sceneLoader, curtain),
+        [typeof(LoadProgressState)] = new LoadProgressState(this, progressService, saveLoadService),
+        [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, progressService),
+        [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory),
       };
     }
     

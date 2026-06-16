@@ -17,14 +17,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly ServiceLocator _serviceLocator;
     private readonly LoadingCurtain _loadingCurtain;
 
-    public BootstrapState(GameStateMachine gameStateMachine, SceneLoader sceneLoader, ServiceLocator serviceLocator, LoadingCurtain loadingCurtain)
+    public BootstrapState(
+      GameStateMachine gameStateMachine,
+      SceneLoader      sceneLoader,
+      LoadingCurtain   loadingCurtain)
     {
       _gameStateMachine = gameStateMachine;
-      _sceneLoader = sceneLoader;
-      _serviceLocator = serviceLocator;
-      _loadingCurtain = loadingCurtain;
-
-      RegisterServices();
+      _sceneLoader      = sceneLoader;
+      _loadingCurtain   = loadingCurtain;
     }
 
     public void Enter()
@@ -39,22 +39,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void EnterLoadLevel() =>
       _gameStateMachine.Enter<LoadProgressState>();
-
-    private void RegisterServices()
-    {
-      _serviceLocator.RegisterSingle<IAssetProvider>(new AssetProvider());
-      _serviceLocator.RegisterSingle<IPersistentProgressService>(new PersistentProgressService());
-      _serviceLocator.RegisterSingle<IGameFactory>(new GameFactory(_serviceLocator.Single<IAssetProvider>()));
-      _serviceLocator.RegisterSingle<ISaveLoadService>(new SaveLoadService(_serviceLocator.Single<IPersistentProgressService>(), _serviceLocator.Single<IGameFactory>()));
-      _serviceLocator.RegisterSingle<IUIListenerService>(new RestartLevelService());
-    }
-
-    /*private static IInputService InputService()
-    {
-      if (Application.isMobilePlatform)
-        return new MobileInputService();
-      else
-        return new DesktopInputService();
-    }*/
+    
   }
 }

@@ -10,7 +10,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly IPersistentProgressService _progressService;
     private readonly ISaveLoadService _saveLoadService;
 
-    public LoadProgressState(GameStateMachine gameStateMachine, IPersistentProgressService progressService, ISaveLoadService saveLoadService)
+    public LoadProgressState(
+      GameStateMachine gameStateMachine,
+      IPersistentProgressService progressService,
+      ISaveLoadService saveLoadService)
     {
       _gameStateMachine = gameStateMachine;
       _progressService = progressService;
@@ -27,12 +30,12 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     {
     }
 
-    private void LoadProgressOrInitNew() => 
-      _progressService.PlayerProgress = 
-        _saveLoadService.LoadProgress() 
+    private void LoadProgressOrInitNew() =>
+      _progressService.PlayerProgress =
+        _saveLoadService.LoadProgress()
         ?? NewProgress();
 
-    private PlayerProgress NewProgress() => 
+    private PlayerProgress NewProgress() =>
       new PlayerProgress(Constants.GameScene);
   }
 }

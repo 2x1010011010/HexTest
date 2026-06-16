@@ -12,14 +12,18 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly IGameFactory _gameFactory;
     private readonly IPersistentProgressService _progressService;
 
-    public LoadLevelState(GameStateMachine gameStateMachine, SceneLoader sceneLoader, IGameFactory gameFactory, IPersistentProgressService progressService)
+    public LoadLevelState(
+      GameStateMachine gameStateMachine,
+      SceneLoader sceneLoader,
+      IGameFactory gameFactory,
+      IPersistentProgressService progressService)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _gameFactory = gameFactory;
       _progressService = progressService;
     }
-    
+
     public void Enter(string sceneName)
     {
       _gameFactory.Clear();
@@ -28,7 +32,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     public void Exit()
     {
-      
     }
 
     private void OnLoaded()
@@ -47,7 +50,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void InitGameWorld()
     {
-      
       var mainMenuInstance = _gameFactory.CreateMainMenu();
       var poolInstance = _gameFactory.CreateCellPool();
 
@@ -61,7 +63,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void CameraSetup(GameObject target)
     {
-
     }
   }
 }
