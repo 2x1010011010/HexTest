@@ -9,14 +9,6 @@ using Zenject;
 
 namespace HexaSortTest.CodeBase.Infrastructure.DI
 {
-  /// <summary>
-  /// Project-context installer — lives in Resources/ProjectContext and runs
-  /// exactly once for the whole application lifetime.
-  ///
-  /// Binds every pure-C# service. MonoBehaviour dependencies that can only be
-  /// known from a scene (LoadingCurtain, ICoroutineRunner/Bootstrapper) are
-  /// bound in <see cref="BootstrapSceneInstaller"/>.
-  /// </summary>
   [CreateAssetMenu(
     fileName = "ProjectInstaller",
     menuName = "Installers/ProjectInstaller")]

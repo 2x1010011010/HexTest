@@ -290,9 +290,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 873efca6756e438b9194f43ce6cefeff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.Infrastructure.DI.GameSceneInstaller
-  _hudObserver: {fileID: 1897866087542758054, guid: fcdcbd9c362f69c499be9c3c07a13d86, type: 3}
-  _mainMenuObserver: {fileID: 6302031751223202095, guid: 4eb7aecd8ec1cb94290c966fa5d38c54, type: 3}
-  _stacksSpawner: {fileID: 8868571614609609592, guid: 757e7dbd089918a488db715b49cf2d92, type: 3}
+  _hudObserver: {fileID: 0}
+  _mainMenuObserver: {fileID: 0}
+  _stacksSpawner: {fileID: 0}
 --- !u!1 &997602384
 GameObject:
   m_ObjectHideFlags: 0
