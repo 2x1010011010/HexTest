@@ -12,10 +12,10 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.MainMenu
 
     [Inject] private IUIListenerService _uiService;
 
-    public void Start()
+    /*public void Awake()
     {
       _uiService = ServiceLocator.Container.Single<IUIListenerService>();
-    }
+    }*/
 
     private void OnEnable() => 
       _restartLevelButton.OnRestartLevelButtonClick += RestartLevel;

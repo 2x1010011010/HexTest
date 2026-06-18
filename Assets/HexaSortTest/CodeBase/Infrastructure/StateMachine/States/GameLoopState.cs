@@ -38,7 +38,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void ClearScene()
     {
-      Debug.Log("$\"[GameLoopState] ClearScene() called. Instances before clear: {_gameFactory.InstancesCount}");
       _loadingCurtain.Show();
       _gameFactory.Clear();
       _gameStateMachine.Enter<BootstrapState>();

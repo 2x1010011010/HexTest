@@ -14,7 +14,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
   {
     private readonly GameStateMachine _gameStateMachine;
     private readonly SceneLoader _sceneLoader;
-    private readonly ServiceLocator _serviceLocator;
     private readonly LoadingCurtain _loadingCurtain;
 
     public BootstrapState(
@@ -39,6 +38,5 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void EnterLoadLevel() =>
       _gameStateMachine.Enter<LoadProgressState>();
-    
   }
 }

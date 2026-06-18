@@ -47,10 +47,8 @@ namespace HexaSortTest.CodeBase.GameLogic.SoundLogic
       _fxEnabled = enabled;
       _mixer.SetFloat(FxGroup, enabled ? 0f : -80f);
     }
-
-
+    
     private void PlayFX(AudioClip clip) => 
       _soundEffectsSource.PlayOneShot(clip);
-    
   }
 }

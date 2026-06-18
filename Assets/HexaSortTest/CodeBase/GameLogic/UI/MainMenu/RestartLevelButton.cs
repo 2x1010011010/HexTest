@@ -7,9 +7,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.MainMenu
   {
     public event Action OnRestartLevelButtonClick;
     
-    protected override void ButtonClick()
-    {
-      OnRestartLevelButtonClick?.Invoke();  
-    }
+    protected override void ButtonClick() => 
+      OnRestartLevelButtonClick?.Invoke();
   }
 }

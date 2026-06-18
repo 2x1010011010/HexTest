@@ -9,7 +9,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.UIService
     
     public void NotifyActionRequired()
     {
-      Debug.Log($"[RestartLevelService] NotifyActionRequired — Subscribers: {ActionRequired?.GetInvocationList().Length ?? 0}");
+      //Debug.Log($"[RestartLevelService] NotifyActionRequired — Subscribers: {ActionRequired?.GetInvocationList().Length ?? 0}");
       ActionRequired?.Invoke();
     }
   }
