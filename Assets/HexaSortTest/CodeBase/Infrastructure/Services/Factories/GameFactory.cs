@@ -5,6 +5,7 @@ using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
+using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -51,12 +52,12 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return pool;
     }
 
-    public GridSpawner CreateGridSpawner(ObjectPool<StackTile> pool, MainMenuObserver mainMenu)
+    public GridSpawner CreateGridSpawner(ObjectPool<StackTile> pool, MainMenuObserver mainMenu, int levelIndex)
     {
       var go = InstantiateInjected(AssetPaths.GridSpawner);
       _gridSpawner = go.GetComponent<GridSpawner>();
 
-      _currentLevelConfig = _levelConfigs.Levels[Random.Range(0, _levelConfigs.Levels.Count)];
+      _currentLevelConfig = _levelConfigs.GetLevel(levelIndex);
       _gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
       _gridSpawner.SetMainMenu(mainMenu);
 
@@ -72,10 +73,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       _instances.Add(go);
     }
 
-    public void CreateHud(MainMenuObserver mainMenu)
+    public void CreateHud(MainMenuObserver mainMenu, GridObserver gridObserver)
     {
       var go = InstantiateInjected(AssetPaths.HUD);
-      go.GetComponent<HudObserver>().Init(_currentLevelConfig.WinCondition, mainMenu, _stacksSpawner);
+      go.GetComponent<HudObserver>().Init(_currentLevelConfig.WinCondition, mainMenu, _stacksSpawner, gridObserver);
       _instances.Add(go);
     }
 
@@ -84,6 +85,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var go = InstantiateInjected(AssetPaths.MainMenuPath);
       _instances.Add(go);
       return go.GetComponent<MainMenuObserver>();
+    }
+
+    public GameResultPopup CreateGameResultPopup()
+    {
+      var go = InstantiateInjected(AssetPaths.GameResultPopup);
+      _instances.Add(go);
+      return go.GetComponent<GameResultPopup>();
     }
 
     public void Clear()

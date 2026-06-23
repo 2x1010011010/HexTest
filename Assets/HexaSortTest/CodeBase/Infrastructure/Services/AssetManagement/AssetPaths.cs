@@ -13,5 +13,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
     
     public const string MainMenuPath = "Prefabs/MainMenu/MainMenu";
     public const string HUD = "Prefabs/HUD/HUD";
+    public const string GameResultPopup = "Prefabs/HUD/GameResultPopup";
   }
 }

@@ -8,5 +8,16 @@ namespace HexaSortTest.CodeBase.GameConfigs
   public class LevelConfigsList : ScriptableObject
   {
     [field: SerializeField, BoxGroup("LEVELS")] public List<LevelConfig> Levels {get; private set;}
+
+    public LevelConfig GetLevel(int index)
+    {
+      if (Levels == null || Levels.Count == 0)
+        return null;
+
+      int wrappedIndex = index % Levels.Count;
+      return Levels[wrappedIndex];
+    }
+
+    public int LevelsCount => Levels?.Count ?? 0;
   }
 }

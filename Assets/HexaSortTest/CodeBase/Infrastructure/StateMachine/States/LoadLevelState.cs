@@ -1,4 +1,5 @@
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
+using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
@@ -53,12 +54,18 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       var mainMenuInstance = _gameFactory.CreateMainMenu();
       var poolInstance = _gameFactory.CreateCellPool();
 
-      var gridSpawner = _gameFactory.CreateGridSpawner(poolInstance, mainMenuInstance);
+      int levelIndex = _progressService.PlayerProgress.LevelIndex;
+
+      var gridSpawner = _gameFactory.CreateGridSpawner(poolInstance, mainMenuInstance, levelIndex);
       var gridInstance = gridSpawner.SpawnGrid();
+      var gridObserver = gridInstance.GetComponent<GridObserver>();
 
       _gameFactory.CreateStacksSpawner(poolInstance, gridInstance.GetComponent<HexGrid>());
 
-      _gameFactory.CreateHud(mainMenuInstance);
+      _gameFactory.CreateHud(mainMenuInstance, gridObserver);
+
+      var resultPopup = _gameFactory.CreateGameResultPopup();
+      gridObserver.SetGameResultHandler(_gameStateMachine, resultPopup);
     }
 
     private void CameraSetup(GameObject target)

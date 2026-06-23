@@ -6,8 +6,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
   public class PlayerProgress
   {
     public WorldData WorldData;
+    public int LevelIndex;
 
-    public PlayerProgress(string initialLevel) => 
+    public PlayerProgress(string initialLevel)
+    {
       WorldData = new WorldData(initialLevel);
+      LevelIndex = 0;
+    }
   }
 }

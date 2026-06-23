@@ -10,6 +10,10 @@ using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using Cysharp.Threading.Tasks;
+using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
+using HexaSortTest.CodeBase.Infrastructure.StateMachine;
+using HexaSortTest.CodeBase.Infrastructure.StateMachine.States;
+using HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
@@ -22,8 +26,18 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private Cell _lastAddedCell;
     private UIWindow _mainMenu;
 
+    private GameStateMachine _gameStateMachine;
+    private GameResultPopup _resultPopup;
+    private bool _resultAlreadyTriggered;
+
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
     public void Init(HexGrid grid) => _grid = grid;
+
+    public void SetGameResultHandler(GameStateMachine gameStateMachine, GameResultPopup resultPopup)
+    {
+      _gameStateMachine = gameStateMachine;
+      _resultPopup = resultPopup;
+    }
 
     private void Start()
     {
@@ -291,6 +305,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private async UniTask CheckForLoseConditionAsync()
     {
+      if (_resultAlreadyTriggered)
+        return;
+
       bool allFilled = _grid.Cells.All(c => !c.IsEmpty);
 
       if (!allFilled)
@@ -324,13 +341,38 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         }
       }
 
-      await ShowLosePopupAsync();
+      TriggerDefeat();
     }
 
-    private UniTask ShowLosePopupAsync()
+    /// <summary>
+    /// Called by HudObserver when the win-condition tile count is reached.
+    /// </summary>
+    public void TriggerVictory()
     {
-      _mainMenu.Open();
-      return UniTask.CompletedTask;
+      if (_resultAlreadyTriggered)
+        return;
+
+      _resultAlreadyTriggered = true;
+      EnterGameResultState(isVictory: true);
+    }
+
+    private void TriggerDefeat()
+    {
+      _resultAlreadyTriggered = true;
+      EnterGameResultState(isVictory: false);
+    }
+
+    private void EnterGameResultState(bool isVictory)
+    {
+      if (_gameStateMachine == null || _resultPopup == null)
+      {
+        Debug.LogError("GridObserver: GameStateMachine/ResultPopup not set, falling back to main menu.");
+        _mainMenu?.Open();
+        return;
+      }
+
+      _gameStateMachine.Enter<GameResultState, GameResultPayload>(
+        new GameResultPayload(isVictory, _resultPopup));
     }
 
     public void RemoveStackFromCellByBooster(Cell cell) =>
