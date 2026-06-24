@@ -29,6 +29,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
         [typeof(LoadProgressState)] = new LoadProgressState(this, progressService, saveLoadService),
         [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, progressService),
         [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory),
+        [typeof(GameResultState)]   = new GameResultState(this, progressService, saveLoadService),
       };
     }
     
