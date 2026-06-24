@@ -1,9 +1,10 @@
 using System;
 using DG.Tweening;
+using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
+namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 {
   public class GameResultPopup : UIWindow
   {
@@ -16,28 +17,46 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
 
     public event Action OnContinueClicked;
 
-    private void OnEnable() =>
-      _continueButton.OnContinueButtonClick += HandleContinueClicked;
+    private void OnEnable()
+    {
+      if (_continueButton == null)
+      {
+        Debug.LogError("[GameResultPopup] _continueButton is not assigned in the inspector!");
+        return;
+      }
 
-    private void OnDisable() =>
+      _continueButton.OnContinueButtonClick += HandleContinueClicked;
+    }
+
+    private void OnDisable()
+    {
+      if (_continueButton == null)
+        return;
+
       _continueButton.OnContinueButtonClick -= HandleContinueClicked;
+    }
 
     public void ShowVictory()
     {
-      _victoryView.SetActive(true);
-      _defeatView.SetActive(false);
+      Debug.Log($"[GameResultPopup] ShowVictory on {gameObject.name}. victoryView={(_victoryView != null)}, defeatView={(_defeatView != null)}");
+
+      if (_victoryView != null) _victoryView.SetActive(true);
+      if (_defeatView != null) _defeatView.SetActive(false);
       Open();
     }
 
     public void ShowDefeat()
     {
-      _victoryView.SetActive(false);
-      _defeatView.SetActive(true);
+      Debug.Log($"[GameResultPopup] ShowDefeat on {gameObject.name}. victoryView={(_victoryView != null)}, defeatView={(_defeatView != null)}");
+
+      if (_victoryView != null) _victoryView.SetActive(false);
+      if (_defeatView != null) _defeatView.SetActive(true);
       Open();
     }
 
     public override void Open()
     {
+      Debug.Log($"[GameResultPopup] Open called on {gameObject.name}. activeBefore={gameObject.activeSelf}");
       base.Open();
       transform.localScale = Vector3.zero;
       transform.DOScale(Vector3.one, _openDuration).SetEase(Ease.OutBack);

@@ -3,6 +3,7 @@ using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
+using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;

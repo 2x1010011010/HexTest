@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;

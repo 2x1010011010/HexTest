@@ -14,45 +14,22 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 {
   public class HudObserver : UIWindow
   {
-    [SerializeField, BoxGroup("BOOSTERS TOOLS SETUP")]
-    private BoosterTools _boosterTools;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private HammerButton _hammerButton;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private Image _hammerCounterImage;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private HandButton _handButton;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private Image _handCounterImage;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private RespawnButton _respawnButton;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private Image _respawnImage;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private TMP_Text _hammerBoosterCounter;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private TMP_Text _handBoosterCounter;
-
-    [SerializeField, BoxGroup("BOOSTERS BUTTONS")]
-    private TMP_Text _respawnBoosterCounter;
+    [SerializeField, BoxGroup("BOOSTERS TOOLS SETUP")] private BoosterTools _boosterTools;
+    
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HammerButton _hammerButton;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _hammerCounterImage;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private HandButton _handButton;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _handCounterImage;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private RespawnButton _respawnButton;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private Image _respawnImage;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _hammerBoosterCounter;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _handBoosterCounter;
+    [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _respawnBoosterCounter;
 
     //[SerializeField, BoxGroup("COINS COUNTER")] private TMP_Text _coinsCounter;
-    [SerializeField, BoxGroup("TILES COUNTER")]
-    private TMP_Text _tilesCounter;
-
-    [SerializeField, BoxGroup("TILES COUNTER")]
-    private TMP_Text _winConditionText;
-
-    [SerializeField, BoxGroup("TILES COUNTER")]
-    private Slider _tilesCounterSlider;
+    [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _tilesCounter;
+    [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _winConditionText;
+    [SerializeField, BoxGroup("TILES COUNTER")] private Slider _tilesCounterSlider;
 
     public static HudObserver Instance { get; private set; }
 
@@ -71,7 +48,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     {
       if (Instance != null) Destroy(gameObject);
       Instance = this;
-
+      
       _hammerBoosterCount = 2;
       _handBoosterCount = 2;
       _respawnBoosterCount = 2;
@@ -86,8 +63,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounterSlider.value = _tilesCount;
     }
 
-    public void Init(int configWinCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner,
-      GridObserver gridObserver = null)
+    public void Init(int configWinCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver = null)
     {
       _winCondition = configWinCondition;
       _mainMenu = mainMenu;
@@ -109,7 +85,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     {
       _tilesCounterSlider.maxValue = _winCondition;
       _tilesCounterSliderFill = 0;
-      _winConditionText.text = ("/" + _winCondition).ToString();
+      _winConditionText.text = ("/" +_winCondition).ToString();
       _tilesCounter.text = _tilesCount.ToString();
     }
 
@@ -162,14 +138,21 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCount += value;
       _tilesCounter.text = _tilesCount.ToString();
       _tilesCounterSliderFill += value;
+
+      Debug.Log($"[HudObserver] tilesCounterSliderFill={_tilesCounterSliderFill}, maxValue={_tilesCounterSlider.maxValue}, gridObserverSet={(_gridObserver != null)}");
+
       if (_tilesCounterSliderFill >= _tilesCounterSlider.maxValue)
       {
         _tilesCounterSliderFill = 0;
 
+        Debug.Log("[HudObserver] Win condition reached, triggering victory.");
+
         if (_gridObserver != null)
           _gridObserver.TriggerVictory();
-        else
+        else if (_mainMenu != null)
           _mainMenu.Open();
+        else
+          Debug.LogError("[HudObserver] Win condition reached but neither GridObserver nor MainMenu is set!");
       }
 
       _tilesCounterSlider.value = _tilesCounterSliderFill;
@@ -191,7 +174,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
           _hammerBoosterCount++;
           _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
           break;
-
+        
         case 1:
         case 8:
         case 15:

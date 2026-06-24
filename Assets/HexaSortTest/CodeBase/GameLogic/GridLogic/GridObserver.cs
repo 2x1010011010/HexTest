@@ -4,15 +4,15 @@ using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
+using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
-using Cysharp.Threading.Tasks;
-using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States;
+using Cysharp.Threading.Tasks;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
@@ -37,6 +37,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     {
       _gameStateMachine = gameStateMachine;
       _resultPopup = resultPopup;
+      Debug.Log($"[GridObserver] SetGameResultHandler called on {gameObject.name} (instance {GetInstanceID()}). " +
+                $"gameStateMachine={(_gameStateMachine != null)}, resultPopup={(_resultPopup != null)}");
     }
 
     private void Start()
@@ -349,6 +351,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     /// </summary>
     public void TriggerVictory()
     {
+      Debug.Log($"[GridObserver] TriggerVictory called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
+
       if (_resultAlreadyTriggered)
         return;
 
@@ -358,12 +362,17 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private void TriggerDefeat()
     {
+      Debug.Log($"[GridObserver] TriggerDefeat called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
+
       _resultAlreadyTriggered = true;
       EnterGameResultState(isVictory: false);
     }
 
     private void EnterGameResultState(bool isVictory)
     {
+      Debug.Log($"[GridObserver] EnterGameResultState isVictory={isVictory}. " +
+                $"gameStateMachine={(_gameStateMachine != null)}, resultPopup={(_resultPopup != null)}");
+
       if (_gameStateMachine == null || _resultPopup == null)
       {
         Debug.LogError("GridObserver: GameStateMachine/ResultPopup not set, falling back to main menu.");
