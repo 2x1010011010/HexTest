@@ -13,7 +13,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     [SerializeField, BoxGroup("BUTTON")] private GameResultContinueButton _continueButton;
 
-    [SerializeField, BoxGroup("ANIMATION")] private float _openDuration = 0.3f;
+    [SerializeField, BoxGroup("ANIMATION")]
+    private float _openDuration = 0.3f;
 
     public event Action OnContinueClicked;
 
@@ -38,7 +39,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     public void ShowVictory()
     {
-      Debug.Log($"[GameResultPopup] ShowVictory on {gameObject.name}. victoryView={(_victoryView != null)}, defeatView={(_defeatView != null)}");
+      Debug.Log(
+        $"[GameResultPopup] ShowVictory on {gameObject.name}. victoryView={(_victoryView != null)}, defeatView={(_defeatView != null)}");
 
       if (_victoryView != null) _victoryView.SetActive(true);
       if (_defeatView != null) _defeatView.SetActive(false);
@@ -47,7 +49,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     public void ShowDefeat()
     {
-      Debug.Log($"[GameResultPopup] ShowDefeat on {gameObject.name}. victoryView={(_victoryView != null)}, defeatView={(_defeatView != null)}");
+      Debug.Log(
+        $"[GameResultPopup] ShowDefeat on {gameObject.name}. victoryView={(_victoryView != null)}, defeatView={(_defeatView != null)}");
 
       if (_victoryView != null) _victoryView.SetActive(false);
       if (_defeatView != null) _defeatView.SetActive(true);
@@ -65,7 +68,10 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     public override void Close() =>
       base.Close();
 
-    private void HandleContinueClicked() =>
+    private void HandleContinueClicked()
+    {
+      Debug.Log("[GameResultPopup] HandleContinueClicked");
       OnContinueClicked?.Invoke();
+    }
   }
 }

@@ -10,6 +10,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
 
     protected override void ButtonClick()
     {
+      Debug.Log("Game Result Continue Button pressed");
       AudioFacade.Instance.PlayClick();
       OnContinueButtonClick?.Invoke();
     }
