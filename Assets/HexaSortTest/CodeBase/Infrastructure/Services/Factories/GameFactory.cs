@@ -9,6 +9,7 @@ using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
@@ -102,6 +103,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     {
       var prefab = Resources.Load<GameObject>(resourcePath);
       var go = _container.InstantiatePrefab(prefab);
+      go.transform.SetParent(null);
+      SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
       RegisterPlayerProgress(go);
       return go;
     }
