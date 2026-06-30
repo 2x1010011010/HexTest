@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
 using HexaSortTest.CodeBase.Infrastructure.Services.InputService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
@@ -20,7 +21,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
         .Bind<IAssetProvider>()
         .To<AssetProvider>()
         .AsSingle();
-      
+
       Container
         .Bind<IPersistentProgressService>()
         .To<PersistentProgressService>()
@@ -39,6 +40,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
       Container
         .Bind<IUIListenerService>()
         .To<RestartLevelService>()
+        .AsSingle();
+
+      Container
+        .Bind<IGameResultPopupRegistry>()
+        .To<GameResultPopupRegistry>()
         .AsSingle();
 
       Container

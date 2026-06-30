@@ -1,17 +1,10 @@
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
-using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
-
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures
 {
-  public struct GameResultPayload
+  public readonly struct GameResultPayload
   {
     public readonly bool IsVictory;
-    public readonly GameResultPopup Popup;
 
-    public GameResultPayload(bool isVictory, GameResultPopup popup)
-    {
+    public GameResultPayload(bool isVictory) =>
       IsVictory = isVictory;
-      Popup = popup;
-    }
   }
 }

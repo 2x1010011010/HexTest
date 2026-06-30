@@ -64,8 +64,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
       _gameFactory.CreateHud(mainMenuInstance, gridObserver);
 
-      var resultPopup = _gameFactory.CreateGameResultPopup();
-      gridObserver.SetGameResultHandler(_gameStateMachine, resultPopup);
+      gridObserver.SetGameResultHandler(_gameStateMachine);
     }
 
     private void CameraSetup(GameObject target)

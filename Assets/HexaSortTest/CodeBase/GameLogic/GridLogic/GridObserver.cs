@@ -27,18 +27,16 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private UIWindow _mainMenu;
 
     private GameStateMachine _gameStateMachine;
-    private GameResultPopup _resultPopup;
     private bool _resultAlreadyTriggered;
 
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
     public void Init(HexGrid grid) => _grid = grid;
 
-    public void SetGameResultHandler(GameStateMachine gameStateMachine, GameResultPopup resultPopup)
+    public void SetGameResultHandler(GameStateMachine gameStateMachine)
     {
       _gameStateMachine = gameStateMachine;
-      _resultPopup = resultPopup;
       Debug.Log($"[GridObserver] SetGameResultHandler called on {gameObject.name} (instance {GetInstanceID()}). " +
-                $"gameStateMachine={(_gameStateMachine != null)}, resultPopup={(_resultPopup != null)}");
+                $"gameStateMachine={(_gameStateMachine != null)}");
     }
 
     private void Start()
@@ -345,10 +343,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       TriggerDefeat();
     }
-
-    /// <summary>
-    /// Called by HudObserver when the win-condition tile count is reached.
-    /// </summary>
     public void TriggerVictory()
     {
       Debug.Log($"[GridObserver] TriggerVictory called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
@@ -371,17 +365,17 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private void EnterGameResultState(bool isVictory)
     {
       Debug.Log($"[GridObserver] EnterGameResultState isVictory={isVictory}. " +
-                $"gameStateMachine={(_gameStateMachine != null)}, resultPopup={(_resultPopup != null)}");
+                $"gameStateMachine={(_gameStateMachine != null)}");
 
-      if (_gameStateMachine == null || _resultPopup == null)
+      if (_gameStateMachine == null)
       {
-        Debug.LogError("GridObserver: GameStateMachine/ResultPopup not set, falling back to main menu.");
+        Debug.LogError("GridObserver: GameStateMachine not set, falling back to main menu.");
         _mainMenu?.Open();
         return;
       }
 
       _gameStateMachine.Enter<GameResultState, GameResultPayload>(
-        new GameResultPayload(isVictory, _resultPopup));
+        new GameResultPayload(isVictory));
     }
 
     public void RemoveStackFromCellByBooster(Cell cell) =>

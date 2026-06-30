@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
-using HexaSortTest.CodeBase.Infrastructure.Services;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
@@ -21,7 +21,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
       IPersistentProgressService progressService,
       ISaveLoadService          saveLoadService,
       IGameFactory              gameFactory,
-      IUIListenerService        uiListenerService)
+      IUIListenerService        uiListenerService,
+      IGameResultPopupRegistry  popupRegistry)
     {
       _states = new Dictionary<Type, IExitState>
       {
@@ -29,7 +30,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
         [typeof(LoadProgressState)] = new LoadProgressState(this, progressService, saveLoadService),
         [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, progressService),
         [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory),
-        [typeof(GameResultState)]   = new GameResultState(this, progressService, saveLoadService),
+        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, popupRegistry, progressService, saveLoadService),
       };
     }
     

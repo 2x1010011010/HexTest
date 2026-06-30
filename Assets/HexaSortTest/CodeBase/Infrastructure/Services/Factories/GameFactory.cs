@@ -5,7 +5,6 @@ using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
-using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -85,13 +84,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var go = InstantiateInjected(AssetPaths.MainMenuPath);
       _instances.Add(go);
       return go.GetComponent<MainMenuObserver>();
-    }
-
-    public GameResultPopup CreateGameResultPopup()
-    {
-      var go = InstantiateInjected(AssetPaths.GameResultPopup);
-      _instances.Add(go);
-      return go.GetComponent<GameResultPopup>();
     }
 
     public void Clear()

@@ -1,14 +1,17 @@
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
-using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
+using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures;
+using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
   public class GameResultState : IPayloadState<GameResultPayload>
   {
     private readonly GameStateMachine _gameStateMachine;
+    private readonly SceneLoader _sceneLoader;
+    private readonly IGameResultPopupRegistry _popupRegistry;
     private readonly IPersistentProgressService _progressService;
     private readonly ISaveLoadService _saveLoadService;
 
@@ -17,18 +20,45 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     public GameResultState(
       GameStateMachine gameStateMachine,
+      SceneLoader sceneLoader,
+      IGameResultPopupRegistry popupRegistry,
       IPersistentProgressService progressService,
       ISaveLoadService saveLoadService)
     {
       _gameStateMachine = gameStateMachine;
+      _sceneLoader = sceneLoader;
+      _popupRegistry = popupRegistry;
       _progressService = progressService;
       _saveLoadService = saveLoadService;
     }
 
     public void Enter(GameResultPayload payload)
     {
-      _popup = payload.Popup;
       _isVictory = payload.IsVictory;
+      _popupRegistry.Clear();
+
+      _sceneLoader.Load(Constants.GameResultScene, onLoaded: ShowPopup);
+    }
+
+    public void Exit()
+    {
+      if (_popup != null)
+        _popup.OnContinueClicked -= HandleContinueClicked;
+
+      _popup = null;
+      _popupRegistry.Clear();
+    }
+
+    private void ShowPopup()
+    {
+      _popup = _popupRegistry.Popup;
+
+      if (_popup == null)
+      {
+        Debug.LogError("[GameResultState] GameResultPopup not found in registry after loading GameResult scene. " +
+                        "Check that GameResultSceneInstaller is present in the scene and has _resultPopup assigned.");
+        return;
+      }
 
       _popup.OnContinueClicked += HandleContinueClicked;
 
@@ -36,12 +66,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         _popup.ShowVictory();
       else
         _popup.ShowDefeat();
-    }
-
-    public void Exit()
-    {
-      if (_popup != null)
-        _popup.OnContinueClicked -= HandleContinueClicked;
     }
 
     private void HandleContinueClicked()
