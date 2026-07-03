@@ -1,4 +1,4 @@
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
+using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
@@ -43,7 +43,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public void Exit()
     {
       if (_popup != null)
+      {
         _popup.OnContinueClicked -= HandleContinueClicked;
+        _popup.OnMainMenuClicked -= HandleMainMenuClicked;
+      }
 
       _popup = null;
       _popupRegistry.Clear();
@@ -61,6 +64,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       }
 
       _popup.OnContinueClicked += HandleContinueClicked;
+      _popup.OnMainMenuClicked += HandleMainMenuClicked;
 
       if (_isVictory)
         _popup.ShowVictory();
@@ -75,6 +79,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       else
         RestartCurrentLevel();
     }
+
+    private void HandleMainMenuClicked() =>
+      _gameStateMachine.Enter<MainMenuState>();
 
     private void AdvanceToNextLevel()
     {

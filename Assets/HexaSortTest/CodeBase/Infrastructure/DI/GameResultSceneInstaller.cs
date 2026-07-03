@@ -1,4 +1,4 @@
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
+using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
 using Sirenix.OdinInspector;
 using UnityEngine;

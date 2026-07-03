@@ -1,40 +1,44 @@
 using System;
 using DG.Tweening;
-using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
+namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
 {
   public class GameResultPopup : UIWindow
   {
     [SerializeField, BoxGroup("VIEWS")] private GameObject _victoryView;
     [SerializeField, BoxGroup("VIEWS")] private GameObject _defeatView;
 
-    [SerializeField, BoxGroup("BUTTON")] private GameResultContinueButton _continueButton;
+    [SerializeField, BoxGroup("BUTTONS")] private GameResultContinueButton _continueButton;
+    [SerializeField, BoxGroup("BUTTONS")] private GameResultMainMenuButton _mainMenuButton;
 
     [SerializeField, BoxGroup("ANIMATION")]
     private float _openDuration = 0.3f;
 
     public event Action OnContinueClicked;
+    public event Action OnMainMenuClicked;
 
     private void OnEnable()
     {
       if (_continueButton == null)
-      {
         Debug.LogError("[GameResultPopup] _continueButton is not assigned in the inspector!");
-        return;
-      }
+      else
+        _continueButton.OnContinueButtonClick += HandleContinueClicked;
 
-      _continueButton.OnContinueButtonClick += HandleContinueClicked;
+      if (_mainMenuButton == null)
+        Debug.LogError("[GameResultPopup] _mainMenuButton is not assigned in the inspector!");
+      else
+        _mainMenuButton.OnMainMenuButtonClick += HandleMainMenuClicked;
     }
 
     private void OnDisable()
     {
-      if (_continueButton == null)
-        return;
+      if (_continueButton != null)
+        _continueButton.OnContinueButtonClick -= HandleContinueClicked;
 
-      _continueButton.OnContinueButtonClick -= HandleContinueClicked;
+      if (_mainMenuButton != null)
+        _mainMenuButton.OnMainMenuButtonClick -= HandleMainMenuClicked;
     }
 
     public void ShowVictory()
@@ -72,6 +76,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     {
       Debug.Log("[GameResultPopup] HandleContinueClicked");
       OnContinueClicked?.Invoke();
+    }
+
+    private void HandleMainMenuClicked()
+    {
+      Debug.Log("[GameResultPopup] HandleMainMenuClicked");
+      OnMainMenuClicked?.Invoke();
     }
   }
 }

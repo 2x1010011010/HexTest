@@ -23,7 +23,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public void Enter()
     {
       LoadProgressOrInitNew();
-      _gameStateMachine.Enter<LoadLevelState, string>(_progressService.PlayerProgress.WorldData.LastLevel.Level);
+      _gameStateMachine.Enter<MainMenuState>();
     }
 
     public void Exit()

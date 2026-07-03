@@ -2,6 +2,7 @@ using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
+using HexaSortTest.CodeBase.Infrastructure.Services.MainMenuService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
@@ -22,7 +23,8 @@ namespace HexaSortTest.CodeBase.Infrastructure
       ISaveLoadService saveLoadService,
       IGameFactory gameFactory,
       IUIListenerService uiListenerService,
-      IGameResultPopupRegistry popupRegistry
+      IGameResultPopupRegistry popupRegistry,
+      IMainMenuRegistry menuRegistry
     ) =>
       StateMachine = new GameStateMachine(
         new SceneLoader(coroutineRunner),
@@ -31,6 +33,7 @@ namespace HexaSortTest.CodeBase.Infrastructure
         saveLoadService,
         gameFactory,
         uiListenerService,
-        popupRegistry);
+        popupRegistry,
+        menuRegistry);
   }
 }

@@ -1,4 +1,5 @@
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
+using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.GameResultService
 {
