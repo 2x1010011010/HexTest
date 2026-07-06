@@ -29,7 +29,10 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
       _playButton.OnPlayButtonClick -= HandlePlayClicked;
     }
 
-    private void HandlePlayClicked() =>
+    private void HandlePlayClicked()
+    {
+      Debug.Log("[MainMenuScreen] _playClicked");
       OnPlayClicked?.Invoke();
+    }
   }
 }

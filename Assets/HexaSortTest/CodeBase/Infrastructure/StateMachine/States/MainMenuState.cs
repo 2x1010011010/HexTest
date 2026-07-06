@@ -3,6 +3,7 @@ using HexaSortTest.CodeBase.GameLogic.UI.Menu;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
+using DG.Tweening;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
@@ -63,6 +64,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void HandlePlayClicked()
     {
+      Debug.Log("[MainMenuState] HandlePlayClicked");
       _loadingCurtain.Show();
       _gameStateMachine.Enter<LoadLevelState, string>(
         _progressService.PlayerProgress.WorldData.LastLevel.Level);
