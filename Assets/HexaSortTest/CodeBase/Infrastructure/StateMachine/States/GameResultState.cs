@@ -1,5 +1,5 @@
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
-using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
+using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures;
@@ -11,7 +11,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
   {
     private readonly GameStateMachine _gameStateMachine;
     private readonly SceneLoader _sceneLoader;
-    private readonly IGameResultPopupRegistry _popupRegistry;
+    private readonly IGameResultFactory _resultFactory;
     private readonly IPersistentProgressService _progressService;
     private readonly ISaveLoadService _saveLoadService;
 
@@ -21,13 +21,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public GameResultState(
       GameStateMachine gameStateMachine,
       SceneLoader sceneLoader,
-      IGameResultPopupRegistry popupRegistry,
+      IGameResultFactory resultFactory,
       IPersistentProgressService progressService,
       ISaveLoadService saveLoadService)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
-      _popupRegistry = popupRegistry;
+      _resultFactory = resultFactory;
       _progressService = progressService;
       _saveLoadService = saveLoadService;
     }
@@ -35,9 +35,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public void Enter(GameResultPayload payload)
     {
       _isVictory = payload.IsVictory;
-      _popupRegistry.Clear();
 
-      _sceneLoader.Load(Constants.GameResultScene, onLoaded: ShowPopup);
+      _sceneLoader.Load(Constants.GameResultScene, onLoaded: SpawnPopup);
     }
 
     public void Exit()
@@ -49,17 +48,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       }
 
       _popup = null;
-      _popupRegistry.Clear();
+      _resultFactory.Clear();
     }
 
-    private void ShowPopup()
+    private void SpawnPopup()
     {
-      _popup = _popupRegistry.Popup;
+      _popup = _resultFactory.CreateGameResultPopup();
 
       if (_popup == null)
       {
-        Debug.LogError("[GameResultState] GameResultPopup not found in registry after loading GameResult scene. " +
-                        "Check that GameResultSceneInstaller is present in the scene and has _resultPopup assigned.");
+        Debug.LogError("[GameResultState] Failed to spawn GameResultPopup. " +
+                        "Check that AssetPaths.GameResultPopupPrefab points to a valid prefab under Resources/.");
         return;
       }
 

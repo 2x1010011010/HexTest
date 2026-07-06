@@ -44,6 +44,16 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
         .AsSingle();
 
       Container
+        .Bind<IMainMenuFactory>()
+        .To<MainMenuFactory>()
+        .AsSingle();
+
+      Container
+        .Bind<IGameResultFactory>()
+        .To<GameResultFactory>()
+        .AsSingle();
+
+      Container
         .Bind<IGameResultPopupRegistry>()
         .To<GameResultPopupRegistry>()
         .AsSingle();

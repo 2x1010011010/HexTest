@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
-using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
-using HexaSortTest.CodeBase.Infrastructure.Services.MainMenuService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
@@ -23,17 +21,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
       ISaveLoadService          saveLoadService,
       IGameFactory              gameFactory,
       IUIListenerService        uiListenerService,
-      IGameResultPopupRegistry  popupRegistry,
-      IMainMenuRegistry         menuRegistry)
+      IMainMenuFactory          menuFactory,
+      IGameResultFactory        resultFactory)
     {
       _states = new Dictionary<Type, IExitState>
       {
         [typeof(BootstrapState)]    = new BootstrapState(this, sceneLoader, curtain),
         [typeof(LoadProgressState)] = new LoadProgressState(this, progressService, saveLoadService),
-        [typeof(MainMenuState)]     = new MainMenuState(this, sceneLoader, curtain, menuRegistry, progressService),
+        [typeof(MainMenuState)]     = new MainMenuState(this, sceneLoader, curtain, menuFactory, progressService),
         [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, progressService),
         [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory),
-        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, popupRegistry, progressService, saveLoadService),
+        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, resultFactory, progressService, saveLoadService),
       };
     }
     

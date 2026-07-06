@@ -1,6 +1,6 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Menu;
-using HexaSortTest.CodeBase.Infrastructure.Services.MainMenuService;
+using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 
@@ -11,7 +11,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly GameStateMachine _gameStateMachine;
     private readonly SceneLoader _sceneLoader;
     private readonly LoadingCurtain _loadingCurtain;
-    private readonly IMainMenuRegistry _menuRegistry;
+    private readonly IMainMenuFactory _menuFactory;
     private readonly IPersistentProgressService _progressService;
 
     private MainMenuScreen _screen;
@@ -20,21 +20,20 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       GameStateMachine gameStateMachine,
       SceneLoader sceneLoader,
       LoadingCurtain loadingCurtain,
-      IMainMenuRegistry menuRegistry,
+      IMainMenuFactory menuFactory,
       IPersistentProgressService progressService)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _loadingCurtain = loadingCurtain;
-      _menuRegistry = menuRegistry;
+      _menuFactory = menuFactory;
       _progressService = progressService;
     }
 
     public void Enter()
     {
       _loadingCurtain.Show();
-      _menuRegistry.Clear();
-      _sceneLoader.Load(Constants.MainMenuScene, onLoaded: ShowScreen);
+      _sceneLoader.Load(Constants.MainMenuScene, onLoaded: SpawnScreen);
     }
 
     public void Exit()
@@ -43,19 +42,19 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         _screen.OnPlayClicked -= HandlePlayClicked;
 
       _screen = null;
-      _menuRegistry.Clear();
+      _menuFactory.Clear();
     }
 
-    private void ShowScreen()
+    private void SpawnScreen()
     {
       _loadingCurtain.Hide();
 
-      _screen = _menuRegistry.Screen;
+      _screen = _menuFactory.CreateMainMenuScreen();
 
       if (_screen == null)
       {
-        Debug.LogError("[MainMenuState] MainMenuScreen not found in registry after loading MainMenu scene. " +
-                        "Check that MainMenuSceneInstaller is present in the scene and has _mainMenuScreen assigned.");
+        Debug.LogError("[MainMenuState] Failed to spawn MainMenuScreen. " +
+                        "Check that AssetPaths.MainMenuScreenPrefab points to a valid prefab under Resources/.");
         return;
       }
 
