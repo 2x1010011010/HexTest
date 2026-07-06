@@ -21,8 +21,7 @@ namespace HexaSortTest.CodeBase.Infrastructure
       ISaveLoadService saveLoadService,
       IGameFactory gameFactory,
       IUIListenerService uiListenerService,
-      IMainMenuFactory menuFactory,
-      IGameResultFactory resultFactory
+      IUIFactory uiFactory
     ) =>
       StateMachine = new GameStateMachine(
         new SceneLoader(coroutineRunner),
@@ -31,7 +30,6 @@ namespace HexaSortTest.CodeBase.Infrastructure
         saveLoadService,
         gameFactory,
         uiListenerService,
-        menuFactory,
-        resultFactory);
+        uiFactory);
   }
 }

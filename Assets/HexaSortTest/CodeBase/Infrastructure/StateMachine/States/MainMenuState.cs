@@ -11,7 +11,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly GameStateMachine _gameStateMachine;
     private readonly SceneLoader _sceneLoader;
     private readonly LoadingCurtain _loadingCurtain;
-    private readonly IMainMenuFactory _menuFactory;
+    private readonly IUIFactory _uiFactory;
     private readonly IPersistentProgressService _progressService;
 
     private MainMenuScreen _screen;
@@ -20,13 +20,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       GameStateMachine gameStateMachine,
       SceneLoader sceneLoader,
       LoadingCurtain loadingCurtain,
-      IMainMenuFactory menuFactory,
+      IUIFactory uiFactory,
       IPersistentProgressService progressService)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _loadingCurtain = loadingCurtain;
-      _menuFactory = menuFactory;
+      _uiFactory = uiFactory;
       _progressService = progressService;
     }
 
@@ -42,14 +42,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         _screen.OnPlayClicked -= HandlePlayClicked;
 
       _screen = null;
-      _menuFactory.Clear();
+      _uiFactory.Clear();
     }
 
     private void SpawnScreen()
     {
       _loadingCurtain.Hide();
 
-      _screen = _menuFactory.CreateMainMenuScreen();
+      _screen = _uiFactory.CreateMainMenuScreen();
 
       if (_screen == null)
       {

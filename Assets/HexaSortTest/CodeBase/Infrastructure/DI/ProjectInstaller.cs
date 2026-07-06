@@ -1,8 +1,6 @@
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
-using HexaSortTest.CodeBase.Infrastructure.Services.GameResultService;
 using HexaSortTest.CodeBase.Infrastructure.Services.InputService;
-using HexaSortTest.CodeBase.Infrastructure.Services.MainMenuService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
@@ -39,28 +37,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
         .AsSingle();
 
       Container
+        .Bind<IUIFactory>()
+        .To<UIFactory>()
+        .AsSingle();
+
+      Container
         .Bind<IUIListenerService>()
         .To<RestartLevelService>()
-        .AsSingle();
-
-      Container
-        .Bind<IMainMenuFactory>()
-        .To<MainMenuFactory>()
-        .AsSingle();
-
-      Container
-        .Bind<IGameResultFactory>()
-        .To<GameResultFactory>()
-        .AsSingle();
-
-      Container
-        .Bind<IGameResultPopupRegistry>()
-        .To<GameResultPopupRegistry>()
-        .AsSingle();
-
-      Container
-        .Bind<IMainMenuRegistry>()
-        .To<MainMenuRegistry>()
         .AsSingle();
 
       Container

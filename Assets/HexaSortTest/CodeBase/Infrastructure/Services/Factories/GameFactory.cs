@@ -3,7 +3,6 @@ using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
@@ -21,10 +20,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     private readonly LevelConfigsList _levelConfigs;
 
     private LevelConfig _currentLevelConfig;
-    private StacksSpawner _stacksSpawner;
     private GridSpawner _gridSpawner;
     private readonly List<GameObject> _instances = new();
 
+    public LevelConfig CurrentLevelConfig => _currentLevelConfig;
 
     public List<IProgressReader> ProgressReaders { get; } = new();
     public List<IProgressSaver> ProgressSavers { get; } = new();
@@ -65,26 +64,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return _gridSpawner;
     }
 
-    public void CreateStacksSpawner(ObjectPool<StackTile> pool, HexGrid grid)
+    public StacksSpawner CreateStacksSpawner(ObjectPool<StackTile> pool, HexGrid grid)
     {
       var go = InstantiateInjected(AssetPaths.StackSpawner);
-      _stacksSpawner = go.GetComponent<StacksSpawner>();
-      _stacksSpawner.Initialize(_currentLevelConfig, pool, grid);
+      var stacksSpawner = go.GetComponent<StacksSpawner>();
+      stacksSpawner.Initialize(_currentLevelConfig, pool, grid);
       _instances.Add(go);
-    }
-
-    public void CreateHud(MainMenuObserver mainMenu, GridObserver gridObserver)
-    {
-      var go = InstantiateInjected(AssetPaths.HUD);
-      go.GetComponent<HudObserver>().Init(_currentLevelConfig.WinCondition, mainMenu, _stacksSpawner, gridObserver);
-      _instances.Add(go);
-    }
-
-    public MainMenuObserver CreateMainMenu()
-    {
-      var go = InstantiateInjected(AssetPaths.MainMenuPath);
-      _instances.Add(go);
-      return go.GetComponent<MainMenuObserver>();
+      return stacksSpawner;
     }
 
     public void Clear()

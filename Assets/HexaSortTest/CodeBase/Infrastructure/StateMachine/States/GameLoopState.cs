@@ -1,7 +1,6 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
-using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
@@ -11,18 +10,21 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly LoadingCurtain _loadingCurtain;
     private readonly IUIListenerService _uiListenerService;
     private readonly IGameFactory _gameFactory;
+    private readonly IUIFactory _uiFactory;
 
     public GameLoopState(
       GameStateMachine gameStateMachine,
       LoadingCurtain curtain,
       IUIListenerService uiListenerService,
-      IGameFactory gameFactory
+      IGameFactory gameFactory,
+      IUIFactory uiFactory
     )
     {
       _gameStateMachine = gameStateMachine;
       _loadingCurtain = curtain;
       _uiListenerService = uiListenerService;
       _gameFactory = gameFactory;
+      _uiFactory = uiFactory;
     }
 
     public void Enter()
@@ -40,6 +42,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     {
       _loadingCurtain.Show();
       _gameFactory.Clear();
+      _uiFactory.Clear();
       _gameStateMachine.Enter<BootstrapState>();
     }
   }

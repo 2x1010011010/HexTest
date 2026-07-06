@@ -1,5 +1,4 @@
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
-using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
@@ -11,23 +10,27 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly SceneLoader _sceneLoader;
     private readonly GameStateMachine _gameStateMachine;
     private readonly IGameFactory _gameFactory;
+    private readonly IUIFactory _uiFactory;
     private readonly IPersistentProgressService _progressService;
 
     public LoadLevelState(
       GameStateMachine gameStateMachine,
       SceneLoader sceneLoader,
       IGameFactory gameFactory,
+      IUIFactory uiFactory,
       IPersistentProgressService progressService)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _gameFactory = gameFactory;
+      _uiFactory = uiFactory;
       _progressService = progressService;
     }
 
     public void Enter(string sceneName)
     {
       _gameFactory.Clear();
+      _uiFactory.Clear();
       _sceneLoader.Load(sceneName, OnLoaded);
     }
 
@@ -51,7 +54,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void InitGameWorld()
     {
-      var mainMenuInstance = _gameFactory.CreateMainMenu();
+      var mainMenuInstance = _uiFactory.CreateMainMenu();
       var poolInstance = _gameFactory.CreateCellPool();
 
       int levelIndex = _progressService.PlayerProgress.LevelIndex;
@@ -60,9 +63,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       var gridInstance = gridSpawner.SpawnGrid();
       var gridObserver = gridInstance.GetComponent<GridObserver>();
 
-      _gameFactory.CreateStacksSpawner(poolInstance, gridInstance.GetComponent<HexGrid>());
+      var stacksSpawner = _gameFactory.CreateStacksSpawner(poolInstance, gridInstance.GetComponent<HexGrid>());
 
-      _gameFactory.CreateHud(mainMenuInstance, gridObserver);
+      _uiFactory.CreateHud(_gameFactory.CurrentLevelConfig.WinCondition, mainMenuInstance, stacksSpawner, gridObserver);
 
       gridObserver.SetGameResultHandler(_gameStateMachine);
     }

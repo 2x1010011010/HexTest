@@ -21,17 +21,16 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
       ISaveLoadService          saveLoadService,
       IGameFactory              gameFactory,
       IUIListenerService        uiListenerService,
-      IMainMenuFactory          menuFactory,
-      IGameResultFactory        resultFactory)
+      IUIFactory                uiFactory)
     {
       _states = new Dictionary<Type, IExitState>
       {
         [typeof(BootstrapState)]    = new BootstrapState(this, sceneLoader, curtain),
         [typeof(LoadProgressState)] = new LoadProgressState(this, progressService, saveLoadService),
-        [typeof(MainMenuState)]     = new MainMenuState(this, sceneLoader, curtain, menuFactory, progressService),
-        [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, progressService),
-        [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory),
-        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, resultFactory, progressService, saveLoadService),
+        [typeof(MainMenuState)]     = new MainMenuState(this, sceneLoader, curtain, uiFactory, progressService),
+        [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, uiFactory, progressService),
+        [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory, uiFactory),
+        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, uiFactory, progressService, saveLoadService),
       };
     }
     

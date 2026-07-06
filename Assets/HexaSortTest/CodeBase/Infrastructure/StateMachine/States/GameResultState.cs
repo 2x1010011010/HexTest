@@ -11,7 +11,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
   {
     private readonly GameStateMachine _gameStateMachine;
     private readonly SceneLoader _sceneLoader;
-    private readonly IGameResultFactory _resultFactory;
+    private readonly IUIFactory _uiFactory;
     private readonly IPersistentProgressService _progressService;
     private readonly ISaveLoadService _saveLoadService;
 
@@ -21,13 +21,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public GameResultState(
       GameStateMachine gameStateMachine,
       SceneLoader sceneLoader,
-      IGameResultFactory resultFactory,
+      IUIFactory uiFactory,
       IPersistentProgressService progressService,
       ISaveLoadService saveLoadService)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
-      _resultFactory = resultFactory;
+      _uiFactory = uiFactory;
       _progressService = progressService;
       _saveLoadService = saveLoadService;
     }
@@ -48,12 +48,12 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       }
 
       _popup = null;
-      _resultFactory.Clear();
+      _uiFactory.Clear();
     }
 
     private void SpawnPopup()
     {
-      _popup = _resultFactory.CreateGameResultPopup();
+      _popup = _uiFactory.CreateGameResultPopup();
 
       if (_popup == null)
       {
