@@ -3,7 +3,6 @@ using HexaSortTest.CodeBase.GameLogic.UI.Menu;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
-using DG.Tweening;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
@@ -58,7 +57,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
                         "Check that AssetPaths.MainMenuScreenPrefab points to a valid prefab under Resources/.");
         return;
       }
-
+      
       _screen.OnPlayClicked += HandlePlayClicked;
     }
 
