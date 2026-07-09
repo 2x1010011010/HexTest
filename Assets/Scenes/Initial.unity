@@ -329,6 +329,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 854493240887624796, guid: 904a139567cf1484bb4d15e59a8838fe, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3123087597089644698, guid: 904a139567cf1484bb4d15e59a8838fe, type: 3}
       propertyPath: m_Name
       value: Bootstrapper
