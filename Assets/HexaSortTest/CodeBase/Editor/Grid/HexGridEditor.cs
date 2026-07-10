@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
