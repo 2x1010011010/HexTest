@@ -2,11 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.Cells;
-using HexaSortTest.CodeBase.GameLogic.SoundLogic;
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using Sirenix.OdinInspector;
 
@@ -14,10 +11,17 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class Stack : MonoBehaviour
   {
-    [SerializeField, BoxGroup("STACK SETUP")] private List<GameObject> _stack = new();
+    [SerializeField, BoxGroup("STACK SETUP")]
+    private List<GameObject> _stack = new();
 
-    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _pauseBetween = 0.05f;
-    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _scaleDuration = 0.2f;
+    [SerializeField, BoxGroup("STACK SETUP")]
+    private int _colorThreshold = 10;
+
+    [SerializeField, BoxGroup("ANIMATION SETTINGS")]
+    private float _pauseBetween = 0.05f;
+
+    [SerializeField, BoxGroup("ANIMATION SETTINGS")]
+    private float _scaleDuration = 0.2f;
 
     private Transform _parent;
     private Transform _defaultParent;
@@ -26,7 +30,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     private bool _isDragged;
     private StackAnimator _stackAnimator;
 
-    private const int COLOR_THRESHOLD = 20;
 
     public List<GameObject> Tiles => _stack;
     public List<StackTile> Cells => _stack.Select(go => go.GetComponent<StackTile>()).ToList();
@@ -94,7 +97,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public async Task CheckForColorThreshold()
     {
-      if (_stack.Count < COLOR_THRESHOLD)
+      if (_stack.Count < _colorThreshold)
       {
         CheckForEmptyStack();
         return;
@@ -109,7 +112,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         colorGroups.Add(Cells[i]);
       }
 
-      if (colorGroups.Count < COLOR_THRESHOLD)
+      if (colorGroups.Count < _colorThreshold)
       {
         CheckForEmptyStack();
         return;
@@ -147,10 +150,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       CheckForEmptyStack();
     }
 
-    /// <summary>
-    /// Plays the arc-move animation for tiles arriving into this stack from another.
-    /// Called by GridObserver after it has already reparented tiles out of their source stack.
-    /// </summary>
     public UniTask AnimateMoveToStack(List<GameObject> incomingTiles, Vector3 moveDirection)
     {
       return _stackAnimator.MoveStackTilesAnimation(this, incomingTiles, moveDirection);

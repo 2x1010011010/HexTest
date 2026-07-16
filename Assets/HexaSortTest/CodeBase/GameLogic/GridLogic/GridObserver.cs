@@ -1,10 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using DG.Tweening;
 using HexaSortTest.CodeBase.GameLogic.Cells;
-using HexaSortTest.CodeBase.GameLogic.Data;
-using HexaSortTest.CodeBase.GameLogic.SoundLogic;
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
@@ -13,6 +9,7 @@ using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States;
 using Cysharp.Threading.Tasks;
+using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
@@ -23,11 +20,13 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private readonly Dictionary<Cell, List<Cell>> _neighbors = new();
     private readonly HashSet<Stack> _stacksOnGrid = new();
-    private Cell _lastAddedCell;
     private UIWindow _mainMenu;
 
     private GameStateMachine _gameStateMachine;
     private bool _resultAlreadyTriggered;
+
+    private StackMergeProcessor _mergeProcessor;
+    private bool _isSettling;
 
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
     public void Init(HexGrid grid) => _grid = grid;
@@ -50,19 +49,29 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       foreach (var cell in _grid.Cells)
         _neighbors[cell] = GetNeighbors(cell);
 
+      _mergeProcessor = new StackMergeProcessor(_grid, _neighbors, OnStackRemoved);
+
       ScanAndRegisterStacks();
 
-      CheckAllStacksForMergesAsync().Forget();
+      InitialSettleAsync().Forget();
+    }
+
+    private async UniTaskVoid InitialSettleAsync()
+    {
+      await SettleGridAsync();
+      await CheckForLoseConditionAsync();
     }
 
     private async UniTaskVoid Update()
     {
+      if (_isSettling)
+        return;
+
       if (Input.GetMouseButtonUp(0))
       {
-        if (RescanForNewStacks(out var newCell))
+        if (RescanForNewStacks(out _))
         {
-          _lastAddedCell = newCell;
-          await ProcessMergesFromCellAsync(_lastAddedCell);
+          await SettleGridAsync();
           await CheckForLoseConditionAsync();
         }
       }
@@ -78,8 +87,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         if (stack != null && !stack.IsDragged)
           _stacksOnGrid.Add(stack);
       }
-
-      CheckAllStacksForMergesAsync().Forget();
     }
 
     private bool RescanForNewStacks(out Cell newCell)
@@ -102,191 +109,24 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return false;
     }
 
-    private async UniTask CheckAllStacksForMergesAsync()
+    private async UniTask SettleGridAsync()
     {
-      bool merged;
-
-      do
-      {
-        merged = false;
-
-        var stacks = _grid.Cells
-          .Select(c => c.GetComponentInChildren<Stack>())
-          .Where(s => s != null && !s.IsDragged)
-          .ToList();
-
-        foreach (var stack in stacks)
-        {
-          var cell = stack.Cell;
-          if (cell == null || stack.IsDragged)
-            continue;
-
-          if (await ProcessMergesFromCellAsync(cell, recursiveCheck: false))
-            merged = true;
-        }
-      } while (merged);
-
-      await CheckAllStacksForColorThresholdAsync();
-      await CheckForLoseConditionAsync();
-    }
-
-    private async UniTask<bool> ProcessMergesFromCellAsync(Cell centerCell, bool recursiveCheck = true)
-    {
-      if (centerCell == null)
-        return false;
-
-      var centerStack = centerCell.GetComponentInChildren<Stack>();
-      if (centerStack == null || centerStack.IsDragged)
-        return false;
-
-      bool mergedAny = false;
-      bool keepMerging;
-
-      do
-      {
-        keepMerging = false;
-
-        var neighborCells = _neighbors[centerCell]
-          .Where(n =>
-          {
-            var stack = n.GetComponentInChildren<Stack>();
-            return stack != null && !stack.IsDragged;
-          })
-          .ToList();
-
-        if (neighborCells.Count == 0)
-          break;
-
-        Color baseColor;
-
-        try
-        {
-          baseColor = centerStack.GetLastCellColor();
-        }
-        catch
-        {
-          break;
-        }
-
-        var sameColorNeighbors = neighborCells
-          .Where(n =>
-          {
-            var s = n.GetComponentInChildren<Stack>();
-            return s.GetLastCellColor() == baseColor;
-          })
-          .ToList();
-
-        if (sameColorNeighbors.Count == 0)
-          break;
-
-        foreach (var neighbor in sameColorNeighbors)
-        {
-          var neighborStack = neighbor.GetComponentInChildren<Stack>();
-          if (neighborStack == null || neighborStack.IsDragged)
-            continue;
-
-          var tilesToMove = GetCellsToMove(neighborStack, baseColor);
-          if (tilesToMove.Count == 0)
-            continue;
-
-          await MoveCellsToOtherStackAsync(tilesToMove, centerStack);
-
-          mergedAny = true;
-          keepMerging = true;
-        }
-
-        if (!centerStack.IsDragged)
-          await centerStack.CheckForColorThreshold();
-
-        centerStack = centerCell.GetComponentInChildren<Stack>();
-      } while (keepMerging && centerStack != null && !centerStack.IsDragged && centerStack.Tiles.Count > 0);
-
-      if (mergedAny && recursiveCheck)
-        await CheckAllStacksForMergesAsync();
-
-      return mergedAny;
-    }
-
-    private List<StackTile> GetCellsToMove(Stack stack, Color color)
-    {
-      var result = new List<StackTile>();
-      if (stack == null || stack.Tiles == null || stack.IsDragged)
-        return result;
-
-      for (int i = stack.Tiles.Count - 1; i >= 0; i--)
-      {
-        var go = stack.Tiles[i];
-        if (go == null)
-          break;
-
-        var tile = go.GetComponent<StackTile>();
-
-        if (tile.Color != color)
-          break;
-
-        result.Add(tile);
-      }
-
-      return result;
-    }
-
-    private async UniTask MoveCellsToOtherStackAsync(List<StackTile> cellsToMove, Stack targetStack)
-    {
-      if (cellsToMove == null || targetStack == null || targetStack.IsDragged)
+      if (_isSettling)
         return;
 
-      List<GameObject> movedTiles = new List<GameObject>();
-      Vector3 moveDirection = Vector3.forward;
-      Stack prevStack = null;
-
-      for (int i = cellsToMove.Count - 1; i >= 0; i--)
+      _isSettling = true;
+      try
       {
-        var tile = cellsToMove[i];
-        if (tile == null)
-          continue;
-
-        prevStack = tile.GetComponentInParent<Stack>();
-        if (prevStack == null || prevStack.IsDragged)
-          continue;
-
-        prevStack.Remove(tile.gameObject);
-
-        if (prevStack.Tiles.Count == 0)
-          RemoveStack(prevStack);
-
-        moveDirection = (targetStack.transform.position - prevStack.transform.position).normalized;
-
-        movedTiles.Add(tile.gameObject);
+        await _mergeProcessor.SettleAsync();
       }
-
-      await targetStack.AnimateMoveToStack(movedTiles, moveDirection);
+      finally
+      {
+        _isSettling = false;
+      }
     }
 
-    private void RemoveStack(Stack stack)
-    {
-      if (stack == null)
-        return;
-
+    private void OnStackRemoved(Stack stack) =>
       _stacksOnGrid.Remove(stack);
-
-      var cell = stack.Cell;
-      if (cell != null)
-      {
-        cell.SetEmpty(true);
-        cell.ShineOff();
-      }
-
-      Destroy(stack.gameObject);
-    }
-
-    private async UniTask CheckAllStacksForColorThresholdAsync()
-    {
-      foreach (var stack in _stacksOnGrid.ToList())
-      {
-        if (stack != null && !stack.IsDragged)
-          await stack.CheckForColorThreshold();
-      }
-    }
 
     private List<Cell> GetNeighbors(Cell cell)
     {
@@ -343,6 +183,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       TriggerDefeat();
     }
+
     public void TriggerVictory()
     {
       Debug.Log($"[GridObserver] TriggerVictory called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
