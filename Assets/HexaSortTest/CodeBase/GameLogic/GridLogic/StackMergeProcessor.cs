@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using HexaSortTest.CodeBase.GameLogic.Cells;
+using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using UnityEngine;
 
@@ -14,8 +15,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private readonly Dictionary<Cell, List<Cell>> _neighbors;
     private readonly Action<Stack> _onStackRemoved;
 
-    public StackMergeProcessor(HexGrid grid, Dictionary<Cell, List<Cell>> neighbors,
-      Action<Stack> onStackRemoved = null)
+    public StackMergeProcessor(HexGrid grid, Dictionary<Cell, List<Cell>> neighbors, Action<Stack> onStackRemoved = null)
     {
       _grid = grid;
       _neighbors = neighbors;
@@ -36,14 +36,19 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     public async UniTask SettleAsync()
     {
-      bool anyMerge;
+      bool anyDestroyedThisCycle;
 
       do
       {
-        anyMerge = await RunMergePassAsync();
-      } while (anyMerge);
+        bool anyMerge;
 
-      await RunThresholdPassAsync();
+        do
+        {
+          anyMerge = await RunMergePassAsync();
+        } while (anyMerge);
+
+        anyDestroyedThisCycle = await RunThresholdPassAsync();
+      } while (anyDestroyedThisCycle);
     }
 
     private async UniTask<bool> RunMergePassAsync()
@@ -126,7 +131,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       if (cellBIsHub && !cellAIsHub)
         return cellB;
-      
+
       int countA = stackA.Tiles.Count;
       int countB = stackB.Tiles.Count;
 
@@ -229,20 +234,29 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       UnityEngine.Object.Destroy(stack.gameObject);
     }
 
-    private async UniTask RunThresholdPassAsync()
+    private async UniTask<bool> RunThresholdPassAsync()
     {
       var stacksSnapshot = _grid.Cells
         .Select(GetStack)
         .Where(s => s != null && !s.IsDragged)
         .ToList();
 
+      bool anyDestroyed = false;
+
       foreach (var stack in stacksSnapshot)
       {
-        if (stack == null)
+        if (stack == null || stack.IsDestroyed())
           continue;
 
+        int tileCountBefore = stack.Tiles.Count;
+
         await stack.CheckForColorThreshold();
+
+        if (stack.IsDestroyed() || stack.Tiles.Count != tileCountBefore)
+          anyDestroyed = true;
       }
+
+      return anyDestroyed;
     }
 
     private Dictionary<Cell, int> BuildCellIndex()

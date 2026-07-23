@@ -26,6 +26,11 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private bool _resultAlreadyTriggered;
 
     private StackMergeProcessor _mergeProcessor;
+
+    // Guards against a new settle being kicked off (e.g. from a new stack
+    // landing on the grid) while the current merge queue is still draining.
+    // All queued grid movements must finish before anything else reacts to
+    // the grid state — this is what enforces "movements first" ordering.
     private bool _isSettling;
 
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
@@ -64,6 +69,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private async UniTaskVoid Update()
     {
+      // Nothing new should react to the grid (new drops, lose checks, etc.)
+      // while a settle is already draining its movement queue.
       if (_isSettling)
         return;
 

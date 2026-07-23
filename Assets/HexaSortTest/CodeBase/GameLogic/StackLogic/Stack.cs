@@ -2,8 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.Cells;
+using HexaSortTest.CodeBase.GameLogic.SoundLogic;
+using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using Sirenix.OdinInspector;
 
@@ -11,17 +14,11 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class Stack : MonoBehaviour
   {
-    [SerializeField, BoxGroup("STACK SETUP")]
-    private List<GameObject> _stack = new();
+    [SerializeField, BoxGroup("STACK SETUP")] private List<GameObject> _stack = new();
+    [SerializeField, BoxGroup("STACK SETUP")] private int _colorTreshold = 10;
 
-    [SerializeField, BoxGroup("STACK SETUP")]
-    private int _colorThreshold = 10;
-
-    [SerializeField, BoxGroup("ANIMATION SETTINGS")]
-    private float _pauseBetween = 0.05f;
-
-    [SerializeField, BoxGroup("ANIMATION SETTINGS")]
-    private float _scaleDuration = 0.2f;
+    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _pauseBetween = 0.05f;
+    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _scaleDuration = 0.2f;
 
     private Transform _parent;
     private Transform _defaultParent;
@@ -97,7 +94,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public async Task CheckForColorThreshold()
     {
-      if (_stack.Count < _colorThreshold)
+      if (_stack.Count < _colorTreshold)
       {
         CheckForEmptyStack();
         return;
@@ -112,7 +109,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         colorGroups.Add(Cells[i]);
       }
 
-      if (colorGroups.Count < _colorThreshold)
+      if (colorGroups.Count < _colorTreshold)
       {
         CheckForEmptyStack();
         return;
