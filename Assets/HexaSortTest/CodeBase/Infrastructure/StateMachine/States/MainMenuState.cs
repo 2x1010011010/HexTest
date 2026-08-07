@@ -39,7 +39,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public void Exit()
     {
       if (_screen != null)
+      {
         _screen.OnPlayClicked -= HandlePlayClicked;
+        _screen.OnMetaClicked -= HandleMetaClicked;
+      }
 
       _screen = null;
       _uiFactory.Clear();
@@ -59,6 +62,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       }
       
       _screen.OnPlayClicked += HandlePlayClicked;
+      _screen.OnMetaClicked += HandleMetaClicked;
     }
 
     private void HandlePlayClicked()
@@ -67,6 +71,12 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _loadingCurtain.Show();
       _gameStateMachine.Enter<LoadLevelState, string>(
         _progressService.PlayerProgress.WorldData.LastLevel.Level);
+    }
+
+    private void HandleMetaClicked()
+    {
+      Debug.Log("[MainMenuState] HandleMetaClicked");
+      _gameStateMachine.Enter<MetaState>();
     }
   }
 }

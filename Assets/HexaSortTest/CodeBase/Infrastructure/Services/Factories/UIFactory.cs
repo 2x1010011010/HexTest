@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
+using HexaSortTest.CodeBase.GameLogic.Meta;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.GameLogic.UI.Menu;
+using HexaSortTest.CodeBase.GameLogic.UI.Meta;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using UnityEngine;
@@ -67,6 +69,24 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
         Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.GameResultPopupPrefab} has no GameResultPopup component!");
 
       return popup;
+    }
+
+    public MetaUIObserver CreateMetaUI()
+    {
+      var prefab = Resources.Load<GameObject>(AssetPaths.MetaUIPrefab);
+      if (prefab == null)
+      {
+        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.MetaUIPrefab}");
+        return null;
+      }
+
+      var go = InstantiateInjected(prefab);
+
+      var metaUI = go.GetComponent<MetaUIObserver>();
+      if (metaUI == null)
+        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.MetaUIPrefab} has no MetaUIObserver component!");
+
+      return metaUI;
     }
 
     public void Clear()

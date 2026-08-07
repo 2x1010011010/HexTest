@@ -1,6 +1,7 @@
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.InputService;
+using HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
@@ -44,6 +45,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
       Container
         .Bind<IUIListenerService>()
         .To<RestartLevelService>()
+        .AsSingle();
+
+      Container
+        .Bind<IMetaObserver>()
+        .To<MetaObserver>()
         .AsSingle();
 
       Container
