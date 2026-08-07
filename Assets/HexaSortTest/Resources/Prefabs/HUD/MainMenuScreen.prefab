@@ -418,6 +418,7 @@ GameObject:
   - component: {fileID: 1167127188424497302}
   - component: {fileID: 2808398307605189856}
   - component: {fileID: 1951058691354021078}
+  - component: {fileID: 1708920143383574372}
   m_Layer: 0
   m_Name: MetaMapButton
   m_TagString: Untagged
@@ -527,6 +528,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1708920143383574372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887965634442662030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f05f2c9ee894d249cec93ee0c022dce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.Menu.MetaButton
+  _button: {fileID: 1951058691354021078}
 --- !u!1 &4622893174941218656
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,6 +587,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.Menu.MainMenuScreen
   _playButton: {fileID: 5526386139899428634}
+  _metaButton: {fileID: 1708920143383574372}
 --- !u!1 &4697334409881797960
 GameObject:
   m_ObjectHideFlags: 0
