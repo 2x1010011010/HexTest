@@ -53,6 +53,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
         .AsSingle();
 
       Container
+        .Bind<IMetaObjectFactory>()
+        .To<MetaObjectFactory>()
+        .AsSingle();
+
+      Container
         .Bind<IInputService>()
         .FromMethod(_ => Application.isMobilePlatform
           ? (IInputService)new MobileInputService()

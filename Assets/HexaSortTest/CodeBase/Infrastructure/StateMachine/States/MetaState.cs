@@ -1,6 +1,7 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Meta;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
+using HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
@@ -11,6 +12,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly SceneLoader _sceneLoader;
     private readonly LoadingCurtain _loadingCurtain;
     private readonly IUIFactory _uiFactory;
+    private readonly IMetaObjectFactory _metaObjectFactory;
 
     private MetaUIObserver _metaUI;
 
@@ -18,12 +20,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       GameStateMachine gameStateMachine,
       SceneLoader sceneLoader,
       LoadingCurtain loadingCurtain,
-      IUIFactory uiFactory)
+      IUIFactory uiFactory,
+      IMetaObjectFactory metaObjectFactory)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _loadingCurtain = loadingCurtain;
       _uiFactory = uiFactory;
+      _metaObjectFactory = metaObjectFactory;
     }
 
     public void Enter()
@@ -38,6 +42,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         _metaUI.OnExitRequested -= HandleExitRequested;
 
       _metaUI = null;
+      _metaObjectFactory.Clear();
       _uiFactory.Clear();
     }
 
