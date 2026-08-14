@@ -29,10 +29,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return go.GetComponent<MainMenuObserver>();
     }
 
-    public void CreateHud(int winCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver)
+    public void CreateHud(int winCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver, BoosterPurchasePopup boosterPurchasePopup = null)
     {
       var go = InstantiateInjected(AssetPaths.HUD);
-      go.GetComponent<HudObserver>().Init(winCondition, mainMenu, stacksSpawner, gridObserver);
+      go.GetComponent<HudObserver>().Init(winCondition, mainMenu, stacksSpawner, gridObserver, boosterPurchasePopup);
     }
 
     public MainMenuScreen CreateMainMenuScreen()
@@ -87,6 +87,24 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
         Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.MetaUIPrefab} has no MetaUIObserver component!");
 
       return metaUI;
+    }
+
+    public BoosterPurchasePopup CreateBoosterPurchasePopup()
+    {
+      var prefab = Resources.Load<GameObject>(AssetPaths.BoosterPurchasePopupPrefab);
+      if (prefab == null)
+      {
+        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.BoosterPurchasePopupPrefab}");
+        return null;
+      }
+
+      var go = InstantiateInjected(prefab);
+
+      var popup = go.GetComponent<BoosterPurchasePopup>();
+      if (popup == null)
+        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.BoosterPurchasePopupPrefab} has no BoosterPurchasePopup component!");
+
+      return popup;
     }
 
     public void Clear()

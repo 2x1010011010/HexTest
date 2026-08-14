@@ -8,6 +8,7 @@ using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
+using HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using Zenject;
 using Random = UnityEngine.Random;
@@ -34,42 +35,35 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     [SerializeField, BoxGroup("TILES COUNTER")] private Slider _tilesCounterSlider;
 
     [Inject] private ICurrencyService _currencyService;
+    [Inject] private IBoosterInventoryService _boosterInventory;
 
     public static HudObserver Instance { get; private set; }
 
     private UIWindow _mainMenu;
     private StacksSpawner _stacksSpawner;
     private GridObserver _gridObserver;
+    private BoosterPurchasePopup _boosterPurchasePopup;
     private int _winCondition;
     private int _tilesCount;
-    private int _hammerBoosterCount;
-    private int _handBoosterCount;
-    private int _respawnBoosterCount;
     private int _tilesCounterSliderFill = 0;
 
     private void Awake()
     {
       if (Instance != null) Destroy(gameObject);
       Instance = this;
-      
-      _hammerBoosterCount = 2;
-      _handBoosterCount = 2;
-      _respawnBoosterCount = 2;
-      _tilesCount = 0;
 
-      _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
-      _handBoosterCounter.text = _handBoosterCount.ToString();
-      _respawnBoosterCounter.text = _respawnBoosterCount.ToString();
+      _tilesCount = 0;
       _tilesCounter.text = _tilesCount.ToString();
       _tilesCounterSlider.value = _tilesCount;
     }
 
-    public void Init(int configWinCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver = null)
+    public void Init(int configWinCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver = null, BoosterPurchasePopup boosterPurchasePopup = null)
     {
       _winCondition = configWinCondition;
       _mainMenu = mainMenu;
       _stacksSpawner = stacksSpawner;
       _gridObserver = gridObserver;
+      _boosterPurchasePopup = boosterPurchasePopup;
       _boosterTools.SetSpawner(_stacksSpawner);
     }
 
@@ -82,6 +76,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_currencyService != null)
         _currencyService.OnCoinsChanged += HandleCoinsChanged;
 
+      if (_boosterInventory != null)
+        _boosterInventory.OnCountChanged += HandleBoosterCountChanged;
+
       Open();
     }
 
@@ -93,6 +90,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounter.text = _tilesCount.ToString();
 
       RefreshCoinsCounter();
+      RefreshAllBoosterCounters();
     }
 
     private void OnDisable()
@@ -104,33 +102,60 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
       if (_currencyService != null)
         _currencyService.OnCoinsChanged -= HandleCoinsChanged;
+
+      if (_boosterInventory != null)
+        _boosterInventory.OnCountChanged -= HandleBoosterCountChanged;
     }
 
-    private void OnRespawnButtonClick(IBooster booster)
+    private void OnRespawnButtonClick(IBooster booster) => TryUseOrPromptPurchase(BoosterType.Respawn, booster);
+    private void OnHammerButtonClick(IBooster booster) => TryUseOrPromptPurchase(BoosterType.Hammer, booster);
+    private void OnHandButtonClick(IBooster booster) => TryUseOrPromptPurchase(BoosterType.Hand, booster);
+
+    private void TryUseOrPromptPurchase(BoosterType type, IBooster booster)
     {
       AudioFacade.Instance.PlayClick();
-      if (_respawnBoosterCount <= 0) return;
-      _boosterTools.ActivateBooster(booster);
-      _respawnBoosterCount--;
-      _respawnBoosterCounter.text = _respawnBoosterCount.ToString();
+
+      if (_boosterInventory == null)
+      {
+        Debug.LogError("[HudObserver] IBoosterInventoryService not injected.");
+        return;
+      }
+
+      if (_boosterInventory.TrySpend(type))
+      {
+        _boosterTools.ActivateBooster(booster);
+        return;
+      }
+
+      if (_boosterPurchasePopup != null)
+        _boosterPurchasePopup.ShowFor(type);
+      else
+        Debug.LogWarning("[HudObserver] BoosterPurchasePopup is not set, cannot prompt for purchase.");
     }
 
-    private void OnHammerButtonClick(IBooster booster)
+    private void HandleBoosterCountChanged(BoosterType type, int newCount)
     {
-      AudioFacade.Instance.PlayClick();
-      if (_hammerBoosterCount <= 0) return;
-      _boosterTools.ActivateBooster(booster);
-      _hammerBoosterCount--;
-      _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
+      switch (type)
+      {
+        case BoosterType.Hammer:
+          _hammerBoosterCounter.text = newCount.ToString();
+          break;
+        case BoosterType.Hand:
+          _handBoosterCounter.text = newCount.ToString();
+          break;
+        case BoosterType.Respawn:
+          _respawnBoosterCounter.text = newCount.ToString();
+          break;
+      }
     }
 
-    private void OnHandButtonClick(IBooster booster)
+    private void RefreshAllBoosterCounters()
     {
-      AudioFacade.Instance.PlayClick();
-      if (_handBoosterCount <= 0) return;
-      _boosterTools.ActivateBooster(booster);
-      _handBoosterCount--;
-      _handBoosterCounter.text = _handBoosterCount.ToString();
+      if (_boosterInventory == null) return;
+
+      _hammerBoosterCounter.text = _boosterInventory.GetCount(BoosterType.Hammer).ToString();
+      _handBoosterCounter.text = _boosterInventory.GetCount(BoosterType.Hand).ToString();
+      _respawnBoosterCounter.text = _boosterInventory.GetCount(BoosterType.Respawn).ToString();
     }
 
     private void HandleCoinsChanged(int value)
@@ -175,8 +200,13 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounterSlider.value = _tilesCounterSliderFill;
     }
 
+    // Pre-existing, unused reward-roll helper (dead code before this change
+    // too — nothing calls it). Repointed at IBoosterInventoryService since
+    // the local booster-count fields it used to mutate no longer exist.
     private void GetRandomBooster()
     {
+      if (_boosterInventory == null) return;
+
       var randomBooster = Random.Range(0, 32);
       switch (randomBooster)
       {
@@ -188,8 +218,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
           _hammerCounterImage.transform
             .DOPunchScale(Vector3.one * 2f, 0.5f, 10, 0.5f)
             .SetEase(Ease.OutBounce);
-          _hammerBoosterCount++;
-          _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
+          _boosterInventory.Add(BoosterType.Hammer, 1);
           break;
         
         case 1:
@@ -200,8 +229,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
           _handCounterImage.transform
             .DOPunchScale(Vector3.one * 2f, 0.5f, 10, 0.5f)
             .SetEase(Ease.OutBounce);
-          _handBoosterCount++;
-          _handBoosterCounter.text = _handBoosterCount.ToString();
+          _boosterInventory.Add(BoosterType.Hand, 1);
           break;
       }
     }

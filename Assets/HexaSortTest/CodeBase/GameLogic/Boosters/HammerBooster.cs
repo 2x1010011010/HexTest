@@ -7,6 +7,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
 {
   public class HammerBooster : MonoBehaviour, IBooster
   {
+    public BoosterType Type => BoosterType.Hammer;
+
     public async Task BoosterAction(Stack target)
     {
       Debug.Log("Hammer Booster Action");

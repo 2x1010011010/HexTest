@@ -65,7 +65,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
       var stacksSpawner = _gameFactory.CreateStacksSpawner(poolInstance, gridInstance.GetComponent<HexGrid>());
 
-      _uiFactory.CreateHud(_gameFactory.CurrentLevelConfig.WinCondition, mainMenuInstance, stacksSpawner, gridObserver);
+      var boosterPurchasePopup = _uiFactory.CreateBoosterPurchasePopup();
+
+      _uiFactory.CreateHud(_gameFactory.CurrentLevelConfig.WinCondition, mainMenuInstance, stacksSpawner, gridObserver, boosterPurchasePopup);
 
       gridObserver.SetGameResultHandler(_gameStateMachine);
     }

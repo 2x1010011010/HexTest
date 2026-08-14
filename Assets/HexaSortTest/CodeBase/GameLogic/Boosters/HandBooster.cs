@@ -6,6 +6,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
 {
   public class HandBooster : MonoBehaviour, IBooster
   {
+    public BoosterType Type => BoosterType.Hand;
+
     public async Task BoosterAction(Stack target)
     {
       if (target == null) return;

@@ -1,4 +1,5 @@
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
+using HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.InputService;
@@ -61,6 +62,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
       Container
         .Bind<ICurrencyService>()
         .To<CurrencyService>()
+        .AsSingle();
+
+      Container
+        .Bind<IBoosterInventoryService>()
+        .To<BoosterInventoryService>()
         .AsSingle();
 
       Container
