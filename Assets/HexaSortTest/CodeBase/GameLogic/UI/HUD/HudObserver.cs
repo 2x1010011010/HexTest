@@ -8,6 +8,8 @@ using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
+using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
+using Zenject;
 using Random = UnityEngine.Random;
 
 namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
@@ -26,10 +28,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _handBoosterCounter;
     [SerializeField, BoxGroup("BOOSTERS BUTTONS")] private TMP_Text _respawnBoosterCounter;
 
-    //[SerializeField, BoxGroup("COINS COUNTER")] private TMP_Text _coinsCounter;
+    [SerializeField, BoxGroup("COINS COUNTER")] private TMP_Text _coinsCounter;
     [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _tilesCounter;
     [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _winConditionText;
     [SerializeField, BoxGroup("TILES COUNTER")] private Slider _tilesCounterSlider;
+
+    [Inject] private ICurrencyService _currencyService;
 
     public static HudObserver Instance { get; private set; }
 
@@ -37,7 +41,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     private StacksSpawner _stacksSpawner;
     private GridObserver _gridObserver;
     private int _winCondition;
-    private int _coisnsCount;
     private int _tilesCount;
     private int _hammerBoosterCount;
     private int _handBoosterCount;
@@ -52,13 +55,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _hammerBoosterCount = 2;
       _handBoosterCount = 2;
       _respawnBoosterCount = 2;
-      _coisnsCount = 0;
       _tilesCount = 0;
 
       _hammerBoosterCounter.text = _hammerBoosterCount.ToString();
       _handBoosterCounter.text = _handBoosterCount.ToString();
       _respawnBoosterCounter.text = _respawnBoosterCount.ToString();
-//      _coinsCounter.text = _coisnsCount.ToString();
       _tilesCounter.text = _tilesCount.ToString();
       _tilesCounterSlider.value = _tilesCount;
     }
@@ -78,6 +79,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _handButton.OnHandButtonClick += OnHandButtonClick;
       _respawnButton.OnRespawnButtonClick += OnRespawnButtonClick;
 
+      if (_currencyService != null)
+        _currencyService.OnCoinsChanged += HandleCoinsChanged;
+
       Open();
     }
 
@@ -87,6 +91,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounterSliderFill = 0;
       _winConditionText.text = ("/" +_winCondition).ToString();
       _tilesCounter.text = _tilesCount.ToString();
+
+      RefreshCoinsCounter();
     }
 
     private void OnDisable()
@@ -95,6 +101,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _hammerButton.OnHammerButtonClick -= OnHammerButtonClick;
       _handButton.OnHandButtonClick -= OnHandButtonClick;
       _respawnButton.OnRespawnButtonClick -= OnRespawnButtonClick;
+
+      if (_currencyService != null)
+        _currencyService.OnCoinsChanged -= HandleCoinsChanged;
     }
 
     private void OnRespawnButtonClick(IBooster booster)
@@ -124,8 +133,16 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _handBoosterCounter.text = _handBoosterCount.ToString();
     }
 
-    private void OnCoinsCounterChanged(int value)
+    private void HandleCoinsChanged(int value)
     {
+      if (_coinsCounter != null)
+        _coinsCounter.text = value.ToString();
+    }
+
+    private void RefreshCoinsCounter()
+    {
+      if (_coinsCounter != null && _currencyService != null)
+        _coinsCounter.text = _currencyService.Coins.ToString();
     }
 
     public void AddTiles(int value)

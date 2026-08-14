@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services;
+using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -23,7 +24,8 @@ namespace HexaSortTest.CodeBase.Infrastructure
       IGameFactory gameFactory,
       IUIListenerService uiListenerService,
       IUIFactory uiFactory,
-      IMetaObjectFactory metaObjectFactory
+      IMetaObjectFactory metaObjectFactory,
+      ICurrencyService currencyService
     ) =>
       StateMachine = new GameStateMachine(
         new SceneLoader(coroutineRunner),
@@ -33,6 +35,7 @@ namespace HexaSortTest.CodeBase.Infrastructure
         gameFactory,
         uiListenerService,
         uiFactory,
-        metaObjectFactory);
+        metaObjectFactory,
+        currencyService);
   }
 }

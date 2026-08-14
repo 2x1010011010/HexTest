@@ -25,14 +25,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
 
       var progress = _progressService.PlayerProgress;
 
-      if (progress.Currency < tile.CurrencyCostPerTap)
+      if (progress.HexCoins < tile.CurrencyCostPerTap)
       {
-        Debug.Log($"[MetaObserver] Not enough currency to progress tile '{tile.TileId}'. " +
-                  $"Have {progress.Currency}, need {tile.CurrencyCostPerTap}.");
+        Debug.Log($"[MetaObserver] Not enough HexCoins to progress tile '{tile.TileId}'. " +
+                  $"Have {progress.HexCoins}, need {tile.CurrencyCostPerTap}.");
         return false;
       }
 
-      progress.Currency -= tile.CurrencyCostPerTap;
+      progress.HexCoins -= tile.CurrencyCostPerTap;
       tile.Open();
 
       SaveData(tile);

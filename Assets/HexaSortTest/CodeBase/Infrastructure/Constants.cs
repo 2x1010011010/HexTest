@@ -13,7 +13,11 @@ namespace HexaSortTest.CodeBase.Infrastructure
     public const string MetaScene = "Meta";
 
     public const string SpawnPointTag = "Respawn";
-    
+
     public const string ProgressKey = "Progress";
+
+    public const int EasyLevelCoinsReward = 5;
+    public const int HardLevelCoinsReward = 15;
+    public const int SuperHardLevelCoinsReward = 25;
   }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
+using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -23,7 +24,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
       IGameFactory              gameFactory,
       IUIListenerService        uiListenerService,
       IUIFactory                uiFactory,
-      IMetaObjectFactory         metaObjectFactory)
+      IMetaObjectFactory         metaObjectFactory,
+      ICurrencyService           currencyService)
     {
       _states = new Dictionary<Type, IExitState>
       {
@@ -32,7 +34,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
         [typeof(MainMenuState)]     = new MainMenuState(this, sceneLoader, curtain, uiFactory, progressService),
         [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, uiFactory, progressService),
         [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory, uiFactory),
-        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, uiFactory, progressService, saveLoadService),
+        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, uiFactory, progressService, saveLoadService, gameFactory, currencyService),
         [typeof(MetaState)]         = new MetaState(this, sceneLoader, curtain, uiFactory, metaObjectFactory),
       };
     }

@@ -1,4 +1,5 @@
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
+using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.InputService;
 using HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService;
@@ -55,6 +56,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
       Container
         .Bind<IMetaObjectFactory>()
         .To<MetaObjectFactory>()
+        .AsSingle();
+
+      Container
+        .Bind<ICurrencyService>()
+        .To<CurrencyService>()
         .AsSingle();
 
       Container

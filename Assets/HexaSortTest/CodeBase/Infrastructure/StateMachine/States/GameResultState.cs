@@ -1,4 +1,6 @@
+using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
+using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
@@ -14,6 +16,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly IUIFactory _uiFactory;
     private readonly IPersistentProgressService _progressService;
     private readonly ISaveLoadService _saveLoadService;
+    private readonly IGameFactory _gameFactory;
+    private readonly ICurrencyService _currencyService;
 
     private GameResultPopup _popup;
     private bool _isVictory;
@@ -23,18 +27,25 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       SceneLoader sceneLoader,
       IUIFactory uiFactory,
       IPersistentProgressService progressService,
-      ISaveLoadService saveLoadService)
+      ISaveLoadService saveLoadService,
+      IGameFactory gameFactory,
+      ICurrencyService currencyService)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _uiFactory = uiFactory;
       _progressService = progressService;
       _saveLoadService = saveLoadService;
+      _gameFactory = gameFactory;
+      _currencyService = currencyService;
     }
 
     public void Enter(GameResultPayload payload)
     {
       _isVictory = payload.IsVictory;
+
+      if (_isVictory)
+        AwardLevelRewards();
 
       _sceneLoader.Load(Constants.GameResultScene, onLoaded: SpawnPopup);
     }
@@ -50,6 +61,29 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _popup = null;
       _uiFactory.Clear();
     }
+
+    // NOTE: reads _gameFactory.CurrentLevelConfig, which is still valid here —
+    // GameFactory isn't cleared until the next LoadLevelState.Enter() runs.
+    private void AwardLevelRewards()
+    {
+      var levelConfig = _gameFactory.CurrentLevelConfig;
+      if (levelConfig == null)
+      {
+        Debug.LogWarning("[GameResultState] CurrentLevelConfig is null, skipping reward payout.");
+        return;
+      }
+
+      _currencyService.AddCoins(CoinsRewardFor(levelConfig.Difficulty));
+      _currencyService.AddHexCoins(levelConfig.WinCondition);
+    }
+
+    private static int CoinsRewardFor(LevelDifficulty difficulty) => difficulty switch
+    {
+      LevelDifficulty.Easy => Constants.EasyLevelCoinsReward,
+      LevelDifficulty.Hard => Constants.HardLevelCoinsReward,
+      LevelDifficulty.SuperHard => Constants.SuperHardLevelCoinsReward,
+      _ => Constants.EasyLevelCoinsReward
+    };
 
     private void SpawnPopup()
     {
