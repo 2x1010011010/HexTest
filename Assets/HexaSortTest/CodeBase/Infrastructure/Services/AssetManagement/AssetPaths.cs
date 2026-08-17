@@ -19,6 +19,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
     public const string MetaUIPrefab = "Prefabs/Meta/MetaUI";
 
     public const string BoosterPurchasePopupPrefab = "Prefabs/HUD/BoosterPurchasePopup";
-    public const string ShopSceneUIPrefab = "Prefabs/Shop/ShopSceneUI";
+    public const string ShopSceneUIPrefab = "Prefabs/Shop/ShopHUD";
   }
 }

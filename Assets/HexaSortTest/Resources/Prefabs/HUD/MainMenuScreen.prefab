@@ -588,6 +588,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.Menu.MainMenuScreen
   _playButton: {fileID: 5526386139899428634}
   _metaButton: {fileID: 1708920143383574372}
+  _shopButton: {fileID: 3522722879784630814}
 --- !u!1 &4697334409881797960
 GameObject:
   m_ObjectHideFlags: 0
@@ -1029,6 +1030,7 @@ GameObject:
   - component: {fileID: 4831017530054536066}
   - component: {fileID: 343946113662511411}
   - component: {fileID: 2048527385494414649}
+  - component: {fileID: 3522722879784630814}
   m_Layer: 0
   m_Name: ShopButton
   m_TagString: Untagged
@@ -1138,3 +1140,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3522722879784630814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7090413571290091578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a12f93375c48eca57e32e271090663, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.Menu.ShopButton
+  _button: {fileID: 2048527385494414649}
