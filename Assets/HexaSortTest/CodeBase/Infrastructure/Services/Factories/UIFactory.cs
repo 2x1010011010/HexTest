@@ -7,6 +7,7 @@ using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.GameLogic.UI.Menu;
 using HexaSortTest.CodeBase.GameLogic.UI.Meta;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
+using HexaSortTest.CodeBase.GameLogic.UI.Shop;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -105,6 +106,24 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
         Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.BoosterPurchasePopupPrefab} has no BoosterPurchasePopup component!");
 
       return popup;
+    }
+
+    public ShopSceneObserver CreateShopSceneUI()
+    {
+      var prefab = Resources.Load<GameObject>(AssetPaths.ShopSceneUIPrefab);
+      if (prefab == null)
+      {
+        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.ShopSceneUIPrefab}");
+        return null;
+      }
+
+      var go = InstantiateInjected(prefab);
+
+      var shopUI = go.GetComponent<ShopSceneObserver>();
+      if (shopUI == null)
+        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.ShopSceneUIPrefab} has no ShopSceneObserver component!");
+
+      return shopUI;
     }
 
     public void Clear()

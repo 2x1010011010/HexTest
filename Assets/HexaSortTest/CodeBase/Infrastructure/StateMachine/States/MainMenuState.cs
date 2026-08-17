@@ -42,6 +42,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       {
         _screen.OnPlayClicked -= HandlePlayClicked;
         _screen.OnMetaClicked -= HandleMetaClicked;
+        _screen.OnShopClicked -= HandleShopClicked;
       }
 
       _screen = null;
@@ -63,6 +64,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       
       _screen.OnPlayClicked += HandlePlayClicked;
       _screen.OnMetaClicked += HandleMetaClicked;
+      _screen.OnShopClicked += HandleShopClicked;
     }
 
     private void HandlePlayClicked()
@@ -77,6 +79,12 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     {
       Debug.Log("[MainMenuState] HandleMetaClicked");
       _gameStateMachine.Enter<MetaState>();
+    }
+
+    private void HandleShopClicked()
+    {
+      Debug.Log("[MainMenuState] HandleShopClicked");
+      _gameStateMachine.Enter<ShopState>();
     }
   }
 }

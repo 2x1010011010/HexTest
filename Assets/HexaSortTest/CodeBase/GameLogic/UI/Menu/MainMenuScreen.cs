@@ -8,9 +8,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
   {
     [SerializeField, BoxGroup("BUTTONS")] private MainMenuPlayButton _playButton;
     [SerializeField, BoxGroup("BUTTONS")] private MetaButton _metaButton;
+    [SerializeField, BoxGroup("BUTTONS")] private ShopButton _shopButton;
 
     public event Action OnPlayClicked;
     public event Action OnMetaClicked;
+    public event Action OnShopClicked;
 
     private void OnEnable()
     {
@@ -22,7 +24,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
       {
         _playButton.OnPlayButtonClick += HandlePlayClicked;
       }
-
+	  
       if (_playButton == null)
       {
         Debug.LogError("[MainMenuScreen] _playButton is not assigned in the inspector!");
@@ -31,6 +33,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
       {
         _metaButton.OnMetaButtonClick += HandleMetaClicked;
       }
+
+      if (_shopButton == null)
+        Debug.LogError("[MainMenuScreen] _shopButton is not assigned in the inspector!");
+      else
+        _shopButton.OnShopButtonClick += HandleShopClicked;
     }
 
     private void OnDisable()
@@ -40,6 +47,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
 
       if (_metaButton != null)
         _metaButton.OnMetaButtonClick -= HandleMetaClicked;
+
+      if (_shopButton != null)
+        _shopButton.OnShopButtonClick -= HandleShopClicked;
     }
 
     private void HandlePlayClicked()
@@ -52,6 +62,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
     {
       Debug.Log("[MainMenuScreen] _metaClicked");
       OnMetaClicked?.Invoke();
+    }
+
+    private void HandleShopClicked()
+    {
+      Debug.Log("[MainMenuScreen] _shopClicked");
+      OnShopClicked?.Invoke();
     }
   }
 }

@@ -6,6 +6,7 @@ using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.GameLogic.UI.Menu;
 using HexaSortTest.CodeBase.GameLogic.UI.Meta;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
+using HexaSortTest.CodeBase.GameLogic.UI.Shop;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 {
@@ -17,6 +18,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     GameResultPopup CreateGameResultPopup();
     MetaUIObserver CreateMetaUI();
     BoosterPurchasePopup CreateBoosterPurchasePopup();
+    ShopSceneObserver CreateShopSceneUI();
     void Clear();
   }
 }

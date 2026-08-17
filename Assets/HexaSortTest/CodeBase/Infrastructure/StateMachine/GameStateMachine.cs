@@ -36,6 +36,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
         [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory, uiFactory),
         [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, uiFactory, progressService, saveLoadService, gameFactory, currencyService),
         [typeof(MetaState)]         = new MetaState(this, sceneLoader, curtain, uiFactory, metaObjectFactory),
+        [typeof(ShopState)]         = new ShopState(this, sceneLoader, curtain, uiFactory),
       };
     }
     

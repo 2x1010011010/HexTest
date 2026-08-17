@@ -11,6 +11,7 @@ namespace HexaSortTest.CodeBase.Infrastructure
     public const string GameScene = "Game";
     public const string GameResultScene = "GameResult";
     public const string MetaScene = "Meta";
+    public const string ShopScene = "Shop";
 
     public const string SpawnPointTag = "Respawn";
 
