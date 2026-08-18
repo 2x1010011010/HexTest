@@ -4,6 +4,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement
   {
     public const string LevelConfigs = "StaticData/GameConfigs/ConfigsList";
     public const string BoosterShopConfig = "StaticData/GameConfigs/BoosterShopConfig";
+    
+    public const string StorePositionBundleCatalog = "StaticData/GameConfigs/StorePositionBundleCatalog";
 
     public const string GridSpawner = "Prefabs/Spawners/GridSpawner";
     public const string StackSpawner = "Prefabs/Spawners/StackSpawner";
