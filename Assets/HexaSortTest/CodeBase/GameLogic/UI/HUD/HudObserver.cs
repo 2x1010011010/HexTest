@@ -200,9 +200,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounterSlider.value = _tilesCounterSliderFill;
     }
 
-    // Pre-existing, unused reward-roll helper (dead code before this change
-    // too — nothing calls it). Repointed at IBoosterInventoryService since
-    // the local booster-count fields it used to mutate no longer exist.
     private void GetRandomBooster()
     {
       if (_boosterInventory == null) return;

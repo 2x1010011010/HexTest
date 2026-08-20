@@ -28,8 +28,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     private BoosterPriceEntry _pendingEntry;
     private BoosterType _pendingType;
 
-    private void Awake() =>
+    private void Awake()
+    {
+      base.Awake();
       _shopConfig = Resources.Load<BoosterShopConfig>(AssetPaths.BoosterShopConfig);
+    }
 
     private void OnEnable()
     {
