@@ -44,6 +44,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
       return CurrentTile;
     }
 
+    public MetaTile SpawnTile(MetaTileConfig config, Vector3 spawnPoint)
+    {
+      var go = new GameObject();
+      go.transform.position = spawnPoint;
+      var CurrentTile = SpawnTile(config, go.transform);
+      return CurrentTile;
+    }
+
     public void Clear()
     {
       if (_currentInstance != null)

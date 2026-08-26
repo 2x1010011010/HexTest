@@ -14,7 +14,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
   {
     [SerializeField, BoxGroup("TILE CONFIGS")] private MetaTileConfigsList _tileConfigs;
 
-    [SerializeField, BoxGroup("SPAWN SETUP")] private Transform _spawnPoint;
+    [SerializeField, BoxGroup("SPAWN SETUP")] private Vector3 _spawnPoint = Vector3.zero;
     [SerializeField, BoxGroup("SPAWN SETUP")] private LayerMask _metaTileLayer;
 
     [SerializeField, BoxGroup("LIST SETUP")] private GameObject _listPanel;

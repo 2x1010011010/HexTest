@@ -9,6 +9,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
   {
     MetaTile CurrentTile { get; }
     MetaTile SpawnTile(MetaTileConfig config, Transform spawnPoint);
+    MetaTile SpawnTile(MetaTileConfig config, Vector3 spawnPoint);
     void Clear();
   }
 }

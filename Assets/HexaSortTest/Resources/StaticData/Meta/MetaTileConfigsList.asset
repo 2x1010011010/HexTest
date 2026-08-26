@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08ce6b0870d74626bfd64d0e7fa68b81, type: 3}
   m_Name: MetaTileConfigsList
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameConfigs.MetaTileConfigsList
-  <Tiles>k__BackingField: []
+  <Tiles>k__BackingField:
+  - _icon: {fileID: 21300000, guid: 7e38d9842cf084944b9c0df8f8be2822, type: 3}
+    _tilePrefab: {fileID: 4372426216132968077, guid: 330ccb941fa6927429b6f863e48b7395, type: 3}

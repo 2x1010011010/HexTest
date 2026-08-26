@@ -124,10 +124,10 @@ MonoBehaviour:
   _metaTileLayer:
     serializedVersion: 2
     m_Bits: 0
-  _listPanel: {fileID: 0}
-  _listContainer: {fileID: 0}
-  _listItemPrefab: {fileID: 0}
-  _switchButton: {fileID: 0}
+  _listPanel: {fileID: 340893980327345577}
+  _listContainer: {fileID: 2948706185980467573}
+  _listItemPrefab: {fileID: 2512879276199280833}
+  _switchButton: {fileID: 3984727560881048977}
   _exitButton: {fileID: 5644461662945115574}
 --- !u!222 &537748296404607015
 CanvasRenderer:
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.06415099, g: 0.06039876, b: 0.06039876, a: 0.2901961}
+  m_Color: {r: 0.06415099, g: 0.06039876, b: 0.06039876, a: 0.9490196}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -856,6 +856,7 @@ GameObject:
   - component: {fileID: 1724405404258705486}
   - component: {fileID: 2647219539761934598}
   - component: {fileID: 3493712337699894861}
+  - component: {fileID: 3984727560881048977}
   m_Layer: 5
   m_Name: SwitchButton
   m_TagString: Untagged
@@ -965,6 +966,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3984727560881048977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4500924624881221910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3190e8da1dc8452698df71c33993f3f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.Meta.MetaSwitchButton
+  _button: {fileID: 3493712337699894861}
 --- !u!1 &4585383091630872692
 GameObject:
   m_ObjectHideFlags: 0
@@ -977,6 +991,7 @@ GameObject:
   - component: {fileID: 3423293129947392330}
   - component: {fileID: 5068923550679060624}
   - component: {fileID: 5701647111949346689}
+  - component: {fileID: 2512879276199280833}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -1002,7 +1017,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 800, y: 800}
+  m_SizeDelta: {x: 804.7828, y: 652.8711}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3423293129947392330
 CanvasRenderer:
@@ -1032,8 +1047,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 7e38d9842cf084944b9c0df8f8be2822, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1086,6 +1101,22 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2512879276199280833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4585383091630872692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ba838865c9f4b80abd3e2f9a6aea9e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.Meta.MetaTileListItemButton
+  _button: {fileID: 5701647111949346689}
+  _icon: {fileID: 5068923550679060624}
+  _canvasGroup: {fileID: 9026981626942423986}
+  _lockedAlpha: 0.4
 --- !u!1 &5534067446092638482
 GameObject:
   m_ObjectHideFlags: 0
@@ -1233,6 +1264,7 @@ GameObject:
   m_Component:
   - component: {fileID: 329100350544771778}
   - component: {fileID: 9019976863501680135}
+  - component: {fileID: 9026981626942423986}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -1286,6 +1318,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &9026981626942423986
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5956396717581617181}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7983394704065806353
 GameObject:
   m_ObjectHideFlags: 0
