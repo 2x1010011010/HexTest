@@ -112,6 +112,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
     private void HandleListItemClicked(MetaTileListItemButton item)
     {
+      Debug.Log($"[MetaUIObserver] HandleListItemClicked: tileId={item.Config?.TilePrefab?.name}, " +
+                $"isSameAsCurrent={item.Config == _currentConfig}, " +
+                $"currentTileSet={_currentTile != null}, " +
+                $"currentTileOpen={(_currentTile != null && _currentTile.IsTileOpen)}");
+
       if (item.Config == _currentConfig)
       {
         // Re-picking the currently spawned tile just closes the list again.
@@ -119,11 +124,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         return;
       }
 
-      // Defensive guard: items for other tiles should already be disabled
-      // via SetLocked while the current tile isn't fully open, but don't
-      // rely solely on UI state.
       if (_currentTile != null && !_currentTile.IsTileOpen)
+      {
+        Debug.Log("[MetaUIObserver] HandleListItemClicked: blocked, current tile isn't fully open yet.");
         return;
+      }
 
       SelectTile(item.Config);
     }
@@ -148,7 +153,10 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
       if (_switchButton != null)
         _switchButton.gameObject.SetActive(true);
+      else
+        Debug.LogError("[MetaUIObserver] _switchButton is not assigned in the inspector!");
 
+      Debug.Log("[MetaUIObserver] SelectTile: tile spawned successfully, calling HideList().");
       HideList();
     }
 
@@ -173,6 +181,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
       if (_listPanel != null)
         _listPanel.SetActive(true);
+      else
+        Debug.LogError("[MetaUIObserver] _listPanel is not assigned in the inspector! " +
+                        "The list ScrollBox cannot be shown or hidden.");
     }
 
     private void HideList()
@@ -180,7 +191,16 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       _isListOpen = false;
 
       if (_listPanel != null)
+      {
         _listPanel.SetActive(false);
+        Debug.Log($"[MetaUIObserver] HideList: _listPanel '{_listPanel.name}' set inactive. " +
+                  $"activeSelf now={_listPanel.activeSelf}");
+      }
+      else
+      {
+        Debug.LogError("[MetaUIObserver] _listPanel is not assigned in the inspector! " +
+                        "The list ScrollBox cannot be shown or hidden.");
+      }
     }
 
     private void RefreshLockStates()
