@@ -18,8 +18,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
     private void Awake()
     {
-      if (_listPanel != null)
-        _listPanel.SetActive(false);
+      ShowList();
     }
 
     private void OnEnable()
