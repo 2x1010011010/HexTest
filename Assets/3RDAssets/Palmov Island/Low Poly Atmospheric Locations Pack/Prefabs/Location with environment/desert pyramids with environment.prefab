@@ -91,9 +91,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a79a495cc794f1889b586bc75dea224, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Meta.MetaTile
-  _tileId: 
-  _blackMaterial: {fileID: 0}
-  _mainMaterial: {fileID: 0}
+  _tileId: 0
+  _blackMaterial: {fileID: 2100000, guid: f09e31bf1be03b54ca7ec0aa1ffe22b0, type: 2}
+  _mainMaterial: {fileID: 2100000, guid: e5c8ac6092e78214fb866cab5f020f2a, type: 2}
   _groups:
   - _objects:
     - {fileID: 7120746519745195641}
