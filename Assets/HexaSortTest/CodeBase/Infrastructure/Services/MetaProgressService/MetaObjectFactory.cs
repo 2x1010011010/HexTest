@@ -17,23 +17,18 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
     public MetaObjectFactory(DiContainer container) =>
       _container = container;
 
-    public MetaTile SpawnTile(MetaTileConfig config, Transform spawnPoint)
+    public MetaTile SpawnTile(MetaTileConfig config, Vector3 position)
     {
-      if (config == null || config.TilePrefab == null || spawnPoint == null)
+      if (config == null || config.TilePrefab == null)
       {
-        Debug.LogError("[MetaObjectFactory] Cannot spawn tile: missing config, prefab, or spawn point.");
+        Debug.LogError("[MetaObjectFactory] Cannot spawn tile: missing config or prefab.");
         return null;
       }
-      
+
       Clear();
 
-      var go = _container.InstantiatePrefab(
-        config.TilePrefab.gameObject,
-        spawnPoint.position,
-        spawnPoint.rotation,
-        null);
-
-      SceneManager.MoveGameObjectToScene(go, spawnPoint.gameObject.scene);
+      var go = _container.InstantiatePrefab(config.TilePrefab.gameObject, position, Quaternion.identity, null);
+      SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
 
       _currentInstance = go;
       CurrentTile = go.GetComponent<MetaTile>();
@@ -41,14 +36,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
       if (CurrentTile == null)
         Debug.LogError($"[MetaObjectFactory] Spawned prefab '{config.TilePrefab.name}' has no MetaTile component!");
 
-      return CurrentTile;
-    }
-
-    public MetaTile SpawnTile(MetaTileConfig config, Vector3 spawnPoint)
-    {
-      var go = new GameObject();
-      go.transform.position = spawnPoint;
-      var CurrentTile = SpawnTile(config, go.transform);
       return CurrentTile;
     }
 

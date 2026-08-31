@@ -8,8 +8,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
   public interface IMetaObjectFactory : IFactory
   {
     MetaTile CurrentTile { get; }
-    MetaTile SpawnTile(MetaTileConfig config, Transform spawnPoint);
-    MetaTile SpawnTile(MetaTileConfig config, Vector3 spawnPoint);
+    MetaTile SpawnTile(MetaTileConfig config, Vector3 position);
+
     void Clear();
   }
 }

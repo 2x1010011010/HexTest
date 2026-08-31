@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.GameLogic.Meta;
+using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
-using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
 {
@@ -11,35 +11,35 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
   {
     private readonly IPersistentProgressService _progressService;
     private readonly ISaveLoadService _saveLoadService;
+    private readonly ICurrencyService _currencyService;
 
-    public MetaObserver(IPersistentProgressService progressService, ISaveLoadService saveLoadService)
+    public MetaObserver(
+      IPersistentProgressService progressService,
+      ISaveLoadService saveLoadService,
+      ICurrencyService currencyService)
     {
       _progressService = progressService;
       _saveLoadService = saveLoadService;
+      _currencyService = currencyService;
     }
 
-    public bool OpenTile(MetaTile tile)
+    public bool TryProgressTile(MetaTile tile)
     {
-      if (tile == null || tile.IsTileOpen)
+      if (tile == null || tile.IsTileFullyOpen)
         return false;
 
-      var progress = _progressService.PlayerProgress;
-
-      if (progress.HexCoins < tile.CurrencyCostPerTap)
-      {
-        Debug.Log($"[MetaObserver] Not enough HexCoins to progress tile '{tile.TileId}'. " +
-                  $"Have {progress.HexCoins}, need {tile.CurrencyCostPerTap}.");
+      if (!_currencyService.TrySpendHexCoins(tile.HexCoinsCostPerStep))
         return false;
-      }
 
-      progress.HexCoins -= tile.CurrencyCostPerTap;
-      tile.Open();
+      var result = tile.AdvanceStep();
 
-      SaveData(tile);
-      return true;
+      if (result.ObjectRevealed)
+        SaveProgress(tile);
+
+      return result.Success;
     }
 
-    private void SaveData(MetaTile tile)
+    private void SaveProgress(MetaTile tile)
     {
       var progress = _progressService.PlayerProgress;
 
@@ -53,7 +53,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
         progress.MetaProgress.Add(entry);
       }
 
-      entry.UnlockedObjectsCount = tile.CurrentObjectIndex;
+      entry.UnlockedGroupsCount = tile.CurrentGroupIndex;
+      entry.UnlockedObjectsInGroupCount = tile.CurrentObjectIndexInGroup;
       entry.CurrentObjectProgress = tile.CurrentObjectProgress;
 
       _saveLoadService.SaveProgress();
