@@ -35,7 +35,6 @@ Transform:
   - {fileID: 5722499420482121046}
   - {fileID: 597208540116930899}
   - {fileID: 1814934327054641090}
-  - {fileID: 2000815145118652133}
   - {fileID: 7609440252799923395}
   - {fileID: 7609440251862312505}
   - {fileID: 317021558346119119}
@@ -95,55 +94,57 @@ MonoBehaviour:
   _tileId: 
   _blackMaterial: {fileID: 0}
   _mainMaterial: {fileID: 0}
-  _objectsOnTile:
-  - {fileID: 4909405506269313004}
-  - {fileID: 216848622343392233}
-  - {fileID: 1325221071580921208}
-  - {fileID: 1193315820348148831}
-  - {fileID: 7120746519745195641}
-  - {fileID: 7120746518545415299}
-  - {fileID: 1093699342518988149}
-  - {fileID: 1093699342240328226}
-  - {fileID: 183750071862506890}
-  - {fileID: 183750072194502405}
-  - {fileID: 183750073165280879}
-  - {fileID: 1440800662237139037}
-  - {fileID: 1440800663995312161}
-  - {fileID: 7095863035438785970}
-  - {fileID: 7095863035979782736}
-  - {fileID: 7095863035065810097}
-  - {fileID: 4683218668338489490}
-  - {fileID: 4683218667114278671}
-  - {fileID: 4683218667744484687}
-  - {fileID: 1689682882830827700}
-  - {fileID: 1689682882627348751}
-  - {fileID: 1689682882057968247}
-  - {fileID: 2889589400157075271}
-  - {fileID: 2889589399257450465}
-  - {fileID: 2889589400382273647}
-  - {fileID: 2889589398429022983}
-  - {fileID: 3995082711621346327}
-  - {fileID: 3995082712065180760}
-  - {fileID: 3995082712384233167}
-  - {fileID: 3995082712715956842}
-  - {fileID: 3995082711254331542}
-  - {fileID: 2514220594987102598}
-  - {fileID: 2514220595026742095}
-  - {fileID: 1932335909589844080}
-  - {fileID: 1932335909504566115}
-  - {fileID: 1932335910411750716}
-  - {fileID: 1932335910753334589}
-  - {fileID: 1932335910156534479}
-  - {fileID: 5964070875386984144}
-  - {fileID: 5964070875708210865}
-  - {fileID: 5964070875031667497}
-  - {fileID: 5964070875738327999}
-  - {fileID: 5964070876559035110}
-  - {fileID: 5476320280390767787}
-  - {fileID: 5476320280772617214}
-  - {fileID: 5476320281028309199}
-  _progressPerTap: 0.2
-  _currencyCostPerTap: 10
+  _groups:
+  - _objects:
+    - {fileID: 7120746519745195641}
+    - {fileID: 7120746518545415299}
+    - {fileID: 1093699342518988149}
+    - {fileID: 1093699342240328226}
+    - {fileID: 183750071862506890}
+    - {fileID: 183750072194502405}
+    - {fileID: 183750073165280879}
+    - {fileID: 1440800662237139037}
+    - {fileID: 1440800663995312161}
+    - {fileID: 7095863035438785970}
+    - {fileID: 7095863035979782736}
+    - {fileID: 7095863035065810097}
+    - {fileID: 4683218668338489490}
+    - {fileID: 4683218667114278671}
+    - {fileID: 4683218667744484687}
+  - _objects:
+    - {fileID: 1932335909589844080}
+    - {fileID: 1932335909504566115}
+    - {fileID: 1932335910411750716}
+    - {fileID: 1932335910753334589}
+    - {fileID: 1932335910156534479}
+    - {fileID: 5964070875386984144}
+    - {fileID: 5964070875708210865}
+    - {fileID: 5964070875031667497}
+    - {fileID: 5964070875738327999}
+    - {fileID: 5964070876559035110}
+    - {fileID: 5476320280390767787}
+    - {fileID: 5476320280772617214}
+    - {fileID: 5476320281028309199}
+    - {fileID: 1689682882830827700}
+    - {fileID: 1689682882627348751}
+    - {fileID: 1689682882057968247}
+    - {fileID: 2889589400157075271}
+    - {fileID: 2889589399257450465}
+    - {fileID: 2889589400382273647}
+    - {fileID: 2889589398429022983}
+    - {fileID: 3995082711621346327}
+    - {fileID: 3995082712065180760}
+    - {fileID: 3995082712384233167}
+    - {fileID: 3995082712715956842}
+    - {fileID: 3995082711254331542}
+    - {fileID: 2514220594987102598}
+    - {fileID: 2514220595026742095}
+  - _objects:
+    - {fileID: 1325221071580921208}
+    - {fileID: 216848622343392233}
+    - {fileID: 4909405506269313004}
+  _progressPerStep: 0.2
+  _hexCoinsCostPerStep: 10
 --- !u!1001 &4771413555554393069
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -859,6 +860,10 @@ PrefabInstance:
     - target: {fileID: 9069653304879472409, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
       propertyPath: m_Name
       value: water location desert pyramids
+      objectReference: {fileID: 0}
+    - target: {fileID: 9069653304879472409, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1982,81 +1987,6 @@ GameObject:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8495886727610786697, guid: 9482eb6425690c345bca1cfa09406394, type: 3}
   m_PrefabInstance: {fileID: 7877468418420042094}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &7877468418431865670
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 7877468419587357376}
-    m_Modifications:
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9069653304879472409, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_Name
-      value: water location desert pyramids (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 9069653304879472409, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
---- !u!1 &1193315820348148831 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9069653304879472409, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-  m_PrefabInstance: {fileID: 7877468418431865670}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &2000815145118652133 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8545071271329236387, guid: 2ba84dca5dc8f0f4ea82ea4dad6a9785, type: 3}
-  m_PrefabInstance: {fileID: 7877468418431865670}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7877468418486995218
 PrefabInstance:
