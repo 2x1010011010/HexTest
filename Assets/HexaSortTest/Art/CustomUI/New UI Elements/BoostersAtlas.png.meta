@@ -1,12 +1,5 @@
 fileFormatVersion: 2
-guid: 4707a0f78ee00bf4eb67e767c3ada9cd
-AssetOrigin:
-  serializedVersion: 1
-  productId: 123705
-  packageName: Minimalist Cartoon UI Pack
-  packageVersion: 1.2
-  assetPath: Assets/Thoth/Cartoon UI Pack/Material/Cursor_Hand2.png
-  uploadId: 455713
+guid: 3663dfa9bd41ad841a8aad55273bc1c7
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -28,7 +21,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -50,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -70,25 +63,12 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   ignorePngGamma: 0
-  applyGammaDecoding: 1
+  applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -115,6 +95,19 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -154,12 +147,78 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: BoostersAtlas_2
+      rect:
+        serializedVersion: 2
+        x: 757
+        y: 17
+        width: 661
+        height: 702
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 518537a3a3279fc418548869f653bf43
+      internalID: -1680812359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BoostersAtlas_6
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 60
+        width: 693
+        height: 646
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52829a168d5d1b44a99f96cf9d476a11
+      internalID: 2099549994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BoostersAtlas_7
+      rect:
+        serializedVersion: 2
+        x: 1478
+        y: 38
+        width: 678
+        height: 655
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e21d66d03ae7e9041aa2ed06a6aba28f
+      internalID: -1131475590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: ae83c8773215d4d4caffaa35fe50c328
     internalID: 0
     vertices: []
     indices: 
@@ -167,8 +226,26 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
-    nameFileIdTable: {}
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      BoostersAtlas_0: -335479682
+      BoostersAtlas_1: 1451422219
+      BoostersAtlas_10: 620069306
+      BoostersAtlas_11: -1797096175
+      BoostersAtlas_12: 99346275
+      BoostersAtlas_13: 366663209
+      BoostersAtlas_14: -586123416
+      BoostersAtlas_15: 1487411061
+      BoostersAtlas_2: -1680812359
+      BoostersAtlas_3: 24611310
+      BoostersAtlas_4: 1770766278
+      BoostersAtlas_5: -1958037958
+      BoostersAtlas_6: 2099549994
+      BoostersAtlas_7: -1131475590
+      BoostersAtlas_8: 1584816983
+      BoostersAtlas_9: 1652647746
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

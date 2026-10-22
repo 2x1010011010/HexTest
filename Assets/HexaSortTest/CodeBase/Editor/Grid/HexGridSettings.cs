@@ -1,18 +1,78 @@
+using System;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Editor.Grid
 {
+  [Serializable]
   public class HexGridSettings
   {
     public GridType GridType = GridType.Rectangular;
-
     public int Width = 3;
     public int Height = 5;
     public int Radius = 3;
 
-    public float Spacing = 13f;
-    public bool AutoRotate;
-
     public GameObject HexPrefab;
+    public bool AutomaticModelSize = true;
+    public Vector2 ModelSize = Vector2.one;
+    public Vector3 ModelScale = Vector3.one;
+    public Vector3 ModelRotation;
+    public Vector3 ModelOffset;
+    public bool FlatTop;
+    public float Spacing = 1f;
+
+    public Quaternion Rotation => HexPrefab.transform.localRotation * Quaternion.Euler(ModelRotation);
+    public Vector3 Scale => Vector3.Scale(HexPrefab.transform.localScale, ModelScale);
+
+    public Vector2 CellSize
+    {
+      get
+      {
+        Vector2 size = ModelSize;
+        if (AutomaticModelSize && TryGetModelBounds(out Bounds bounds))
+          size = new Vector2(bounds.size.x, bounds.size.z);
+        return new Vector2(Mathf.Max(0.0001f, size.x), Mathf.Max(0.0001f, size.y));
+      }
+    }
+
+    // Measure renderer bounds in the final grid axes, including child transforms.
+    public bool TryGetModelBounds(out Bounds bounds)
+    {
+      bounds = new Bounds();
+      if (HexPrefab == null)
+        return false;
+
+      bool found = false;
+      Matrix4x4 modelMatrix = Matrix4x4.TRS(ModelOffset, Rotation, Scale);
+      foreach (Renderer renderer in HexPrefab.GetComponentsInChildren<Renderer>())
+      {
+        if (!renderer.enabled)
+          continue;
+
+        Bounds localBounds = renderer.localBounds;
+        Matrix4x4 matrix = modelMatrix * HexPrefab.transform.worldToLocalMatrix * renderer.transform.localToWorldMatrix;
+        for (int x = -1; x <= 1; x += 2)
+          for (int y = -1; y <= 1; y += 2)
+            for (int z = -1; z <= 1; z += 2)
+            {
+              Vector3 corner = localBounds.center + Vector3.Scale(localBounds.extents, new Vector3(x, y, z));
+              Vector3 point = matrix.MultiplyPoint3x4(corner);
+              if (!found)
+              {
+                bounds = new Bounds(point, Vector3.zero);
+                found = true;
+              }
+              else
+                bounds.Encapsulate(point);
+            }
+      }
+      return found;
+    }
+
+    public void ApplyModelTransform(Transform target, Vector3 cellPosition)
+    {
+      target.localPosition = cellPosition + ModelOffset;
+      target.localRotation = Rotation;
+      target.localScale = Scale;
+    }
   }
 }

@@ -39,26 +39,22 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       var observer = root.AddComponent<GridObserver>();
       observer.Init(grid);
 
-      Quaternion rotationFix = settings.AutoRotate ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
-
       foreach (var cell in data.Cells)
       {
         if (cell.State == CellState.Disabled)
           continue;
 
-        SpawnCell(cell, settings, root.transform, rotationFix);
+        SpawnCell(cell, settings, root.transform);
       }
 
       grid.Initialize();
       return root;
     }
 
-    private static void SpawnCell(HexCellData cellData, HexGridSettings settings, Transform parent, Quaternion rotationFix)
+    private static void SpawnCell(HexCellData cellData, HexGridSettings settings, Transform parent)
     {
       GameObject hexInstance = UnityEngine.Object.Instantiate(settings.HexPrefab, parent, true);
-      hexInstance.transform.localPosition = cellData.Position;
-      hexInstance.transform.localRotation = settings.HexPrefab.transform.rotation * rotationFix;
-      hexInstance.transform.localScale = settings.HexPrefab.transform.localScale;
+      settings.ApplyModelTransform(hexInstance.transform, cellData.Position);
 
       var cellComponent = hexInstance.GetComponent<Cell>();
       if (cellComponent == null)

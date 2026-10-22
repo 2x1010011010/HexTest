@@ -22,7 +22,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     public VisualElement Build()
     {
-      _root = new VisualElement
+      _root = new ScrollView
       {
         style = { paddingLeft = 8, paddingRight = 8, paddingTop = 8, paddingBottom = 8 }
       };
@@ -33,10 +33,10 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       BuildRectangularFields();
       BuildCircularFields();
 
-      _root.Add(Header("Hexagon Size"));
-      BuildSpacingField();
-      BuildAutoRotateField();
+      _root.Add(Header("MODEL SETTINGS"));
       BuildPrefabField();
+      BuildModelFields();
+      BuildSpacingField();
 
       BuildButtons();
 
@@ -99,24 +99,87 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void BuildSpacingField()
     {
-      var slider = new Slider("Spacing", 0.8f, 20f) { value = _settings.Spacing };
-      slider.RegisterValueChangedCallback(evt =>
+      var field = new FloatField("Spacing Multiplier") { value = _settings.Spacing, isDelayed = true };
+      field.tooltip = "1 = touching hexagons; greater than 1 adds a gap.";
+      field.RegisterValueChangedCallback(evt =>
       {
-        _settings.Spacing = evt.newValue;
+        _settings.Spacing = Mathf.Max(0.0001f, evt.newValue);
+        field.SetValueWithoutNotify(_settings.Spacing);
         RaiseSettingsChanged();
       });
-      _root.Add(slider);
+      _root.Add(field);
     }
 
-    private void BuildAutoRotateField()
+    private void BuildModelFields()
     {
-      var toggle = new Toggle("Rotate Prefab (fix 90° X)") { value = _settings.AutoRotate };
-      toggle.RegisterValueChangedCallback(evt =>
+      var manualSize = new Vector2Field("Footprint X / Z") { value = _settings.ModelSize, isDelayed = true };
+      manualSize.tooltip = "Final dimensions in grid space, after rotation and scale. Used when automatic size is off.";
+      manualSize.SetEnabled(!_settings.AutomaticModelSize);
+      manualSize.RegisterValueChangedCallback(evt =>
       {
-        _settings.AutoRotate = evt.newValue;
+        _settings.ModelSize = new Vector2(Mathf.Max(0.0001f, evt.newValue.x), Mathf.Max(0.0001f, evt.newValue.y));
+        manualSize.SetValueWithoutNotify(_settings.ModelSize);
         RaiseSettingsChanged();
       });
-      _root.Add(toggle);
+
+      var automaticSize = new Toggle("Size From Model") { value = _settings.AutomaticModelSize };
+      automaticSize.tooltip = "Measure visible renderer bounds, including child transforms, model rotation and scale.";
+      automaticSize.RegisterValueChangedCallback(evt =>
+      {
+        _settings.AutomaticModelSize = evt.newValue;
+        manualSize.SetEnabled(!evt.newValue);
+        RaiseSettingsChanged();
+      });
+      _root.Add(automaticSize);
+      _root.Add(manualSize);
+
+      var scale = new Vector3Field("Model Scale") { value = _settings.ModelScale, isDelayed = true };
+      scale.RegisterValueChangedCallback(evt =>
+      {
+        _settings.ModelScale = evt.newValue;
+        RaiseSettingsChanged();
+      });
+      _root.Add(scale);
+
+      var rotation = new Vector3Field("Model Rotation") { value = _settings.ModelRotation, isDelayed = true };
+      rotation.tooltip = "Additional rotation in degrees. For XY models, try X = 90.";
+      rotation.RegisterValueChangedCallback(evt =>
+      {
+        _settings.ModelRotation = evt.newValue;
+        RaiseSettingsChanged();
+      });
+      _root.Add(rotation);
+
+      var offset = new Vector3Field("Model Offset") { value = _settings.ModelOffset, isDelayed = true };
+      offset.RegisterValueChangedCallback(evt =>
+      {
+        _settings.ModelOffset = evt.newValue;
+        RaiseSettingsChanged();
+      });
+      _root.Add(offset);
+
+      var flatTop = new Toggle("Flat Top Hexagons") { value = _settings.FlatTop };
+      flatTop.tooltip = "Enable for a horizontal top edge; disable for a vertex pointing along Z.";
+      flatTop.RegisterValueChangedCallback(evt =>
+      {
+        _settings.FlatTop = evt.newValue;
+        RaiseSettingsChanged();
+      });
+      _root.Add(flatTop);
+
+      var measuredSize = new Label();
+      var warning = new HelpBox("No visible renderer bounds found. Manual footprint is used.", HelpBoxMessageType.Warning);
+      void RefreshSize()
+      {
+        Vector2 size = _settings.CellSize;
+        measuredSize.text = $"Cell footprint: X {size.x:G4}, Z {size.y:G4}";
+        warning.style.display = _settings.AutomaticModelSize && !_settings.TryGetModelBounds(out _)
+          ? DisplayStyle.Flex : DisplayStyle.None;
+      }
+      SettingsChanged += RefreshSize;
+      RefreshSize();
+      _root.Add(measuredSize);
+      _root.Add(warning);
     }
 
     private void BuildPrefabField()
@@ -124,6 +187,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       var field = new ObjectField("Hex Prefab")
       {
         objectType = typeof(GameObject),
+        allowSceneObjects = false,
         value = _settings.HexPrefab
       };
       field.RegisterValueChangedCallback(evt =>

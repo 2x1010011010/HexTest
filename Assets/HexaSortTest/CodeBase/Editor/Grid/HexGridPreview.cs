@@ -12,7 +12,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private PreviewRenderUtility _previewRenderUtility;
     private readonly List<GameObject> _spawnedPreviewObjects = new();
-    private readonly Dictionary<CellState, Material> _stateMaterials = new();
+    private readonly Dictionary<(CellState, Material), Material> _stateMaterials = new();
 
     public HexGridPreview()
     {
@@ -41,21 +41,17 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       DestroyTemporaryObjects();
 
-      HandleMouseInput(rect, data);
+      HandleMouseInput(rect, data, settings);
     }
 
     #region Object Spawning
 
     private void SpawnTemporaryObjects(HexGridData data, HexGridSettings settings)
     {
-      Quaternion rotationFix = settings.AutoRotate ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
-
       foreach (var cell in data.Cells)
       {
         var go = Object.Instantiate(settings.HexPrefab);
-        go.transform.position = cell.Position;
-        go.transform.rotation = settings.HexPrefab.transform.rotation * rotationFix;
-        go.transform.localScale = settings.HexPrefab.transform.localScale;
+        settings.ApplyModelTransform(go.transform, cell.Position);
 
         ApplyCellColor(go, cell.State);
 
@@ -66,20 +62,24 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void ApplyCellColor(GameObject go, CellState state)
     {
-      var renderer = go.GetComponentInChildren<Renderer>();
-      if (renderer == null)
-        return;
-
-      renderer.sharedMaterial = GetOrCreateMaterial(state, renderer.sharedMaterial);
+      foreach (var renderer in go.GetComponentsInChildren<Renderer>())
+      {
+        Material[] materials = renderer.sharedMaterials;
+        for (int i = 0; i < materials.Length; i++)
+          if (materials[i] != null)
+            materials[i] = GetOrCreateMaterial(state, materials[i]);
+        renderer.sharedMaterials = materials;
+      }
     }
 
     private Material GetOrCreateMaterial(CellState state, Material sourceMaterial)
     {
-      if (_stateMaterials.TryGetValue(state, out var existing) && existing != null)
+      var key = (state, sourceMaterial);
+      if (_stateMaterials.TryGetValue(key, out var existing) && existing != null)
         return existing;
 
       var material = new Material(sourceMaterial) { color = ColorForState(state) };
-      _stateMaterials[state] = material;
+      _stateMaterials[key] = material;
       return material;
     }
 
@@ -106,34 +106,46 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void FrameCamera(Rect rect, HexGridData data, HexGridSettings settings)
     {
-      Vector3 center = Vector3.zero;
+      Bounds modelBounds;
+      if (!settings.TryGetModelBounds(out modelBounds))
+        modelBounds = new Bounds(settings.ModelOffset,
+          new Vector3(settings.CellSize.x, 0f, settings.CellSize.y));
+
+      Bounds gridBounds = modelBounds;
+      bool first = true;
       foreach (var cell in data.Cells)
-        center += cell.Position;
-      if (data.Cells.Count > 0)
-        center /= data.Cells.Count;
+      {
+        var cellBounds = new Bounds(cell.Position + modelBounds.center, modelBounds.size);
+        if (first)
+        {
+          gridBounds = cellBounds;
+          first = false;
+        }
+        else
+          gridBounds.Encapsulate(cellBounds);
+      }
 
-      float camDistance = (settings.GridType == GridType.Circular
-        ? settings.Radius * 1.5f
-        : Mathf.Max(settings.Width, settings.Height)) * settings.Spacing;
-
-      camDistance = Mathf.Max(camDistance, 1f);
-
-      _previewRenderUtility.camera.transform.position = center + Vector3.up * (camDistance + 5f);
-      _previewRenderUtility.camera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-      _previewRenderUtility.camera.orthographicSize = camDistance * 0.4f;
+      Camera camera = _previewRenderUtility.camera;
+      float aspect = Mathf.Max(0.0001f, rect.width / rect.height);
+      float halfSize = Mathf.Max(gridBounds.extents.z, gridBounds.extents.x / aspect);
+      camera.orthographicSize = Mathf.Max(0.0001f, halfSize * 1.1f);
+      float distance = gridBounds.extents.y + camera.orthographicSize + camera.nearClipPlane;
+      camera.farClipPlane = distance + gridBounds.extents.y + camera.orthographicSize;
+      camera.transform.position = gridBounds.center + Vector3.up * distance;
+      camera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
     #endregion
 
     #region Mouse Interaction
 
-    private void HandleMouseInput(Rect rect, HexGridData data)
+    private void HandleMouseInput(Rect rect, HexGridData data, HexGridSettings settings)
     {
       Event e = Event.current;
       if (e == null || e.type != EventType.MouseDown || e.button != 0 || !rect.Contains(e.mousePosition))
         return;
 
-      var clicked = FindClosestCellByCameraProjection(e.mousePosition, rect, data);
+      var clicked = FindClosestCellByCameraProjection(e.mousePosition, rect, data, settings);
       if (clicked == null)
         return;
 
@@ -141,7 +153,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       e.Use();
     }
 
-    private HexCellData FindClosestCellByCameraProjection(Vector2 mousePos, Rect rect, HexGridData data)
+    private HexCellData FindClosestCellByCameraProjection(Vector2 mousePos, Rect rect, HexGridData data, HexGridSettings settings)
     {
       if (data.Cells.Count == 0)
         return null;
@@ -149,11 +161,13 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       Camera cam = _previewRenderUtility.camera;
       float bestDist = float.MaxValue;
       HexCellData best = null;
-      float clickRadiusPixels = Mathf.Max(12f, rect.width * 0.03f);
+      Vector2 size = settings.CellSize;
+      float clickRadiusPixels = Mathf.Min(size.x, size.y) * 0.5f * rect.height / (2f * cam.orthographicSize);
 
+      Vector3 modelCenter = settings.TryGetModelBounds(out Bounds bounds) ? bounds.center : settings.ModelOffset;
       foreach (var cell in data.Cells)
       {
-        Vector3 viewPos = cam.WorldToViewportPoint(cell.Position);
+        Vector3 viewPos = cam.WorldToViewportPoint(cell.Position + modelCenter);
         if (viewPos.z <= 0f)
           continue;
 

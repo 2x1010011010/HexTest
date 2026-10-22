@@ -7,7 +7,9 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 {
   public class HexGridEditorWindow : EditorWindow
   {
-    private HexGridSettings _settings;
+    private string SettingsKey => $"{Application.dataPath}.HexGridEditor.Settings";
+
+    [SerializeField] private HexGridSettings _settings;
     private HexGridData _data;
     private HexGridPreview _preview;
     private HexGridEditorView _view;
@@ -23,10 +25,18 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void OnEnable()
     {
-      _settings = new HexGridSettings
+      if (_settings == null)
       {
-        HexPrefab = Resources.Load<GameObject>(AssetPaths.CellPrefab)
-      };
+        string json = EditorPrefs.GetString(SettingsKey, string.Empty);
+        _settings = string.IsNullOrEmpty(json)
+          ? new HexGridSettings { HexPrefab = Resources.Load<GameObject>(AssetPaths.CellPrefab) }
+          : JsonUtility.FromJson<HexGridSettings>(json);
+
+        string prefabGuid = EditorPrefs.GetString(SettingsKey + ".Prefab", string.Empty);
+        string prefabPath = AssetDatabase.GUIDToAssetPath(prefabGuid);
+        if (!string.IsNullOrEmpty(prefabPath))
+          _settings.HexPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+      }
 
       _data = new HexGridData();
       _preview = new HexGridPreview();
@@ -40,6 +50,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void OnDisable()
     {
+      SaveSettings();
       _view.SettingsChanged -= RegenerateAndRepaint;
       _view.GenerateRequested -= RegenerateAndRepaint;
       _view.SaveRequested -= SaveGrid;
@@ -50,7 +61,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     public void CreateGUI()
     {
-      var splitView = new TwoPaneSplitView(0, 260, TwoPaneSplitViewOrientation.Horizontal);
+      rootVisualElement.Clear();
+      var splitView = new TwoPaneSplitView(0, 320, TwoPaneSplitViewOrientation.Horizontal);
       rootVisualElement.Add(splitView);
 
       splitView.Add(_view.Build());
@@ -73,6 +85,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void RegenerateAndRepaint()
     {
+      SaveSettings();
       Regenerate();
       _previewContainer?.MarkDirtyRepaint();
     }
@@ -85,6 +98,13 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void OnCellClicked(HexCellData cell) =>
       HexCellContextMenu.Show(cell, () => _previewContainer?.MarkDirtyRepaint());
+
+    private void SaveSettings()
+    {
+      EditorPrefs.SetString(SettingsKey, JsonUtility.ToJson(_settings));
+      EditorPrefs.SetString(SettingsKey + ".Prefab",
+        AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(_settings.HexPrefab)));
+    }
 
     private void SaveGrid() =>
       HexGridSerializer.SaveAsPrefab(_data, _settings);

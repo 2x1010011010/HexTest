@@ -12,7 +12,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       if (settings == null || settings.HexPrefab == null)
         return cells;
 
-      float size = settings.HexPrefab.transform.localScale.x * settings.Spacing;
+      Vector2 size = settings.CellSize * Mathf.Max(0.0001f, settings.Spacing);
 
       switch (settings.GridType)
       {
@@ -30,26 +30,25 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     #region Rectangular
 
-    private static void GenerateRectangular(HexGridSettings settings, float size, List<HexCellData> cells)
+    private static void GenerateRectangular(HexGridSettings settings, Vector2 size, List<HexCellData> cells)
     {
       for (int row = 0; row < settings.Height; row++)
         for (int col = 0; col < settings.Width; col++)
-          cells.Add(new HexCellData(OffsetToWorldForRect(col, row, size)));
+          cells.Add(new HexCellData(OffsetToWorldForRect(col, row, size, settings.FlatTop)));
     }
 
-    public static Vector3 OffsetToWorldForRect(int col, int row, float size)
+    public static Vector3 OffsetToWorldForRect(int col, int row, Vector2 size, bool flatTop)
     {
-      float sqrt3 = Mathf.Sqrt(3f);
-      float x = sqrt3 * size * (col + 0.5f * (row % 2));
-      float z = 1.5f * size * row;
-      return new Vector3(x, 0f, z);
+      return flatTop
+        ? new Vector3(0.75f * size.x * col, 0f, size.y * (row + 0.5f * (col % 2)))
+        : new Vector3(size.x * (col + 0.5f * (row % 2)), 0f, 0.75f * size.y * row);
     }
 
     #endregion
 
     #region Circular
 
-    private static void GenerateCircular(HexGridSettings settings, float size, List<HexCellData> cells)
+    private static void GenerateCircular(HexGridSettings settings, Vector2 size, List<HexCellData> cells)
     {
       int radius = settings.Radius;
 
@@ -59,15 +58,15 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         int r2 = Mathf.Min(radius, -q + radius);
 
         for (int r = r1; r <= r2; r++)
-          cells.Add(new HexCellData(AxialToWorld(q, r, size)));
+          cells.Add(new HexCellData(AxialToWorld(q, r, size, settings.FlatTop)));
       }
     }
     
-    public static Vector3 AxialToWorld(int q, int r, float size)
+    public static Vector3 AxialToWorld(int q, int r, Vector2 size, bool flatTop)
     {
-      float x = size * (Mathf.Sqrt(3f) * q + Mathf.Sqrt(3f) / 2f * r);
-      float z = size * (3f / 2f * r);
-      return new Vector3(x, 0f, z);
+      return flatTop
+        ? new Vector3(0.75f * size.x * q, 0f, size.y * (r + 0.5f * q))
+        : new Vector3(size.x * (q + 0.5f * r), 0f, 0.75f * size.y * r);
     }
 
     #endregion
