@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Meta;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService;
 using UnityEngine;
@@ -54,12 +55,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
       if (_metaUI == null)
       {
-        Debug.LogError("[MetaState] Failed to spawn MetaUIObserver. " +
+#if UNITY_EDITOR
+        GameLogger.Error("[MetaState] Failed to spawn MetaUIObserver. " +
                        "Check that AssetPaths.MetaUIPrefab points to a valid prefab under Resources/.");
+#endif
         return;
       }
 
       _metaUI.OnExitRequested += HandleExitRequested;
+#if UNITY_EDITOR
+      GameLogger.Message("[MetaState] UI created and event handlers subscribed.");
+#endif
     }
 
     private void HandleExitRequested() =>

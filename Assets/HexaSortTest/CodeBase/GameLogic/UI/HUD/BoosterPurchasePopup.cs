@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Boosters;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
@@ -39,17 +40,29 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_buyButton != null)
         _buyButton.OnBuyClicked += HandleBuyClicked;
       else
-        Debug.LogError("[BoosterPurchasePopup] _buyButton is not assigned in the inspector!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error("[BoosterPurchasePopup] _buyButton is not assigned in the inspector!");
+#endif
+      }
 
       if (_watchAdButton != null)
         _watchAdButton.OnWatchAdClicked += HandleWatchAdClicked;
       else
-        Debug.LogError("[BoosterPurchasePopup] _watchAdButton is not assigned in the inspector!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error("[BoosterPurchasePopup] _watchAdButton is not assigned in the inspector!");
+#endif
+      }
 
       if (_closeButton != null)
         _closeButton.OnCloseClicked += Close;
       else
-        Debug.LogError("[BoosterPurchasePopup] _closeButton is not assigned in the inspector!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error("[BoosterPurchasePopup] _closeButton is not assigned in the inspector!");
+#endif
+      }
     }
 
     private void OnDisable()
@@ -66,8 +79,10 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
       if (_pendingEntry == null)
       {
-        Debug.LogError($"[BoosterPurchasePopup] No BoosterShopConfig entry found for {boosterType}. " +
+#if UNITY_EDITOR
+        GameLogger.Error($"[BoosterPurchasePopup] No BoosterShopConfig entry found for {boosterType}. " +
                         "Add one in Resources/StaticData/GameConfigs/BoosterShopConfig.");
+#endif
         return;
       }
 
@@ -90,7 +105,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
       if (!_currencyService.TrySpendCoins(_pendingEntry.PriceInCoins))
       {
-        Debug.Log("[BoosterPurchasePopup] Not enough Coins.");
+#if UNITY_EDITOR
+        GameLogger.Message("[BoosterPurchasePopup] Not enough Coins.");
+#endif
         return;
       }
       _boosterInventory.Add(_pendingType, 1);
@@ -102,7 +119,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_pendingEntry == null)
         return;
 
-      Debug.Log($"[BoosterPurchasePopup] (stub) Reward ad 'watched' for {_pendingType} — granting 1 for free.");
+#if UNITY_EDITOR
+      GameLogger.Message($"[BoosterPurchasePopup] (stub) Reward ad 'watched' for {_pendingType} — granting 1 for free.");
+#endif
       _boosterInventory.Add(_pendingType, 1);
       Close();
     }

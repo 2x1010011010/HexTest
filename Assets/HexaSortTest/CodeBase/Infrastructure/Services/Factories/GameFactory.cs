@@ -4,6 +4,7 @@ using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -34,10 +35,19 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       _container = container;
       _assets = assets;
       _levelConfigs = Resources.Load<LevelConfigsList>(AssetPaths.LevelConfigs);
+#if UNITY_EDITOR
+      if (_levelConfigs == null)
+        GameLogger.Error($"[GameFactory] Level configs missing at Resources/{AssetPaths.LevelConfigs}.");
+      else
+        GameLogger.Message("[GameFactory] Level configs loaded.");
+#endif
     }
 
     public ObjectPool<StackTile> CreateCellPool()
     {
+#if UNITY_EDITOR
+      GameLogger.Message("[GameFactory] Creating tile pool (250 tiles).");
+#endif
       var container = new GameObject("PoolContainer").transform;
       var pool = new ObjectPool<StackTile>(container);
 
@@ -48,6 +58,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       }
 
       _instances.Add(container.gameObject);
+#if UNITY_EDITOR
+      GameLogger.Message("[GameFactory] Tile pool ready (250 tiles).");
+#endif
       return pool;
     }
 
@@ -57,6 +70,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       _gridSpawner = go.GetComponent<GridSpawner>();
 
       _currentLevelConfig = _levelConfigs.GetLevel(levelIndex);
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameFactory] Selected level config for index {levelIndex}.");
+#endif
       _gridSpawner.Initialize(_currentLevelConfig.GridPrefab);
       _gridSpawner.SetMainMenu(mainMenu);
 
@@ -75,6 +91,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
     public void Clear()
     {
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameFactory] Clearing {_instances.Count} tracked objects and progress registrations.");
+#endif
       ProgressReaders.Clear();
       ProgressSavers.Clear();
 
@@ -87,11 +106,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
     private GameObject InstantiateInjected(string resourcePath)
     {
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameFactory] Instantiating Resources/{resourcePath} with DI.");
+#endif
       var prefab = Resources.Load<GameObject>(resourcePath);
       var go = _container.InstantiatePrefab(prefab);
       go.transform.SetParent(null);
       SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
       RegisterPlayerProgress(go);
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameFactory] Created {go.name} in scene {go.scene.name}.", go);
+#endif
       return go;
     }
 

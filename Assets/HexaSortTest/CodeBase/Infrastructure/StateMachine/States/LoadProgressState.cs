@@ -1,4 +1,5 @@
 using HexaSortTest.CodeBase.GameLogic.Data;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 
@@ -30,10 +31,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     {
     }
 
-    private void LoadProgressOrInitNew() =>
-      _progressService.PlayerProgress =
-        _saveLoadService.LoadProgress()
-        ?? NewProgress();
+    private void LoadProgressOrInitNew()
+    {
+      var progress = _saveLoadService.LoadProgress();
+#if UNITY_EDITOR
+      GameLogger.Message(progress == null ? "[LoadProgressState] No saved progress; creating new progress." : "[LoadProgressState] Using saved progress.");
+#endif
+      _progressService.PlayerProgress = progress ?? NewProgress();
+#if UNITY_EDITOR
+      GameLogger.Message($"[LoadProgressState] Progress ready; level index {_progressService.PlayerProgress.LevelIndex}.");
+#endif
+    }
 
     private PlayerProgress NewProgress() =>
       new PlayerProgress(Constants.GameScene);

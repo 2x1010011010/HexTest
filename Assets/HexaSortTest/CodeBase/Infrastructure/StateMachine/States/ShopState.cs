@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Shop;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using UnityEngine;
 
@@ -49,12 +50,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
       if (_shopUI == null)
       {
-        Debug.LogError("[ShopState] Failed to spawn ShopSceneObserver. " +
+#if UNITY_EDITOR
+        GameLogger.Error("[ShopState] Failed to spawn ShopSceneObserver. " +
                        "Check that AssetPaths.ShopSceneUIPrefab points to a valid prefab under Resources/.");
+#endif
         return;
       }
 
       _shopUI.OnExitRequested += HandleExitRequested;
+#if UNITY_EDITOR
+      GameLogger.Message("[ShopState] UI created and event handlers subscribed.");
+#endif
     }
 
     private void HandleExitRequested() =>

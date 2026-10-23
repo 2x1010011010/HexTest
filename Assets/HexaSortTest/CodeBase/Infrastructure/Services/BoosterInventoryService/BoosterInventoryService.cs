@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.Boosters;
 using HexaSortTest.CodeBase.GameLogic.Data;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 
@@ -29,6 +30,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService
 
       var entry = GetOrCreateEntry(type);
       entry.Count += amount;
+#if UNITY_EDITOR
+      GameLogger.Message($"[BoosterInventoryService] Added {amount} of {type}; count={entry.Count}.");
+#endif
 
       _saveLoadService.SaveProgress();
       OnCountChanged?.Invoke(type, entry.Count);
@@ -38,9 +42,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService
     {
       var entry = FindEntry(type);
       if (entry == null || entry.Count <= 0)
+      {
+#if UNITY_EDITOR
+        GameLogger.Warning($"[BoosterInventoryService] Cannot spend {type}; inventory is empty.");
+#endif
         return false;
+      }
 
       entry.Count--;
+#if UNITY_EDITOR
+      GameLogger.Message($"[BoosterInventoryService] Spent {type}; count={entry.Count}.");
+#endif
 
       _saveLoadService.SaveProgress();
       OnCountChanged?.Invoke(type, entry.Count);

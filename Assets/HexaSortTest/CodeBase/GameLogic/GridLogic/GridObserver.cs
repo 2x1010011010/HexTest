@@ -6,6 +6,7 @@ using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States;
 using Cysharp.Threading.Tasks;
@@ -39,15 +40,19 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     public void SetGameResultHandler(GameStateMachine gameStateMachine)
     {
       _gameStateMachine = gameStateMachine;
-      Debug.Log($"[GridObserver] SetGameResultHandler called on {gameObject.name} (instance {GetInstanceID()}). " +
+#if UNITY_EDITOR
+      GameLogger.Message($"[GridObserver] SetGameResultHandler called on {gameObject.name} (instance {GetInstanceID()}). " +
                 $"gameStateMachine={(_gameStateMachine != null)}");
+#endif
     }
 
     private void Start()
     {
       if (_grid == null)
       {
-        Debug.LogError("Grid not set on GridObserver!");
+#if UNITY_EDITOR
+        GameLogger.Error("Grid not set on GridObserver!");
+#endif
         return;
       }
 
@@ -193,7 +198,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     public void TriggerVictory()
     {
-      Debug.Log($"[GridObserver] TriggerVictory called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
+#if UNITY_EDITOR
+      GameLogger.Message($"[GridObserver] TriggerVictory called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
+#endif
 
       if (_resultAlreadyTriggered)
         return;
@@ -204,7 +211,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private void TriggerDefeat()
     {
-      Debug.Log($"[GridObserver] TriggerDefeat called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
+#if UNITY_EDITOR
+      GameLogger.Message($"[GridObserver] TriggerDefeat called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
+#endif
 
       _resultAlreadyTriggered = true;
       EnterGameResultState(isVictory: false);
@@ -212,12 +221,16 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private void EnterGameResultState(bool isVictory)
     {
-      Debug.Log($"[GridObserver] EnterGameResultState isVictory={isVictory}. " +
+#if UNITY_EDITOR
+      GameLogger.Message($"[GridObserver] EnterGameResultState isVictory={isVictory}. " +
                 $"gameStateMachine={(_gameStateMachine != null)}");
+#endif
 
       if (_gameStateMachine == null)
       {
-        Debug.LogError("GridObserver: GameStateMachine not set, falling back to main menu.");
+#if UNITY_EDITOR
+        GameLogger.Error("GridObserver: GameStateMachine not set, falling back to main menu.");
+#endif
         _mainMenu?.Open();
         return;
       }

@@ -8,6 +8,7 @@ using HexaSortTest.CodeBase.GameLogic.UI.Menu;
 using HexaSortTest.CodeBase.GameLogic.UI.Meta;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
 using HexaSortTest.CodeBase.GameLogic.UI.Shop;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -41,7 +42,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var prefab = Resources.Load<GameObject>(AssetPaths.MainMenuScreenPrefab);
       if (prefab == null)
       {
-        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.MainMenuScreenPrefab}");
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Prefab not found at Resources/{AssetPaths.MainMenuScreenPrefab}");
+#endif
         return null;
       }
 
@@ -49,7 +52,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
       var screen = go.GetComponent<MainMenuScreen>();
       if (screen == null)
-        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.MainMenuScreenPrefab} has no MainMenuScreen component!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Spawned prefab at {AssetPaths.MainMenuScreenPrefab} has no MainMenuScreen component!");
+#endif
+      }
 
       return screen;
     }
@@ -59,7 +66,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var prefab = Resources.Load<GameObject>(AssetPaths.GameResultPopupPrefab);
       if (prefab == null)
       {
-        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.GameResultPopupPrefab}");
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Prefab not found at Resources/{AssetPaths.GameResultPopupPrefab}");
+#endif
         return null;
       }
 
@@ -67,7 +76,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
       var popup = go.GetComponent<GameResultPopup>();
       if (popup == null)
-        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.GameResultPopupPrefab} has no GameResultPopup component!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Spawned prefab at {AssetPaths.GameResultPopupPrefab} has no GameResultPopup component!");
+#endif
+      }
 
       return popup;
     }
@@ -77,7 +90,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var prefab = Resources.Load<GameObject>(AssetPaths.MetaUIPrefab);
       if (prefab == null)
       {
-        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.MetaUIPrefab}");
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Prefab not found at Resources/{AssetPaths.MetaUIPrefab}");
+#endif
         return null;
       }
 
@@ -85,7 +100,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
       var metaUI = go.GetComponent<MetaUIObserver>();
       if (metaUI == null)
-        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.MetaUIPrefab} has no MetaUIObserver component!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Spawned prefab at {AssetPaths.MetaUIPrefab} has no MetaUIObserver component!");
+#endif
+      }
 
       return metaUI;
     }
@@ -95,7 +114,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var prefab = Resources.Load<GameObject>(AssetPaths.BoosterPurchasePopupPrefab);
       if (prefab == null)
       {
-        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.BoosterPurchasePopupPrefab}");
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Prefab not found at Resources/{AssetPaths.BoosterPurchasePopupPrefab}");
+#endif
         return null;
       }
 
@@ -103,7 +124,11 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
       var popup = go.GetComponent<BoosterPurchasePopup>();
       if (popup == null)
-        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.BoosterPurchasePopupPrefab} has no BoosterPurchasePopup component!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Spawned prefab at {AssetPaths.BoosterPurchasePopupPrefab} has no BoosterPurchasePopup component!");
+#endif
+      }
 
       return popup;
     }
@@ -113,7 +138,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       var prefab = Resources.Load<GameObject>(AssetPaths.ShopSceneUIPrefab);
       if (prefab == null)
       {
-        Debug.LogError($"[UIFactory] Prefab not found at Resources/{AssetPaths.ShopSceneUIPrefab}");
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Prefab not found at Resources/{AssetPaths.ShopSceneUIPrefab}");
+#endif
         return null;
       }
 
@@ -121,13 +148,20 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
       var shopUI = go.GetComponent<ShopSceneObserver>();
       if (shopUI == null)
-        Debug.LogError($"[UIFactory] Spawned prefab at {AssetPaths.ShopSceneUIPrefab} has no ShopSceneObserver component!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error($"[UIFactory] Spawned prefab at {AssetPaths.ShopSceneUIPrefab} has no ShopSceneObserver component!");
+#endif
+      }
 
       return shopUI;
     }
 
     public void Clear()
     {
+#if UNITY_EDITOR
+      GameLogger.Message($"[UIFactory] Clearing {_instances.Count} UI objects.");
+#endif
       foreach (var go in _instances)
         if (go != null)
           Object.Destroy(go);
@@ -140,10 +174,16 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 
     private GameObject InstantiateInjected(GameObject prefab)
     {
+#if UNITY_EDITOR
+      GameLogger.Message($"[UIFactory] Instantiating UI prefab {prefab?.name ?? "null"} with DI.");
+#endif
       var go = _container.InstantiatePrefab(prefab);
       go.transform.SetParent(null);
       SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
       _instances.Add(go);
+#if UNITY_EDITOR
+      GameLogger.Message($"[UIFactory] Created {go.name} in scene {go.scene.name}.", go);
+#endif
       return go;
     }
   }

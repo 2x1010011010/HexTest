@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Menu;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
@@ -57,19 +58,26 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
       if (_screen == null)
       {
-        Debug.LogError("[MainMenuState] Failed to spawn MainMenuScreen. " +
+#if UNITY_EDITOR
+        GameLogger.Error("[MainMenuState] Failed to spawn MainMenuScreen. " +
                         "Check that AssetPaths.MainMenuScreenPrefab points to a valid prefab under Resources/.");
+#endif
         return;
       }
       
       _screen.OnPlayClicked += HandlePlayClicked;
       _screen.OnMetaClicked += HandleMetaClicked;
       _screen.OnShopClicked += HandleShopClicked;
+#if UNITY_EDITOR
+      GameLogger.Message("[MainMenuState] UI created and event handlers subscribed.");
+#endif
     }
 
     private void HandlePlayClicked()
     {
-      Debug.Log("[MainMenuState] HandlePlayClicked");
+#if UNITY_EDITOR
+      GameLogger.Message("[MainMenuState] HandlePlayClicked");
+#endif
       _loadingCurtain.Show();
       _gameStateMachine.Enter<LoadLevelState, string>(
         _progressService.PlayerProgress.WorldData.LastLevel.Level);
@@ -77,13 +85,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void HandleMetaClicked()
     {
-      Debug.Log("[MainMenuState] HandleMetaClicked");
+#if UNITY_EDITOR
+      GameLogger.Message("[MainMenuState] HandleMetaClicked");
+#endif
       _gameStateMachine.Enter<MetaState>();
     }
 
     private void HandleShopClicked()
     {
-      Debug.Log("[MainMenuState] HandleShopClicked");
+#if UNITY_EDITOR
+      GameLogger.Message("[MainMenuState] HandleShopClicked");
+#endif
       _gameStateMachine.Enter<ShopState>();
     }
   }

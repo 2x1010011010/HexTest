@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService;
@@ -38,23 +39,38 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
         [typeof(MetaState)]         = new MetaState(this, sceneLoader, curtain, uiFactory, metaObjectFactory),
         [typeof(ShopState)]         = new ShopState(this, sceneLoader, curtain, uiFactory),
       };
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameStateMachine] Registered {_states.Count} states.");
+#endif
     }
     
     public void Enter<TState>() where TState : class, IState
     {
       IState state = ChangeState<TState>();
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameStateMachine] Calling {typeof(TState).Name}.Enter().");
+#endif
       state.Enter();
     }
 
     public void Enter<TState, TPayload>(TPayload payload) where TState : class, IPayloadState<TPayload>
     {
       IPayloadState<TPayload> state = ChangeState<TState>();
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameStateMachine] Calling {typeof(TState).Name}.Enter() with payload type {typeof(TPayload).Name}.");
+#endif
       state.Enter(payload);
     }
 
     private TState ChangeState<TState>() where TState : class, IExitState
     {
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameStateMachine] Transition requested: {_currentState?.GetType().Name ?? "None"} -> {typeof(TState).Name}; exiting previous state.");
+#endif
       _currentState?.Exit();
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameStateMachine] Previous state exited; selecting {typeof(TState).Name}.");
+#endif
       TState state = GetState<TState>();
       _currentState = state;
       return state;  

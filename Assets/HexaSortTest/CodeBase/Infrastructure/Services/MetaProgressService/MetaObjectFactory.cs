@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Meta;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -21,11 +22,16 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
     {
       if (config == null || config.TilePrefab == null)
       {
-        Debug.LogError("[MetaObjectFactory] Cannot spawn tile: missing config or prefab.");
+#if UNITY_EDITOR
+        GameLogger.Error("[MetaObjectFactory] Cannot spawn tile: missing config or prefab.");
+#endif
         return null;
       }
 
       Clear();
+#if UNITY_EDITOR
+      GameLogger.Message($"[MetaObjectFactory] Spawning {config.TilePrefab.name} at {position}.");
+#endif
 
       var go = _container.InstantiatePrefab(config.TilePrefab.gameObject, position, Quaternion.identity, null);
       SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
@@ -34,13 +40,20 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
       CurrentTile = go.GetComponent<MetaTile>();
 
       if (CurrentTile == null)
-        Debug.LogError($"[MetaObjectFactory] Spawned prefab '{config.TilePrefab.name}' has no MetaTile component!");
+      {
+#if UNITY_EDITOR
+        GameLogger.Error($"[MetaObjectFactory] Spawned prefab '{config.TilePrefab.name}' has no MetaTile component!");
+#endif
+      }
 
       return CurrentTile;
     }
 
     public void Clear()
     {
+#if UNITY_EDITOR
+      GameLogger.Message("[MetaObjectFactory] Clearing current meta tile.");
+#endif
       if (_currentInstance != null)
         Object.Destroy(_currentInstance);
 

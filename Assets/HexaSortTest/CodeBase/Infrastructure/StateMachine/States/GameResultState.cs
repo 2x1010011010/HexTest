@@ -1,5 +1,6 @@
 using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.UI.ResultPopup;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
@@ -43,6 +44,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public void Enter(GameResultPayload payload)
     {
       _isVictory = payload.IsVictory;
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameResultState] Result received: victory={_isVictory}, level index {_progressService.PlayerProgress.LevelIndex}.");
+#endif
 
       if (_isVictory)
         AwardLevelRewards();
@@ -69,12 +73,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       var levelConfig = _gameFactory.CurrentLevelConfig;
       if (levelConfig == null)
       {
-        Debug.LogWarning("[GameResultState] CurrentLevelConfig is null, skipping reward payout.");
+#if UNITY_EDITOR
+        GameLogger.Warning("[GameResultState] CurrentLevelConfig is null, skipping reward payout.");
+#endif
         return;
       }
 
       _currencyService.AddCoins(CoinsRewardFor(levelConfig.Difficulty));
       _currencyService.AddHexCoins(levelConfig.WinCondition);
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameResultState] Rewards granted: {CoinsRewardFor(levelConfig.Difficulty)} Coins, {levelConfig.WinCondition} HexCoins.");
+#endif
     }
 
     private static int CoinsRewardFor(LevelDifficulty difficulty) => difficulty switch
@@ -91,8 +100,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
       if (_popup == null)
       {
-        Debug.LogError("[GameResultState] Failed to spawn GameResultPopup. " +
+#if UNITY_EDITOR
+        GameLogger.Error("[GameResultState] Failed to spawn GameResultPopup. " +
                         "Check that AssetPaths.GameResultPopupPrefab points to a valid prefab under Resources/.");
+#endif
         return;
       }
 
@@ -107,6 +118,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void HandleContinueClicked()
     {
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameResultState] Continue requested: victory={_isVictory}.");
+#endif
       if (_isVictory)
         AdvanceToNextLevel();
       else
@@ -119,6 +133,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private void AdvanceToNextLevel()
     {
       _progressService.PlayerProgress.LevelIndex++;
+#if UNITY_EDITOR
+      GameLogger.Message($"[GameResultState] Advanced to level index {_progressService.PlayerProgress.LevelIndex}.");
+#endif
       _saveLoadService.SaveProgress();
 
       ReloadGameScene();

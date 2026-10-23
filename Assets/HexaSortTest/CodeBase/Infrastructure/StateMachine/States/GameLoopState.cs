@@ -1,4 +1,5 @@
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
+using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
 using HexaSortTest.CodeBase.Infrastructure.Services.UIService;
 
@@ -40,6 +41,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void ClearScene()
     {
+#if UNITY_EDITOR
+      GameLogger.Message("[GameLoopState] Restart requested; clearing scene objects.");
+#endif
       _loadingCurtain.Show();
       _gameFactory.Clear();
       _uiFactory.Clear();
