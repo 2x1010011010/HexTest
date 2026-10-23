@@ -63,7 +63,14 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         return;
       }
 
+      cellComponent.SetSpawner(false);
       cellComponent.SetEmpty(true);
+
+      SpriteRenderer coverRenderer = HexCellCoverBuilder.Create(cellData, settings, parent);
+      var coverData = hexInstance.GetComponent<CellCoverData>();
+      if (coverData == null)
+        coverData = hexInstance.AddComponent<CellCoverData>();
+      coverData.Initialize(cellData.CoverType, cellData.RequiredScore, coverRenderer);
 
       if (cellData.State == CellState.SpawnPoint)
       {

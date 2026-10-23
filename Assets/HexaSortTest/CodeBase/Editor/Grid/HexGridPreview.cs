@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using HexaSortTest.CodeBase.GameLogic.Cells;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -39,6 +40,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       Texture texture = _previewRenderUtility.EndPreview();
       GUI.DrawTexture(rect, texture, ScaleMode.StretchToFill, false);
 
+      DrawCoverLabels(rect, data, settings);
       DestroyTemporaryObjects();
 
       HandleMouseInput(rect, data, settings);
@@ -57,6 +59,29 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
         _spawnedPreviewObjects.Add(go);
         _previewRenderUtility.AddSingleGO(go);
+
+        SpriteRenderer cover = HexCellCoverBuilder.Create(cell, settings, null);
+        if (cover != null)
+        {
+          _spawnedPreviewObjects.Add(cover.gameObject);
+          _previewRenderUtility.AddSingleGO(cover.gameObject);
+        }
+      }
+    }
+
+    private void DrawCoverLabels(Rect rect, HexGridData data, HexGridSettings settings)
+    {
+      Vector3 center = settings.TryGetModelBounds(out Bounds bounds) ? bounds.center : settings.ModelOffset;
+      foreach (var cell in data.Cells)
+      {
+        if (cell.State == CellState.Disabled || cell.CoverType == CellCoverType.Normal)
+          continue;
+        Vector3 viewport = _previewRenderUtility.camera.WorldToViewportPoint(cell.Position + center);
+        string label = cell.CoverType == CellCoverType.ScoreLock
+          ? $"LOCK: {cell.RequiredScore}" : "BLOCKER";
+        Vector2 size = EditorStyles.helpBox.CalcSize(new GUIContent(label));
+        GUI.Label(new Rect(rect.x + viewport.x * rect.width - size.x / 2f,
+          rect.y + (1f - viewport.y) * rect.height, size.x, size.y), label, EditorStyles.helpBox);
       }
     }
 
@@ -124,6 +149,11 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         else
           gridBounds.Encapsulate(cellBounds);
       }
+
+      foreach (var go in _spawnedPreviewObjects)
+        foreach (var renderer in go.GetComponentsInChildren<Renderer>())
+          if (renderer.enabled)
+            gridBounds.Encapsulate(renderer.bounds);
 
       Camera camera = _previewRenderUtility.camera;
       float aspect = Mathf.Max(0.0001f, rect.width / rect.height);

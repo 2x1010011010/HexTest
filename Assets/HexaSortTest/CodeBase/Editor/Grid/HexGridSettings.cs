@@ -1,4 +1,5 @@
 using System;
+using HexaSortTest.CodeBase.GameLogic.Cells;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.Editor.Grid
@@ -19,6 +20,57 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     public Vector3 ModelOffset;
     public bool FlatTop;
     public float Spacing = 1f;
+
+    [SerializeField] private int _coverSettingsVersion;
+
+    public Sprite LockSprite;
+    public Sprite BlockerSprite;
+    public int DefaultRequiredScore = 100;
+    public float LockScale = 1f;
+    public float LockElevation = 0.02f;
+    public float BlockerScale = 1f;
+    public float BlockerElevation = 0.02f;
+
+    // Keep the original JSON field names for migration of existing editor settings.
+    [SerializeField] private float CoverScale = 1f;
+    [SerializeField] private float CoverElevation = 0.02f;
+
+    public void EnsureCoverDefaults()
+    {
+      if (_coverSettingsVersion < 1)
+      {
+        DefaultRequiredScore = 100;
+        CoverScale = 1f;
+        CoverElevation = 0.02f;
+      }
+      if (_coverSettingsVersion < 2)
+      {
+        LockScale = BlockerScale = Mathf.Max(0.0001f, CoverScale);
+        LockElevation = BlockerElevation = Mathf.Max(0f, CoverElevation);
+        _coverSettingsVersion = 2;
+      }
+    }
+
+    public float CoverScaleFor(CellCoverType type) => type switch
+    {
+      CellCoverType.ScoreLock => LockScale,
+      CellCoverType.BreakableBlocker => BlockerScale,
+      _ => 1f
+    };
+
+    public float CoverElevationFor(CellCoverType type) => type switch
+    {
+      CellCoverType.ScoreLock => LockElevation,
+      CellCoverType.BreakableBlocker => BlockerElevation,
+      _ => 0f
+    };
+
+    public Sprite CoverSprite(CellCoverType type) => type switch
+    {
+      CellCoverType.ScoreLock => LockSprite,
+      CellCoverType.BreakableBlocker => BlockerSprite,
+      _ => null
+    };
 
     public Quaternion Rotation => HexPrefab.transform.localRotation * Quaternion.Euler(ModelRotation);
     public Vector3 Scale => Vector3.Scale(HexPrefab.transform.localScale, ModelScale);

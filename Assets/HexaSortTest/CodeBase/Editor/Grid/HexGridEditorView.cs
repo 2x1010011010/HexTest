@@ -37,6 +37,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       BuildPrefabField();
       BuildModelFields();
       BuildSpacingField();
+      BuildCoverFields();
 
       BuildButtons();
 
@@ -196,6 +197,67 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         RaiseSettingsChanged();
       });
       _root.Add(field);
+    }
+
+    private void BuildCoverFields()
+    {
+      var lockBlock = new Foldout { text = "LOCK SETTINGS", value = true };
+      lockBlock.style.marginTop = 8;
+      _root.Add(lockBlock);
+      AddSpriteField(lockBlock, "Sprite", _settings.LockSprite, sprite => _settings.LockSprite = sprite);
+      AddCoverFloat(lockBlock, "Scale", _settings.LockScale, 0.0001f,
+        value => _settings.LockScale = value,
+        "Lock size relative to the cell footprint; preserves sprite aspect ratio.");
+      AddCoverFloat(lockBlock, "Elevation", _settings.LockElevation, 0f,
+        value => _settings.LockElevation = value,
+        "Lock height above the model as a fraction of the smaller cell dimension.");
+
+      var score = new IntegerField("Default Unlock Score") { value = _settings.DefaultRequiredScore, isDelayed = true };
+      score.tooltip = "Initial score for new locks. Edit each lock through its context menu.";
+      score.RegisterValueChangedCallback(evt =>
+      {
+        _settings.DefaultRequiredScore = Mathf.Max(0, evt.newValue);
+        score.SetValueWithoutNotify(_settings.DefaultRequiredScore);
+        RaiseSettingsChanged();
+      });
+      lockBlock.Add(score);
+
+      var blockerBlock = new Foldout { text = "BLOCKER SETTINGS", value = true };
+      blockerBlock.style.marginTop = 8;
+      _root.Add(blockerBlock);
+      AddSpriteField(blockerBlock, "Sprite", _settings.BlockerSprite, sprite => _settings.BlockerSprite = sprite);
+      AddCoverFloat(blockerBlock, "Scale", _settings.BlockerScale, 0.0001f,
+        value => _settings.BlockerScale = value,
+        "Blocker size relative to the cell footprint; preserves sprite aspect ratio.");
+      AddCoverFloat(blockerBlock, "Elevation", _settings.BlockerElevation, 0f,
+        value => _settings.BlockerElevation = value,
+        "Blocker height above the model as a fraction of the smaller cell dimension.");
+      _root.Add(new HelpBox("Choose Hex Type from a cell's context menu. Covers are level data only; unlocking and hammer behavior are not implemented.", HelpBoxMessageType.Info));
+    }
+
+    private void AddCoverFloat(VisualElement parent, string label, float value, float minimum,
+      Action<float> assign, string tooltip)
+    {
+      var field = new FloatField(label) { value = value, isDelayed = true, tooltip = tooltip };
+      field.RegisterValueChangedCallback(evt =>
+      {
+        float clamped = Mathf.Max(minimum, evt.newValue);
+        assign(clamped);
+        field.SetValueWithoutNotify(clamped);
+        RaiseSettingsChanged();
+      });
+      parent.Add(field);
+    }
+
+    private void AddSpriteField(VisualElement parent, string label, Sprite value, Action<Sprite> assign)
+    {
+      var field = new ObjectField(label) { objectType = typeof(Sprite), allowSceneObjects = false, value = value };
+      field.RegisterValueChangedCallback(evt =>
+      {
+        assign(evt.newValue as Sprite);
+        RaiseSettingsChanged();
+      });
+      parent.Add(field);
     }
 
     private void BuildButtons()
