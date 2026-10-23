@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using TMPro;
 using HexaSortTest.CodeBase.GameLogic.Cells;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 namespace HexaSortTest.CodeBase.Editor.Grid
@@ -13,6 +15,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private PreviewRenderUtility _previewRenderUtility;
     private readonly List<GameObject> _spawnedPreviewObjects = new();
+    private readonly HexGridPreviewText _previewText = new();
+    private readonly Dictionary<HexCellData, GameObject> _coverPreviewObjects = new();
     private readonly Dictionary<(CellState, Material), Material> _stateMaterials = new();
 
     public HexGridPreview()
@@ -22,6 +26,29 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       _previewRenderUtility.camera.farClipPlane = 200f;
       _previewRenderUtility.camera.nearClipPlane = 0.1f;
       _previewRenderUtility.camera.orthographic = true;
+      ConfigurePreviewLighting();
+    }
+
+    private void ConfigurePreviewLighting()
+    {
+      // PreviewRenderUtility defaults leave upward-facing hex surfaces unlit:
+      // provide ambient fill and orient both directional lights toward the grid.
+      _previewRenderUtility.ambientColor = new Color(0.18f, 0.18f, 0.18f, 1f);
+      Light[] lights = _previewRenderUtility.lights;
+
+      lights[0].type = LightType.Directional;
+      lights[0].color = Color.white;
+      lights[0].intensity = 0.65f;
+      lights[0].transform.rotation = Quaternion.Euler(60f, -35f, 0f);
+      lights[0].shadows = LightShadows.None;
+      lights[0].cullingMask = ~0;
+
+      lights[1].type = LightType.Directional;
+      lights[1].color = Color.white;
+      lights[1].intensity = 0.2f;
+      lights[1].transform.rotation = Quaternion.Euler(45f, 145f, 0f);
+      lights[1].shadows = LightShadows.None;
+      lights[1].cullingMask = ~0;
     }
 
     public void Draw(Rect rect, HexGridData data, HexGridSettings settings)
@@ -29,21 +56,49 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       if (_previewRenderUtility == null || data == null || settings?.HexPrefab == null || rect.width <= 0 || rect.height <= 0)
         return;
 
-      _previewRenderUtility.BeginPreview(rect, GUIStyle.none);
-      _previewRenderUtility.camera.backgroundColor = new Color(0.18f, 0.18f, 0.18f);
-      _previewRenderUtility.camera.clearFlags = CameraClearFlags.Color;
+      // Keep temporary Canvas/TMP objects alive for the entire repaint. Other GUI
+      // events only perform hit testing using the last rendered camera matrices.
+      if (Event.current.type != EventType.Repaint)
+      {
+        HandleMouseInput(rect, data, settings);
+        return;
+      }
 
-      SpawnTemporaryObjects(data, settings);
-      FrameCamera(rect, data, settings);
+      bool previewOpened = false;
+      try
+      {
+        _previewRenderUtility.BeginPreview(rect, GUIStyle.none);
+        previewOpened = true;
+        _previewRenderUtility.camera.backgroundColor = new Color(0.18f, 0.18f, 0.18f);
+        _previewRenderUtility.camera.clearFlags = CameraClearFlags.Color;
 
-      _previewRenderUtility.camera.Render();
-      Texture texture = _previewRenderUtility.EndPreview();
-      GUI.DrawTexture(rect, texture, ScaleMode.StretchToFill, false);
+        SpawnTemporaryObjects(data, settings);
+        PreparePreviewCanvases();
+        foreach (var go in _spawnedPreviewObjects)
+          _previewText.Build(go);
+        FrameCamera(rect, data, settings);
 
-      DrawCoverLabels(rect, data, settings);
-      DestroyTemporaryObjects();
-
-      HandleMouseInput(rect, data, settings);
+        // TMP UI is rendered through temporary mesh proxies. Keep native UI
+        // submission for any other UI elements in user-authored cover prefabs.
+        ScriptableRenderContext.EmitGeometryForCamera(_previewRenderUtility.camera);
+        _previewRenderUtility.Render(true, false);
+        Texture texture = _previewRenderUtility.EndPreview();
+        previewOpened = false;
+        GUI.DrawTexture(rect, texture, ScaleMode.StretchToFill, false);
+        DrawCoverLabels(rect, data, settings);
+      }
+      finally
+      {
+        try
+        {
+          if (previewOpened)
+            _previewRenderUtility.EndPreview();
+        }
+        finally
+        {
+          DestroyTemporaryObjects();
+        }
+      }
     }
 
     #region Object Spawning
@@ -64,9 +119,26 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         if (cover != null)
         {
           _spawnedPreviewObjects.Add(cover);
+          _coverPreviewObjects[cell] = cover;
           _previewRenderUtility.AddSingleGO(cover);
         }
       }
+    }
+
+    private void PreparePreviewCanvases()
+    {
+      // Bind only temporary preview instances. Never store this camera in a prefab asset.
+      foreach (var go in _spawnedPreviewObjects)
+        foreach (var canvas in go.GetComponentsInChildren<Canvas>(true))
+          if (canvas.renderMode == RenderMode.WorldSpace)
+            canvas.worldCamera = _previewRenderUtility.camera;
+
+      // Camera and transforms must be ready before rebuilding World Space UI/TMP.
+      Canvas.ForceUpdateCanvases();
+      foreach (var go in _spawnedPreviewObjects)
+        foreach (var text in go.GetComponentsInChildren<TMP_Text>())
+          if (text.isActiveAndEnabled)
+            text.ForceMeshUpdate();
     }
 
     private void DrawCoverLabels(Rect rect, HexGridData data, HexGridSettings settings)
@@ -77,10 +149,16 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         if (cell.State == CellState.Disabled || cell.CoverType == CellCoverType.Normal)
           continue;
         Vector3 viewport = _previewRenderUtility.camera.WorldToViewportPoint(cell.Position + center);
-        // A supplied lock prefab owns its TMP label. Until it exists, show an editor-only number above the lock.
+        // Suppress the fallback only when this instance has actual preview geometry.
+        // Merely finding a TMP reference on the source prefab does not prove it rendered.
         if (cell.CoverType == CellCoverType.ScoreLock
-          && HexCellCoverBuilder.FindScoreText(settings.LockVisualPrefab, settings.LockScoreTextPath) != null)
-          continue;
+          && _coverPreviewObjects.TryGetValue(cell, out GameObject cover))
+        {
+          TMP_Text text = HexCellCoverBuilder.FindScoreText(cover, settings.LockScoreTextPath);
+          if (text != null && (_previewText.WasBaked(text)
+            || (text is TextMeshPro && text.isActiveAndEnabled)))
+            continue;
+        }
         string label = cell.CoverType == CellCoverType.ScoreLock
           ? cell.RequiredScore.ToString() : $"HITS: {cell.RequiredHits}";
         Vector2 size = EditorStyles.helpBox.CalcSize(new GUIContent(label));
@@ -93,6 +171,9 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     private void ApplyCellColor(GameObject go, CellState state)
     {
+      // Enabled cells keep the actual prefab material colors.
+      if (state == CellState.Enabled)
+        return;
       foreach (var renderer in go.GetComponentsInChildren<Renderer>())
       {
         Material[] materials = renderer.sharedMaterials;
@@ -109,7 +190,11 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       if (_stateMaterials.TryGetValue(key, out var existing) && existing != null)
         return existing;
 
-      var material = new Material(sourceMaterial) { color = ColorForState(state) };
+      var material = new Material(sourceMaterial);
+      if (material.HasProperty("_BaseColor"))
+        material.SetColor("_BaseColor", ColorForState(state));
+      else if (material.HasProperty("_Color"))
+        material.SetColor("_Color", ColorForState(state));
       _stateMaterials[key] = material;
       return material;
     }
@@ -129,6 +214,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           Object.DestroyImmediate(go);
 
       _spawnedPreviewObjects.Clear();
+      _coverPreviewObjects.Clear();
+      _previewText.Clear();
     }
 
     #endregion
@@ -160,6 +247,22 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         foreach (var renderer in go.GetComponentsInChildren<Renderer>())
           if (renderer.enabled && !(renderer is ParticleSystemRenderer) && !(renderer is TrailRenderer))
             gridBounds.Encapsulate(renderer.bounds);
+
+      foreach (var go in _spawnedPreviewObjects)
+        foreach (var text in go.GetComponentsInChildren<TMP_Text>())
+        {
+          if (!text.isActiveAndEnabled || text.textInfo.characterCount == 0)
+            continue;
+          Bounds textBounds = text.textBounds;
+          for (int x = -1; x <= 1; x += 2)
+            for (int y = -1; y <= 1; y += 2)
+              for (int z = -1; z <= 1; z += 2)
+              {
+                Vector3 corner = textBounds.center
+                  + Vector3.Scale(textBounds.extents, new Vector3(x, y, z));
+                gridBounds.Encapsulate(text.transform.TransformPoint(corner));
+              }
+        }
 
       Camera camera = _previewRenderUtility.camera;
       float aspect = Mathf.Max(0.0001f, rect.width / rect.height);

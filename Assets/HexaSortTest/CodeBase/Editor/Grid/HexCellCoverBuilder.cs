@@ -41,6 +41,9 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     {
       if (root == null)
         return null;
+      var locker = root.GetComponent<ScoreLocker>();
+      if (locker != null)
+        return locker.ScoreText;
       if (string.IsNullOrWhiteSpace(path))
         return root.GetComponentInChildren<TMP_Text>(true);
       Transform target = root.transform.Find(path);
@@ -59,13 +62,37 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       if (cell.CoverType == CellCoverType.ScoreLock)
       {
+        var locker = go.GetComponent<ScoreLocker>();
+        if (locker != null)
+        {
+          locker.ConfigureForEditor(cell.RequiredScore);
+          if (!preview)
+            PrefabUtility.RecordPrefabInstancePropertyModifications(locker);
+        }
         TMP_Text text = FindScoreText(go, settings.LockScoreTextPath);
         if (text != null)
         {
-          text.text = cell.RequiredScore.ToString(CultureInfo.InvariantCulture);
+          // Compatibility for previously authored TMP-only visuals.
+          if (locker == null)
+            text.text = cell.RequiredScore.ToString(CultureInfo.InvariantCulture);
           text.ForceMeshUpdate(true, true);
           if (!preview)
             PrefabUtility.RecordPrefabInstancePropertyModifications(text);
+        }
+      }
+
+      if (cell.CoverType == CellCoverType.BreakableBlocker)
+      {
+        var blocker = go.GetComponent<Blocker>();
+        if (blocker != null)
+        {
+          blocker.ConfigureForEditor(cell.RequiredHits);
+          if (!preview)
+          {
+            PrefabUtility.RecordPrefabInstancePropertyModifications(blocker);
+            if (blocker.SpriteRenderer != null)
+              PrefabUtility.RecordPrefabInstancePropertyModifications(blocker.SpriteRenderer);
+          }
         }
       }
 

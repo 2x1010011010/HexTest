@@ -1,4 +1,5 @@
 using System;
+using HexaSortTest.CodeBase.GameLogic.Cells;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -207,15 +208,22 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       _root.Add(lockBlock);
       AddPrefabField(lockBlock, _settings.LockVisualPrefab, prefab => _settings.LockVisualPrefab = prefab);
       var textPath = new TextField("Score Text Path") { value = _settings.LockScoreTextPath, isDelayed = true };
-      textPath.tooltip = "Optional child path to the TMP component. Empty = first TMP_Text in the prefab.";
+      textPath.tooltip = "Legacy TMP-only prefabs: optional child path. With ScoreLocker, its assigned Score Text is used instead.";
       textPath.RegisterValueChangedCallback(evt =>
       {
         _settings.LockScoreTextPath = evt.newValue;
         RaiseSettingsChanged();
       });
       lockBlock.Add(textPath);
-      lockBlock.Add(new HelpBox("Use a TMP label positioned above the lock in your prefab. Font and layout belong to the prefab. UI Canvas must be World Space.", HelpBoxMessageType.Info));
-      var textWarning = new HelpBox("No TMP text found at the selected path. The editor shows a placeholder number, but exported visuals will have no score label.", HelpBoxMessageType.Warning);
+      void RefreshTextPath()
+      {
+        textPath.SetEnabled(_settings.LockVisualPrefab == null
+          || _settings.LockVisualPrefab.GetComponent<ScoreLocker>() == null);
+      }
+      SettingsChanged += RefreshTextPath;
+      RefreshTextPath();
+      lockBlock.Add(new HelpBox("Add ScoreLocker to the lock prefab root. Assign its Sprite Renderer, World Space Canvas, Score Text and optional Unlock Particles. Font and label position are configured in the prefab.", HelpBoxMessageType.Info));
+      var textWarning = new HelpBox("No Score Text assigned in ScoreLocker (or no TMP at the legacy path). Check the prefab references; exported visuals need an assigned label.", HelpBoxMessageType.Warning);
       void RefreshTextWarning()
       {
         textWarning.style.display = _settings.LockVisualPrefab != null
@@ -258,7 +266,18 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         RaiseSettingsChanged();
       });
       blockerBlock.Add(hits);
-      blockerBlock.Add(new HelpBox("Assign a prefab containing your stage sprites and particle effects. The editor preserves its initial state; stage switching and damage are implemented later.", HelpBoxMessageType.Info));
+      blockerBlock.Add(new HelpBox("Add Blocker to the prefab root and assign its Sprite Renderer and Sprite List. Required Hits selects Sprite List[Required Hits - 1]. Damage behavior is implemented later.", HelpBoxMessageType.Info));
+      var blockerWarning = new HelpBox("Default Required Hits has no assigned sprite in the Blocker list. Fill the corresponding list entry or change the default.", HelpBoxMessageType.Warning);
+      void RefreshBlockerWarning()
+      {
+        var blocker = _settings.BlockerVisualPrefab != null
+          ? _settings.BlockerVisualPrefab.GetComponent<Blocker>() : null;
+        blockerWarning.style.display = blocker != null && !blocker.TryGetSprite(_settings.DefaultRequiredHits, out _)
+          ? DisplayStyle.Flex : DisplayStyle.None;
+      }
+      SettingsChanged += RefreshBlockerWarning;
+      RefreshBlockerWarning();
+      blockerBlock.Add(blockerWarning);
       var legacyBlocker = new Foldout { text = "Legacy Sprite Fallback", value = false };
       AddSpriteField(legacyBlocker, "Sprite", _settings.BlockerSprite, sprite => _settings.BlockerSprite = sprite);
       blockerBlock.Add(legacyBlocker);

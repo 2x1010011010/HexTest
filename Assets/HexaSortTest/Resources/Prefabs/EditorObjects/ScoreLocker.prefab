@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 739660098618601334}
   - component: {fileID: 5496672383529008352}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: UnlockScore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -158,7 +158,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 50
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -192,8 +192,8 @@ MonoBehaviour:
   m_fontSizeMin: 0.5
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -240,8 +240,9 @@ GameObject:
   m_Component:
   - component: {fileID: 856530484139189765}
   - component: {fileID: 7840690458201018979}
+  - component: {fileID: 5544690508199647250}
   m_Layer: 0
-  m_Name: ScoreLock
+  m_Name: ScoreLocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -322,3 +323,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &5544690508199647250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838441451506164125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e70327280e55460abe58023ca3f15b95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.ScoreLocker
+  _spriteRenderer: {fileID: 7840690458201018979}
+  _canvas: {fileID: 6228673290665142543}
+  _scoreText: {fileID: 5496672383529008352}
+  _unlockParticles: {fileID: 0}
+  _requiredScore: 0
