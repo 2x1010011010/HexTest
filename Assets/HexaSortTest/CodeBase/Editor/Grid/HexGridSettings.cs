@@ -23,6 +23,11 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
     [SerializeField] private int _coverSettingsVersion;
 
+    public GameObject LockVisualPrefab;
+    public GameObject BlockerVisualPrefab;
+    public string LockScoreTextPath = string.Empty;
+    public int DefaultRequiredHits = 1;
+
     public Sprite LockSprite;
     public Sprite BlockerSprite;
     public int DefaultRequiredScore = 100;
@@ -49,7 +54,19 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         LockElevation = BlockerElevation = Mathf.Max(0f, CoverElevation);
         _coverSettingsVersion = 2;
       }
+      if (_coverSettingsVersion < 3)
+      {
+        DefaultRequiredHits = 1;
+        _coverSettingsVersion = 3;
+      }
     }
+
+    public GameObject CoverPrefab(CellCoverType type) => type switch
+    {
+      CellCoverType.ScoreLock => LockVisualPrefab,
+      CellCoverType.BreakableBlocker => BlockerVisualPrefab,
+      _ => null
+    };
 
     public float CoverScaleFor(CellCoverType type) => type switch
     {

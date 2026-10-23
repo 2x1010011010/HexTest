@@ -9,6 +9,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     public CellState State;
     public CellCoverType CoverType;
     public int RequiredScore;
+    public int RequiredHits = 1;
 
     public HexCellData(Vector3 position, CellState state = CellState.Enabled)
     {

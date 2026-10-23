@@ -7,7 +7,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 {
   public static class HexCellContextMenu
   {
-    public static void Show(HexCellData cell, int defaultRequiredScore, Action onStateChanged)
+    public static void Show(HexCellData cell, HexGridSettings settings, Action onStateChanged)
     {
       if (cell == null)
         return;
@@ -18,12 +18,23 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       AddState(menu, "Disabled", cell, CellState.Disabled, onStateChanged);
       AddState(menu, "Spawn Point", cell, CellState.SpawnPoint, onStateChanged);
       menu.AddSeparator("");
-      AddType(menu, "Hex Type/Normal", cell, CellCoverType.Normal, defaultRequiredScore, onStateChanged);
-      AddType(menu, "Hex Type/Score Lock", cell, CellCoverType.ScoreLock, defaultRequiredScore, onStateChanged);
-      AddType(menu, "Hex Type/Breakable Blocker", cell, CellCoverType.BreakableBlocker, defaultRequiredScore, onStateChanged);
+      AddType(menu, "Hex Type/Normal", cell, CellCoverType.Normal, settings, onStateChanged);
+      AddType(menu, "Hex Type/Score Lock", cell, CellCoverType.ScoreLock, settings, onStateChanged);
+      AddType(menu, "Hex Type/Breakable Blocker", cell, CellCoverType.BreakableBlocker, settings, onStateChanged);
       if (cell.CoverType == CellCoverType.ScoreLock)
         menu.AddItem(new GUIContent($"Unlock Score... ({cell.RequiredScore})"), false,
-          () => ScorePopup.Show(cell, onStateChanged, mouse));
+          () => ValuePopup.Show("Required Score", cell.RequiredScore, 0, value =>
+          {
+            cell.RequiredScore = value;
+            onStateChanged?.Invoke();
+          }, mouse));
+      if (cell.CoverType == CellCoverType.BreakableBlocker)
+        menu.AddItem(new GUIContent($"Required Hits... ({cell.RequiredHits})"), false,
+          () => ValuePopup.Show("Required Hits", cell.RequiredHits, 1, value =>
+          {
+            cell.RequiredHits = value;
+            onStateChanged?.Invoke();
+          }, mouse));
       menu.ShowAsContext();
     }
 
@@ -39,12 +50,14 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     }
 
     private static void AddType(GenericMenu menu, string label, HexCellData cell, CellCoverType type,
-      int defaultRequiredScore, Action changed)
+      HexGridSettings settings, Action changed)
     {
       menu.AddItem(new GUIContent(label), cell.CoverType == type, () =>
       {
         if (type == CellCoverType.ScoreLock && cell.CoverType != CellCoverType.ScoreLock)
-          cell.RequiredScore = Mathf.Max(0, defaultRequiredScore);
+          cell.RequiredScore = Mathf.Max(0, settings.DefaultRequiredScore);
+        if (type == CellCoverType.BreakableBlocker && cell.CoverType != CellCoverType.BreakableBlocker)
+          cell.RequiredHits = Mathf.Max(1, settings.DefaultRequiredHits);
         cell.CoverType = type;
         if (type != CellCoverType.Normal)
           cell.State = CellState.Enabled;
@@ -52,18 +65,20 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       });
     }
 
-    private sealed class ScorePopup : EditorWindow
+    private sealed class ValuePopup : EditorWindow
     {
-      private HexCellData _cell;
-      private Action _changed;
-      private int _score;
+      private string _label;
+      private int _value;
+      private int _minimum;
+      private Action<int> _apply;
 
-      public static void Show(HexCellData cell, Action changed, Vector2 mouse)
+      public static void Show(string label, int value, int minimum, Action<int> apply, Vector2 mouse)
       {
-        var popup = CreateInstance<ScorePopup>();
-        popup._cell = cell;
-        popup._changed = changed;
-        popup._score = cell.RequiredScore;
+        var popup = CreateInstance<ValuePopup>();
+        popup._label = label;
+        popup._value = Mathf.Max(minimum, value);
+        popup._minimum = minimum;
+        popup._apply = apply;
         popup.position = new Rect(mouse, new Vector2(260, 80));
         popup.ShowPopup();
         popup.Focus();
@@ -71,16 +86,15 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       private void OnGUI()
       {
-        if (_cell == null)
+        if (_apply == null)
         {
           Close();
           return;
         }
-        _score = Mathf.Max(0, EditorGUILayout.IntField("Required Score", _score));
+        _value = Mathf.Max(_minimum, EditorGUILayout.IntField(_label, _value));
         if (GUILayout.Button("Apply"))
         {
-          _cell.RequiredScore = _score;
-          _changed?.Invoke();
+          _apply(_value);
           Close();
         }
       }

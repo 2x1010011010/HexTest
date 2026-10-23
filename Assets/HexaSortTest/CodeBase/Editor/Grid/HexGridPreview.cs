@@ -60,11 +60,11 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         _spawnedPreviewObjects.Add(go);
         _previewRenderUtility.AddSingleGO(go);
 
-        SpriteRenderer cover = HexCellCoverBuilder.Create(cell, settings, null);
+        GameObject cover = HexCellCoverBuilder.Create(cell, settings, null, true);
         if (cover != null)
         {
-          _spawnedPreviewObjects.Add(cover.gameObject);
-          _previewRenderUtility.AddSingleGO(cover.gameObject);
+          _spawnedPreviewObjects.Add(cover);
+          _previewRenderUtility.AddSingleGO(cover);
         }
       }
     }
@@ -77,11 +77,17 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         if (cell.State == CellState.Disabled || cell.CoverType == CellCoverType.Normal)
           continue;
         Vector3 viewport = _previewRenderUtility.camera.WorldToViewportPoint(cell.Position + center);
+        // A supplied lock prefab owns its TMP label. Until it exists, show an editor-only number above the lock.
+        if (cell.CoverType == CellCoverType.ScoreLock
+          && HexCellCoverBuilder.FindScoreText(settings.LockVisualPrefab, settings.LockScoreTextPath) != null)
+          continue;
         string label = cell.CoverType == CellCoverType.ScoreLock
-          ? $"LOCK: {cell.RequiredScore}" : "BLOCKER";
+          ? cell.RequiredScore.ToString() : $"HITS: {cell.RequiredHits}";
         Vector2 size = EditorStyles.helpBox.CalcSize(new GUIContent(label));
+        float halfCellPixels = settings.CellSize.y * rect.height / (4f * _previewRenderUtility.camera.orthographicSize);
         GUI.Label(new Rect(rect.x + viewport.x * rect.width - size.x / 2f,
-          rect.y + (1f - viewport.y) * rect.height, size.x, size.y), label, EditorStyles.helpBox);
+          rect.y + (1f - viewport.y) * rect.height - halfCellPixels - size.y,
+          size.x, size.y), label, EditorStyles.helpBox);
       }
     }
 
@@ -152,7 +158,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       foreach (var go in _spawnedPreviewObjects)
         foreach (var renderer in go.GetComponentsInChildren<Renderer>())
-          if (renderer.enabled)
+          if (renderer.enabled && !(renderer is ParticleSystemRenderer) && !(renderer is TrailRenderer))
             gridBounds.Encapsulate(renderer.bounds);
 
       Camera camera = _previewRenderUtility.camera;

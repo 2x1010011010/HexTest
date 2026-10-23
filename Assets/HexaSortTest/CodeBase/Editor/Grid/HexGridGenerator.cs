@@ -61,7 +61,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           cells.Add(new HexCellData(AxialToWorld(q, r, size, settings.FlatTop)));
       }
     }
-    
+
     public static Vector3 AxialToWorld(int q, int r, Vector2 size, bool flatTop)
     {
       return flatTop

@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -204,7 +205,29 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       var lockBlock = new Foldout { text = "LOCK SETTINGS", value = true };
       lockBlock.style.marginTop = 8;
       _root.Add(lockBlock);
-      AddSpriteField(lockBlock, "Sprite", _settings.LockSprite, sprite => _settings.LockSprite = sprite);
+      AddPrefabField(lockBlock, _settings.LockVisualPrefab, prefab => _settings.LockVisualPrefab = prefab);
+      var textPath = new TextField("Score Text Path") { value = _settings.LockScoreTextPath, isDelayed = true };
+      textPath.tooltip = "Optional child path to the TMP component. Empty = first TMP_Text in the prefab.";
+      textPath.RegisterValueChangedCallback(evt =>
+      {
+        _settings.LockScoreTextPath = evt.newValue;
+        RaiseSettingsChanged();
+      });
+      lockBlock.Add(textPath);
+      lockBlock.Add(new HelpBox("Use a TMP label positioned above the lock in your prefab. Font and layout belong to the prefab. UI Canvas must be World Space.", HelpBoxMessageType.Info));
+      var textWarning = new HelpBox("No TMP text found at the selected path. The editor shows a placeholder number, but exported visuals will have no score label.", HelpBoxMessageType.Warning);
+      void RefreshTextWarning()
+      {
+        textWarning.style.display = _settings.LockVisualPrefab != null
+          && HexCellCoverBuilder.FindScoreText(_settings.LockVisualPrefab, _settings.LockScoreTextPath) == null
+          ? DisplayStyle.Flex : DisplayStyle.None;
+      }
+      SettingsChanged += RefreshTextWarning;
+      RefreshTextWarning();
+      lockBlock.Add(textWarning);
+      var legacyLock = new Foldout { text = "Legacy Sprite Fallback", value = false };
+      AddSpriteField(legacyLock, "Sprite", _settings.LockSprite, sprite => _settings.LockSprite = sprite);
+      lockBlock.Add(legacyLock);
       AddCoverFloat(lockBlock, "Scale", _settings.LockScale, 0.0001f,
         value => _settings.LockScale = value,
         "Lock size relative to the cell footprint; preserves sprite aspect ratio.");
@@ -225,7 +248,20 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       var blockerBlock = new Foldout { text = "BLOCKER SETTINGS", value = true };
       blockerBlock.style.marginTop = 8;
       _root.Add(blockerBlock);
-      AddSpriteField(blockerBlock, "Sprite", _settings.BlockerSprite, sprite => _settings.BlockerSprite = sprite);
+      AddPrefabField(blockerBlock, _settings.BlockerVisualPrefab, prefab => _settings.BlockerVisualPrefab = prefab);
+      var hits = new IntegerField("Default Required Hits") { value = _settings.DefaultRequiredHits, isDelayed = true };
+      hits.tooltip = "Initial number of damage events needed for a new blocker. Set each cell through Required Hits in its menu.";
+      hits.RegisterValueChangedCallback(evt =>
+      {
+        _settings.DefaultRequiredHits = Mathf.Max(1, evt.newValue);
+        hits.SetValueWithoutNotify(_settings.DefaultRequiredHits);
+        RaiseSettingsChanged();
+      });
+      blockerBlock.Add(hits);
+      blockerBlock.Add(new HelpBox("Assign a prefab containing your stage sprites and particle effects. The editor preserves its initial state; stage switching and damage are implemented later.", HelpBoxMessageType.Info));
+      var legacyBlocker = new Foldout { text = "Legacy Sprite Fallback", value = false };
+      AddSpriteField(legacyBlocker, "Sprite", _settings.BlockerSprite, sprite => _settings.BlockerSprite = sprite);
+      blockerBlock.Add(legacyBlocker);
       AddCoverFloat(blockerBlock, "Scale", _settings.BlockerScale, 0.0001f,
         value => _settings.BlockerScale = value,
         "Blocker size relative to the cell footprint; preserves sprite aspect ratio.");
@@ -233,6 +269,36 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         value => _settings.BlockerElevation = value,
         "Blocker height above the model as a fraction of the smaller cell dimension.");
       _root.Add(new HelpBox("Choose Hex Type from a cell's context menu. Covers are level data only; unlocking and hammer behavior are not implemented.", HelpBoxMessageType.Info));
+    }
+
+    private void AddPrefabField(VisualElement parent, GameObject value, Action<GameObject> assign)
+    {
+      var field = new ObjectField("Visual Prefab") { objectType = typeof(GameObject), allowSceneObjects = false, value = value };
+      field.RegisterValueChangedCallback(evt =>
+      {
+        var prefab = evt.newValue as GameObject;
+        if (prefab != null && !PrefabUtility.IsPartOfPrefabAsset(prefab))
+        {
+          field.SetValueWithoutNotify(evt.previousValue);
+          return;
+        }
+        assign(prefab);
+        RaiseSettingsChanged();
+      });
+      parent.Add(field);
+      var canvasWarning = new HelpBox("This prefab contains a Screen Space Canvas. Use World Space for preview and exported grid visuals.", HelpBoxMessageType.Warning);
+      void RefreshCanvasWarning()
+      {
+        bool invalid = false;
+        var prefab = field.value as GameObject;
+        if (prefab != null)
+          foreach (var canvas in prefab.GetComponentsInChildren<Canvas>(true))
+            invalid |= canvas.renderMode != RenderMode.WorldSpace;
+        canvasWarning.style.display = invalid ? DisplayStyle.Flex : DisplayStyle.None;
+      }
+      SettingsChanged += RefreshCanvasWarning;
+      RefreshCanvasWarning();
+      parent.Add(canvasWarning);
     }
 
     private void AddCoverFloat(VisualElement parent, string label, float value, float minimum,

@@ -39,6 +39,8 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           _settings.HexPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         _settings.LockSprite = LoadSprite("LockSprite");
         _settings.BlockerSprite = LoadSprite("BlockerSprite");
+        _settings.LockVisualPrefab = LoadAsset("LockVisualPrefab") as GameObject;
+        _settings.BlockerVisualPrefab = LoadAsset("BlockerVisualPrefab") as GameObject;
       }
 
       _settings.EnsureCoverDefaults();
@@ -106,6 +108,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           generated[i].State = _data.Cells[i].State;
           generated[i].CoverType = _data.Cells[i].CoverType;
           generated[i].RequiredScore = _data.Cells[i].RequiredScore;
+          generated[i].RequiredHits = _data.Cells[i].RequiredHits;
         }
       _data.Clear();
       _data.Cells.AddRange(generated);
@@ -113,28 +116,32 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     }
 
     private void OnCellClicked(HexCellData cell) =>
-      HexCellContextMenu.Show(cell, _settings.DefaultRequiredScore, () => _previewContainer?.MarkDirtyRepaint());
+      HexCellContextMenu.Show(cell, _settings, () => _previewContainer?.MarkDirtyRepaint());
 
     private void SaveSettings()
     {
       EditorPrefs.SetString(SettingsKey, JsonUtility.ToJson(_settings));
       EditorPrefs.SetString(SettingsKey + ".Prefab",
         AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(_settings.HexPrefab)));
-      SaveSprite("LockSprite", _settings.LockSprite);
-      SaveSprite("BlockerSprite", _settings.BlockerSprite);
+      SaveAsset("LockSprite", _settings.LockSprite);
+      SaveAsset("BlockerSprite", _settings.BlockerSprite);
+      SaveAsset("LockVisualPrefab", _settings.LockVisualPrefab);
+      SaveAsset("BlockerVisualPrefab", _settings.BlockerVisualPrefab);
     }
 
-    private void SaveSprite(string key, Sprite sprite)
+    private void SaveAsset(string key, UnityEngine.Object sprite)
     {
       EditorPrefs.SetString(SettingsKey + "." + key,
         sprite == null ? string.Empty : GlobalObjectId.GetGlobalObjectIdSlow(sprite).ToString());
     }
 
-    private Sprite LoadSprite(string key)
+    private Sprite LoadSprite(string key) => LoadAsset(key) as Sprite;
+
+    private UnityEngine.Object LoadAsset(string key)
     {
       string id = EditorPrefs.GetString(SettingsKey + "." + key, string.Empty);
       return GlobalObjectId.TryParse(id, out GlobalObjectId globalId)
-        ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(globalId) as Sprite : null;
+        ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(globalId) : null;
     }
 
     private void SaveGrid() =>
