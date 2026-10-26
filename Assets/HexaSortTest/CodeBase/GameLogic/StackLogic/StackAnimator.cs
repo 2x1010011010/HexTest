@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -19,19 +20,31 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _curveHeight = 6f;
     [SerializeField, BoxGroup("STACK PARAMETERS")] private float _verticalShift = 0.7f;
 
-    public async UniTask DestroyTilesAsync(List<StackTile> tiles, Stack stack, CancellationToken token)
+    public async UniTask DestroyTilesAsync(List<StackTile> tiles, Stack stack, CancellationToken token, Action<float> onRemovalProgress = null)
     {
       if (tiles.Count == 0) return;
       var scales = new List<Vector3>();
       var sequence = DOTween.Sequence();
+      float removedProgress = 0f;
       for (int i = 0; i < tiles.Count; i++)
       {
         var tile = tiles[i];
         scales.Add(tile.transform.localScale);
-        sequence.Insert(i * _pauseBetween, tile.transform.DOScale(Vector3.zero, _scaleDuration)
-          .SetEase(Ease.InOutSine).OnStart(() => AudioFacade.Instance?.PlayClose()));
+        float previousProgress = 0f;
+        var shrink = tile.transform.DOScale(Vector3.zero, _scaleDuration).SetEase(Ease.InOutSine);
+        shrink.OnStart(() => AudioFacade.Instance?.PlayClose());
+        shrink.OnUpdate(() =>
+        {
+          if (token.IsCancellationRequested) return;
+          float progress = DOVirtual.EasedValue(0f, 1f, shrink.ElapsedPercentage(), Ease.InOutSine);
+          removedProgress += progress - previousProgress;
+          previousProgress = progress;
+          onRemovalProgress?.Invoke(removedProgress);
+        });
+        sequence.Insert(i * _pauseBetween, shrink);
       }
       await BoardTween.PlayAsync(sequence, token);
+      onRemovalProgress?.Invoke(tiles.Count);
       // Mutate the model only once the whole collection animation has finished.
       for (int i = 0; i < tiles.Count; i++)
       {

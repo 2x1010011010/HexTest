@@ -70,8 +70,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
         (_boosterPurchasePopup != null && _boosterPurchasePopup.IsOpen) ||
         (_settingsPanel != null && _settingsPanel.IsOpen));
       _gridObserver.ScoreChanged += DisplayScore;
+      _gridObserver.ScorePresentationChanged += RenderScore;
       _boosterTools.Initialize(_gridObserver, _stacksSpawner, _boosterInventory);
-      DisplayScore(_gridObserver.Score);
+      SetScoreImmediately(_gridObserver.Score);
     }
 
     private void OnEnable()
@@ -87,12 +88,13 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
         _boosterInventory.OnCountChanged += HandleBoosterCountChanged;
 
       Open();
+      if (_gridObserver != null) SetScoreImmediately(_gridObserver.Score);
     }
 
     private void Start()
     {
       _tilesCounterSlider.maxValue = _winCondition;
-      DisplayScore(_gridObserver != null ? _gridObserver.Score : 0);
+      SetScoreImmediately(_gridObserver != null ? _gridObserver.Score : 0);
       _winConditionText.text = ("/" +_winCondition).ToString();
       _tilesCounter.text = _tilesCount.ToString();
 
@@ -179,17 +181,30 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
         _coinsCounter.text = _currencyService.Coins.ToString();
     }
 
-    private void DisplayScore(int score)
+    // The removal sequence drives the UI directly; no independent HUD timer.
+    private void DisplayScore(int score) => SetScoreImmediately(score);
+
+    private void SetScoreImmediately(int score)
     {
       _tilesCount = score;
-      _tilesCounter.text = score.ToString();
       _tilesCounterSlider.maxValue = _winCondition;
+      RenderScore(score);
+    }
+
+    private void RenderScore(float score)
+    {
+      if (!isActiveAndEnabled) return;
+      _tilesCounter.text = Mathf.FloorToInt(score + 0.0001f).ToString();
       _tilesCounterSlider.value = Mathf.Min(score, _winCondition);
     }
 
     private void OnDestroy()
     {
-      if (_gridObserver != null) _gridObserver.ScoreChanged -= DisplayScore;
+      if (_gridObserver != null)
+      {
+        _gridObserver.ScoreChanged -= DisplayScore;
+        _gridObserver.ScorePresentationChanged -= RenderScore;
+      }
       if (Instance == this) Instance = null;
     }
 

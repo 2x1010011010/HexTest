@@ -38,6 +38,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     public bool CanChooseBooster => !InputBlocked && (State == BoardState.Idle || State == BoardState.SelectingBooster);
     public BoardRotationController Rotation { get; private set; }
     public BoosterTools Boosters { get; private set; }
+    public event Action<float> ScorePresentationChanged;
+    public void PresentRemovalProgress(float removed) => ScorePresentationChanged?.Invoke(Score + removed);
+
     public event Action<int> ScoreChanged { add => _session.ScoreChanged += value; remove => _session.ScoreChanged -= value; }
 
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
@@ -67,7 +70,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var input = GetComponent<BoardInputController>();
         if (input == null) input = gameObject.AddComponent<BoardInputController>();
         input.Initialize(this, Rotation);
-        _merges = new StackMergeProcessor(_grid, _neighbors, OnCollectedAsync);
+        _merges = new StackMergeProcessor(_grid, _neighbors, OnCollectedAsync, PresentRemovalProgress);
         _session.TryTransition(BoardState.Initializing, BoardState.Settling);
         ResolveAsync().Forget();
       }

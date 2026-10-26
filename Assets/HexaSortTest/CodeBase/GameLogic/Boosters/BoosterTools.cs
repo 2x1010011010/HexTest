@@ -57,7 +57,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Boosters
         var cell = stack.Cell;
         _board.ExecuteBoosterAsync(async token =>
         {
-          int removed = await stack.RemoveAllAsync(token);
+          int removed = await stack.RemoveAllAsync(token, _board.PresentRemovalProgress);
           if (removed <= 0) throw new InvalidOperationException("The selected stack is empty.");
           Spend(BoosterType.Hammer);
           ClearSelection();

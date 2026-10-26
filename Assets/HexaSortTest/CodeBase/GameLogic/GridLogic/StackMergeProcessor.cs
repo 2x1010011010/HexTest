@@ -12,15 +12,17 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
   public sealed class StackMergeProcessor
   {
     private readonly HexGrid _grid;
+    private readonly Action<float> _removalProgress;
     private readonly Dictionary<Cell, List<Cell>> _neighbors;
     private readonly Func<Cell, int, CancellationToken, UniTask> _collected;
 
     public StackMergeProcessor(HexGrid grid, Dictionary<Cell, List<Cell>> neighbors,
-      Func<Cell, int, CancellationToken, UniTask> collected)
+      Func<Cell, int, CancellationToken, UniTask> collected, Action<float> removalProgress = null)
     {
       _grid = grid;
       _neighbors = neighbors;
       _collected = collected;
+      _removalProgress = removalProgress;
     }
 
     public async UniTask SettleAsync(CancellationToken token)
@@ -36,7 +38,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           token.ThrowIfCancellationRequested();
           var stack = GetStack(cell);
           if (stack == null) continue;
-          int removed = await stack.CollectTopAsync(token);
+          int removed = await stack.CollectTopAsync(token, _removalProgress);
           if (removed == 0) continue;
           collected = true;
           await _collected(cell, removed, token);

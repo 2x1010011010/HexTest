@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -48,7 +49,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public void SetActive(bool value) { foreach (var tile in Cells) tile.SetActive(value); }
     public Color GetLastCellColor() => _stack.Count == 0 ? Color.clear : _stack[_stack.Count - 1].GetComponent<StackTile>().Color;
 
-    public async UniTask<int> CollectTopAsync(CancellationToken token)
+    public async UniTask<int> CollectTopAsync(CancellationToken token, Action<float> onRemovalProgress = null)
     {
       if (_stack.Count < _colorTreshold) return 0;
       var color = GetLastCellColor();
@@ -60,16 +61,16 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         group.Add(tile);
       }
       if (group.Count < _colorTreshold) return 0;
-      await _stackAnimator.DestroyTilesAsync(group, this, token);
+      await _stackAnimator.DestroyTilesAsync(group, this, token, onRemovalProgress);
       DestroyIfEmpty();
       return group.Count;
     }
 
-    public async UniTask<int> RemoveAllAsync(CancellationToken token)
+    public async UniTask<int> RemoveAllAsync(CancellationToken token, Action<float> onRemovalProgress = null)
     {
       var tiles = Cells;
       tiles.Reverse();
-      await _stackAnimator.DestroyTilesAsync(tiles, this, token);
+      await _stackAnimator.DestroyTilesAsync(tiles, this, token, onRemovalProgress);
       DestroyIfEmpty();
       return tiles.Count;
     }
