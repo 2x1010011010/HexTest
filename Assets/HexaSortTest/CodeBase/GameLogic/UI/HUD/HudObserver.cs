@@ -45,11 +45,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     private BoosterPurchasePopup _boosterPurchasePopup;
     private int _winCondition;
     private int _tilesCount;
-    private int _tilesCounterSliderFill = 0;
+    private SettingsPanel _settingsPanel;
 
     private void Awake()
     {
-      if (Instance != null) Destroy(gameObject);
+      if (Instance != null && Instance != this) { Destroy(gameObject); return; }
       Instance = this;
 
       _tilesCount = 0;
@@ -64,7 +64,14 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _stacksSpawner = stacksSpawner;
       _gridObserver = gridObserver;
       _boosterPurchasePopup = boosterPurchasePopup;
-      _boosterTools.SetSpawner(_stacksSpawner);
+      _settingsPanel = GetComponentInChildren<SettingsPanel>(true);
+      if (_settingsPanel != null) _settingsPanel.gameObject.SetActive(true);
+      _gridObserver.Configure(_winCondition, () =>
+        (_boosterPurchasePopup != null && _boosterPurchasePopup.IsOpen) ||
+        (_settingsPanel != null && _settingsPanel.IsOpen));
+      _gridObserver.ScoreChanged += DisplayScore;
+      _boosterTools.Initialize(_gridObserver, _stacksSpawner, _boosterInventory);
+      DisplayScore(_gridObserver.Score);
     }
 
     private void OnEnable()
@@ -85,7 +92,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     private void Start()
     {
       _tilesCounterSlider.maxValue = _winCondition;
-      _tilesCounterSliderFill = 0;
+      DisplayScore(_gridObserver != null ? _gridObserver.Score : 0);
       _winConditionText.text = ("/" +_winCondition).ToString();
       _tilesCounter.text = _tilesCount.ToString();
 
@@ -121,12 +128,14 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
         return;
       }
 
-      if (_boosterInventory.TrySpend(type))
+      if (_gridObserver == null || !_gridObserver.CanChooseBooster) return;
+      if (_boosterInventory.GetCount(type) > 0)
       {
         _boosterTools.ActivateBooster(booster);
         return;
       }
 
+      _gridObserver.CancelInteraction();
       if (_boosterPurchasePopup != null)
         _boosterPurchasePopup.ShowFor(type);
       else
@@ -170,35 +179,18 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
         _coinsCounter.text = _currencyService.Coins.ToString();
     }
 
-    public void AddTiles(int value)
+    private void DisplayScore(int score)
     {
-      OnTilesCounterChanged(value);
+      _tilesCount = score;
+      _tilesCounter.text = score.ToString();
+      _tilesCounterSlider.maxValue = _winCondition;
+      _tilesCounterSlider.value = Mathf.Min(score, _winCondition);
     }
 
-    private void OnTilesCounterChanged(int value)
+    private void OnDestroy()
     {
-      _tilesCount += value;
-      _gridObserver?.UpdateScore(_tilesCount);
-      _tilesCounter.text = _tilesCount.ToString();
-      _tilesCounterSliderFill += value;
-
-      Debug.Log($"[HudObserver] tilesCounterSliderFill={_tilesCounterSliderFill}, maxValue={_tilesCounterSlider.maxValue}, gridObserverSet={(_gridObserver != null)}");
-
-      if (_tilesCounterSliderFill >= _tilesCounterSlider.maxValue)
-      {
-        _tilesCounterSliderFill = 0;
-
-        Debug.Log("[HudObserver] Win condition reached, triggering victory.");
-
-        if (_gridObserver != null)
-          _gridObserver.TriggerVictory();
-        else if (_mainMenu != null)
-          _mainMenu.Open();
-        else
-          Debug.LogError("[HudObserver] Win condition reached but neither GridObserver nor MainMenu is set!");
-      }
-
-      _tilesCounterSlider.value = _tilesCounterSliderFill;
+      if (_gridObserver != null) _gridObserver.ScoreChanged -= DisplayScore;
+      if (Instance == this) Instance = null;
     }
 
     private void GetRandomBooster()

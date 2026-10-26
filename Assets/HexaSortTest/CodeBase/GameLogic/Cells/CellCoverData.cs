@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using HexaSortTest.CodeBase.Infrastructure.Logging;
@@ -45,7 +46,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       }
     }
 
-    public void UpdateScore(int score)
+    public async UniTask UpdateScoreAsync(int score, CancellationToken token)
     {
       if (_type != CellCoverType.ScoreLock || _unlocked || IsUnlocking)
         return;
@@ -53,10 +54,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       if (_locker != null)
         _locker.SetRemainingScore(remaining);
       if (remaining == 0)
-        UnlockAsync(_locker != null ? _locker.UnlockParticles : null).Forget();
+        await UnlockAsync(_locker != null ? _locker.UnlockParticles : null, token);
     }
 
-    public async UniTask HitAsync()
+    public async UniTask HitAsync(CancellationToken token)
     {
       if (_type != CellCoverType.BreakableBlocker || _unlocked || IsUnlocking)
         return;
@@ -65,15 +66,15 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
         _blocker.SetRemainingHits(_remainingHits);
       ParticleSystem particles = _blocker != null ? _blocker.HitParticles : null;
       if (_remainingHits == 0)
-        await UnlockAsync(particles);
+        await UnlockAsync(particles, token);
       else
-        await PlayParticlesAsync(particles);
+        await PlayParticlesAsync(particles, token);
     }
 
-    private async UniTask UnlockAsync(ParticleSystem particles)
+    private async UniTask UnlockAsync(ParticleSystem particles, CancellationToken token)
     {
       IsUnlocking = true;
-      await PlayParticlesAsync(particles);
+      await PlayParticlesAsync(particles, token);
       if (this == null)
         return;
       _unlocked = true;
@@ -87,7 +88,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
 #endif
     }
 
-    private async UniTask PlayParticlesAsync(ParticleSystem particles)
+    private async UniTask PlayParticlesAsync(ParticleSystem particles, CancellationToken token)
     {
       if (particles == null)
         return;
@@ -101,7 +102,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       }
       particles.Play(true);
       await UniTask.WaitUntil(() => particles == null || !particles.IsAlive(true),
-        cancellationToken: this.GetCancellationTokenOnDestroy());
+        cancellationToken: token);
     }
 
     private void SetCellLayer(int layer)

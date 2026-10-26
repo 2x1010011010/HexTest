@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -13,141 +13,61 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
   {
     [SerializeField, BoxGroup("DESTROY ANIMATION")] private float _scaleDuration = 0.2f;
     [SerializeField, BoxGroup("DESTROY ANIMATION")] private float _pauseBetween = 0.2f;
-
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _movePauseBetween = 0.2f;
     [SerializeField, BoxGroup("MOVE ANIMATION")] private float _moveDuration = 0.4f;
-
-    [Range(0.1f,1f)] 
-    [SerializeField, BoxGroup("MOVE ANIMATION")] private float _durationCent = 0.9f;
-    [SerializeField, BoxGroup("MOVE ANIMATION")]private float _curveHeight = 6f;
-
+    [SerializeField, Range(0.1f, 1f), BoxGroup("MOVE ANIMATION")] private float _durationCent = 0.9f;
+    [SerializeField, BoxGroup("MOVE ANIMATION")] private float _curveHeight = 6f;
     [SerializeField, BoxGroup("STACK PARAMETERS")] private float _verticalShift = 0.7f;
 
-    public async Task DestroyTilesAnimation(List<StackTile> tiles, Stack stack, int tilesCount)
+    public async UniTask DestroyTilesAsync(List<StackTile> tiles, Stack stack, CancellationToken token)
     {
-      if (tiles == null || tiles.Count == 0)
-        return;
-
-      int remaining = 0;
-      foreach (var t in tiles)
-        if (t != null)
-          remaining++;
-
-      if (remaining == 0)
-        return;
-
-      var tcs = new TaskCompletionSource<bool>();
-      float delay = 0f;
-
-      foreach (var cell in tiles)
+      if (tiles.Count == 0) return;
+      var scales = new List<Vector3>();
+      var sequence = DOTween.Sequence();
+      for (int i = 0; i < tiles.Count; i++)
       {
-        if (cell == null)
-        {
-          remaining--;
-          if (remaining == 0)
-            tcs.TrySetResult(true);
-          continue;
-        }
-
-        stack.Remove(cell.gameObject);
-
-        var baseScale = cell.transform.localScale;
-        cell.transform.DOScale(Vector3.zero, _scaleDuration)
-          .SetDelay(delay)
-          .SetEase(Ease.InOutSine)
-          .OnStart(() =>
-          {
-            AudioFacade.Instance.PlayClose();
-            HudObserver.Instance.AddTiles(tilesCount);
-          })
-          .OnComplete(() =>
-          {
-            cell.SetActive(false);
-            cell.transform.localScale = baseScale;
-            cell.transform.position = Vector3.zero;
-            cell.Color = Color.white;
-            stack.PoolInstance?.ReturnObject(cell);
-
-            remaining--;
-            if (remaining == 0)
-              tcs.TrySetResult(true);
-          });
-
-        delay += _pauseBetween;
+        var tile = tiles[i];
+        scales.Add(tile.transform.localScale);
+        sequence.Insert(i * _pauseBetween, tile.transform.DOScale(Vector3.zero, _scaleDuration)
+          .SetEase(Ease.InOutSine).OnStart(() => AudioFacade.Instance?.PlayClose()));
       }
-
-      await tcs.Task;
+      await BoardTween.PlayAsync(sequence, token);
+      // Mutate the model only once the whole collection animation has finished.
+      for (int i = 0; i < tiles.Count; i++)
+      {
+        var tile = tiles[i];
+        stack.Remove(tile.gameObject);
+        tile.transform.localScale = scales[i];
+        tile.Color = Color.white;
+        if (stack.PoolInstance != null) stack.PoolInstance.ReturnObject(tile);
+        else Destroy(tile.gameObject);
+      }
     }
 
-    public UniTask MoveStackTilesAnimation(Stack targetStack, List<GameObject> movedTiles, Vector3 moveDirection)
+    public async UniTask MoveStackTilesAsync(Stack target, List<GameObject> movedTiles, Vector3 direction, CancellationToken token)
     {
-      var uts = new UniTaskCompletionSource();
-
-      if (targetStack == null || movedTiles == null || movedTiles.Count == 0)
-      {
-        uts.TrySetResult();
-        return uts.Task;
-      }
-
-      float delay = 0f;
-      int completed = 0;
-      int total = movedTiles.Count;
-
-      for (int i = movedTiles.Count - 1; i >= 0; i--)
+      if (movedTiles.Count == 0) return;
+      var sequence = DOTween.Sequence();
+      Quaternion restRotation = target.transform.rotation * Quaternion.Euler(0f, 90f, 0f);
+      Vector3 flipAxis = Vector3.Cross(-Vector3.up, direction).normalized;
+      if (flipAxis.sqrMagnitude < 0.001f) flipAxis = Vector3.right;
+      for (int i = 0; i < movedTiles.Count; i++)
       {
         var go = movedTiles[i];
-        if (go == null)
-        {
-          completed++;
-          if (completed >= total)
-            uts.TrySetResult();
-          continue;
-        }
-
         var tile = go.GetComponent<StackTile>();
-
-        tile.SetParent(targetStack.transform);
-        targetStack.Add(tile.gameObject);
-
-        Vector3 targetPosition = targetStack.transform.position +
-                                 Vector3.up * (_verticalShift * targetStack.Tiles.IndexOf(go));
-
-        Vector3 startPosition = go.transform.position;
-        Vector3 aboveOldStack = startPosition + Vector3.up * _curveHeight;
-        Vector3 aboveNewStack = targetPosition + Vector3.up * _curveHeight;
-        Vector3[] path = new Vector3[]
-        {
-          targetPosition,
-          aboveOldStack,
-          aboveNewStack
-        };
-
-
-        Quaternion prefabRotation = Quaternion.Euler(0f, 90f, 0f);
-        Vector3 flipAxis = Vector3.Cross(-Vector3.up, moveDirection).normalized;
-        Quaternion targetRotation = Quaternion.AngleAxis(180f, flipAxis) * prefabRotation;
-
-        go.transform.DOPath(path, _moveDuration, PathType.CubicBezier)
-          .SetDelay(delay)
-          .SetEase(Ease.InOutSine);
-
-        go.transform.DOLocalRotateQuaternion(targetRotation, _moveDuration * _durationCent)
-          .SetDelay(delay)
-          .SetEase(Ease.InOutSine)
-          .OnComplete(() =>
-          {
-            AudioFacade.Instance.PlaySort();
-            go.transform.rotation = prefabRotation;
-
-            completed++;
-            if (completed >= total)
-              uts.TrySetResult();
-          });
-
-        delay += _movePauseBetween;
+        tile.SetParent(target.transform);
+        target.Add(go);
+        var destination = target.transform.position + Vector3.up * (_verticalShift * (target.Tiles.Count - 1));
+        var path = new[] { destination, go.transform.position + Vector3.up * _curveHeight, destination + Vector3.up * _curveHeight };
+        float delay = i * _movePauseBetween;
+        sequence.Insert(delay, go.transform.DOPath(path, _moveDuration, PathType.CubicBezier).SetEase(Ease.InOutSine));
+        sequence.Insert(delay, go.transform.DORotateQuaternion(Quaternion.AngleAxis(180f, flipAxis) * restRotation,
+          _moveDuration * _durationCent).SetEase(Ease.InOutSine));
       }
-
-      return uts.Task;
+      // A sequence waits for BOTH translation and rotation, including the last delayed tile.
+      await BoardTween.PlayAsync(sequence, token);
+      foreach (var go in movedTiles) go.transform.rotation = restRotation;
+      AudioFacade.Instance?.PlaySort();
     }
   }
 }

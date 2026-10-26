@@ -1,155 +1,88 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using UnityEngine;
 using HexaSortTest.CodeBase.GameLogic.Cells;
-using HexaSortTest.CodeBase.GameLogic.SoundLogic;
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 {
   public class Stack : MonoBehaviour
   {
     [SerializeField, BoxGroup("STACK SETUP")] private List<GameObject> _stack = new();
-    [SerializeField, BoxGroup("STACK SETUP")] private int _colorTreshold = 10;
-
-    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _pauseBetween = 0.05f;
-    [SerializeField, BoxGroup("ANIMATION SETTINGS")] private float _scaleDuration = 0.2f;
-
+    [SerializeField, Min(1), BoxGroup("STACK SETUP")] private int _colorTreshold = 10;
     private Transform _parent;
     private Transform _defaultParent;
     private ObjectPool<StackTile> _poolInstance;
     private Cell _parentCell;
     private bool _isDragged;
     private StackAnimator _stackAnimator;
-
-
     public List<GameObject> Tiles => _stack;
-    public List<StackTile> Cells => _stack.Select(go => go.GetComponent<StackTile>()).ToList();
+    public List<StackTile> Cells => _stack.Where(go => go != null).Select(go => go.GetComponent<StackTile>()).ToList();
     public Transform Parent => _parent;
     public Transform DefaultParent => _defaultParent;
     public Cell Cell => _parentCell;
     public bool IsDragged => _isDragged;
     public ObjectPool<StackTile> PoolInstance => _poolInstance;
 
-    public void Initialize(ObjectPool<StackTile> poolInstance)
+    public void Initialize(ObjectPool<StackTile> pool)
     {
-      _poolInstance = poolInstance;
+      _poolInstance = pool;
       _stackAnimator = GetComponent<StackAnimator>();
     }
 
     public void SetParentCell(Transform parent)
     {
       _parent = parent;
-      transform.SetParent(parent);
-
-      if (_defaultParent == null)
-        _defaultParent = parent;
-
-      _parentCell = parent.GetComponent<Cell>();
+      transform.SetParent(parent, true);
+      if (_defaultParent == null) _defaultParent = parent;
+      _parentCell = parent != null ? parent.GetComponent<Cell>() : null;
     }
-
-    public void ResetParent()
-    {
-      if (_defaultParent != null)
-        SetParentCell(_defaultParent);
-    }
-
-    public void Add(GameObject cell)
-    {
-      if (cell == null) return;
-      _stack.Add(cell);
-    }
-
-    public void Remove(GameObject cell)
-    {
-      if (cell == null) return;
-      _stack.Remove(cell);
-    }
-
-    public void SetActive(bool active)
-    {
-      foreach (var go in _stack)
-        if (go != null)
-          go.SetActive(active);
-    }
-
-    public void SetDragged(bool dragged) =>
-      _isDragged = dragged;
-
-    public Color GetLastCellColor()
-    {
-      if (_stack.Count == 0)
-        return Color.clear;
-
-      var lastCell = Cells.Last();
-      return lastCell != null ? lastCell.Color : Color.clear;
-    }
-
+    public void ResetParent() { if (_defaultParent != null) SetParentCell(_defaultParent); }
+    public void Add(GameObject tile) { if (tile != null) _stack.Add(tile); }
+    public void Remove(GameObject tile) => _stack.Remove(tile);
     public void Clear() => _stack.Clear();
+    public void SetDragged(bool value) => _isDragged = value;
+    public void SetActive(bool value) { foreach (var tile in Cells) tile.SetActive(value); }
+    public Color GetLastCellColor() => _stack.Count == 0 ? Color.clear : _stack[_stack.Count - 1].GetComponent<StackTile>().Color;
 
-    public async Task CheckForColorThreshold()
+    public async UniTask<int> CollectTopAsync(CancellationToken token)
     {
-      if (_stack.Count < _colorTreshold)
-      {
-        CheckForEmptyStack();
-        return;
-      }
-
-      List<StackTile> colorGroups = new();
-      Color color = GetLastCellColor();
-
+      if (_stack.Count < _colorTreshold) return 0;
+      var color = GetLastCellColor();
+      var group = new List<StackTile>();
       for (int i = _stack.Count - 1; i >= 0; i--)
       {
-        if (Cells[i].Color != color) break;
-        colorGroups.Add(Cells[i]);
+        var tile = _stack[i].GetComponent<StackTile>();
+        if (tile.Color != color) break;
+        group.Add(tile);
       }
-
-      if (colorGroups.Count < _colorTreshold)
-      {
-        CheckForEmptyStack();
-        return;
-      }
-
-      Debug.Log($"Removed {colorGroups.Count} tiles of color {color}");
-      await _stackAnimator.DestroyTilesAnimation(colorGroups, this, 1);
-      CheckForEmptyStack();
+      if (group.Count < _colorTreshold) return 0;
+      await _stackAnimator.DestroyTilesAsync(group, this, token);
+      DestroyIfEmpty();
+      return group.Count;
     }
 
-    private void CheckForEmptyStack()
+    public async UniTask<int> RemoveAllAsync(CancellationToken token)
     {
-      if (_stack.Count == 0)
-      {
-        var parent = _parentCell;
-        parent?.ShineOff();
-        parent?.SetEmpty(true);
-        Clear();
-        Destroy(gameObject);
-      }
+      var tiles = Cells;
+      tiles.Reverse();
+      await _stackAnimator.DestroyTilesAsync(tiles, this, token);
+      DestroyIfEmpty();
+      return tiles.Count;
     }
 
-    public async Task BreakStackByHammer(int tilesAddToCounter = 1)
+    public UniTask AnimateMoveToStack(List<GameObject> tiles, Vector3 direction, CancellationToken token) =>
+      _stackAnimator.MoveStackTilesAsync(this, tiles, direction, token);
+
+    public void DestroyIfEmpty()
     {
-      if (_stack.Count == 0)
-      {
-        CheckForEmptyStack();
-        return;
-      }
-
-      var tiles = Cells.Where(c => c != null).Reverse().ToList();
-
-      await _stackAnimator.DestroyTilesAnimation(tiles, this, tilesAddToCounter);
-
-      CheckForEmptyStack();
-    }
-
-    public UniTask AnimateMoveToStack(List<GameObject> incomingTiles, Vector3 moveDirection)
-    {
-      return _stackAnimator.MoveStackTilesAnimation(this, incomingTiles, moveDirection);
+      if (_stack.Count != 0) return;
+      _parentCell?.SetEmpty(true);
+      _parentCell?.ShineOff();
+      Destroy(gameObject);
     }
   }
 }

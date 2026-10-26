@@ -8,6 +8,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
   {
     private GameObject _grid;
     private MainMenuObserver _mainMenu;
+    private GameObject _spawned;
     
     public void Initialize(GameObject grid) => 
       _grid = grid;
@@ -16,13 +17,14 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
     {
       if (_grid == null) return null;
       
-      var spawned = Instantiate(_grid, Vector3.zero, Quaternion.identity);
+      var spawned = Instantiate(_grid, Vector3.zero, Quaternion.identity, transform);
+      _spawned = spawned;
       spawned.GetComponent<GridObserver>().SetMainMenu(_mainMenu);
       return spawned;
     }
 
     public void Clear() => 
-      DestroyImmediate(_grid, true);
+      Destroy(_spawned);
 
     public void SetMainMenu(MainMenuObserver mainMenu) => 
       _mainMenu = mainMenu;

@@ -1,253 +1,262 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using HexaSortTest.CodeBase.GameLogic.Boosters;
 using HexaSortTest.CodeBase.GameLogic.Cells;
-using Sirenix.OdinInspector;
-using UnityEngine;
+using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
-using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States;
-using Cysharp.Threading.Tasks;
-using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures;
+using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
   public class GridObserver : MonoBehaviour
   {
     [SerializeField, BoxGroup("SETUP")] private HexGrid _grid;
-
     private readonly Dictionary<Cell, List<Cell>> _neighbors = new();
-    private readonly HashSet<Stack> _stacksOnGrid = new();
-    private UIWindow _mainMenu;
-
+    private readonly BoardSession _session = new();
+    private readonly CancellationTokenSource _lifetime = new();
+    private CancellationToken _token;
+    private void Awake() => _token = _lifetime.Token;
+    private MainMenuObserver _mainMenu;
     private GameStateMachine _gameStateMachine;
-    private bool _resultAlreadyTriggered;
-    private int _currentScore;
-
-    private StackMergeProcessor _mergeProcessor;
-    private bool _isSettling;
+    private StackMergeProcessor _merges;
+    private StacksSpawner _spawner;
+    private StackMover _drag;
+    private Func<bool> _inputBlocked;
+    private int _gridMask;
+    public BoardState State => _session.State;
+    public int Score => _session.Score;
+    public bool InputBlocked => (_mainMenu != null && _mainMenu.IsOpen) || (_inputBlocked?.Invoke() ?? false);
+    public bool CanChooseBooster => !InputBlocked && (State == BoardState.Idle || State == BoardState.SelectingBooster);
+    public BoardRotationController Rotation { get; private set; }
+    public BoosterTools Boosters { get; private set; }
+    public event Action<int> ScoreChanged { add => _session.ScoreChanged += value; remove => _session.ScoreChanged -= value; }
 
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
     public void Init(HexGrid grid) => _grid = grid;
-
-    public void SetGameResultHandler(GameStateMachine gameStateMachine)
+    public void SetGameResultHandler(GameStateMachine stateMachine) => _gameStateMachine = stateMachine;
+    public void Configure(int goal, Func<bool> inputBlocked)
     {
-      _gameStateMachine = gameStateMachine;
-#if UNITY_EDITOR
-      GameLogger.Message($"[GridObserver] SetGameResultHandler called on {gameObject.name} (instance {GetInstanceID()}). " +
-                $"gameStateMachine={(_gameStateMachine != null)}");
-#endif
+      _session.ConfigureGoal(goal);
+      _inputBlocked = inputBlocked;
     }
+    public void AttachBoosters(BoosterTools tools, StacksSpawner spawner) { Boosters = tools; _spawner = spawner; }
 
     private void Start()
     {
-      if (_grid == null)
+      try
       {
-#if UNITY_EDITOR
-        GameLogger.Error("Grid not set on GridObserver!");
-#endif
-        return;
+        if (_grid == null) _grid = GetComponent<HexGrid>();
+        if (_grid == null || _grid.Cells == null || _grid.Cells.Count == 0)
+          throw new InvalidOperationException("The level has no grid cells.");
+        int layer = LayerMask.NameToLayer("Grid");
+        if (layer < 0) throw new InvalidOperationException("The Grid layer is missing.");
+        _gridMask = 1 << layer;
+        float spacing = BuildNeighbors();
+        Rotation = GetComponent<BoardRotationController>();
+        if (Rotation == null) Rotation = gameObject.AddComponent<BoardRotationController>();
+        Rotation.Initialize(_grid, spacing);
+        var input = GetComponent<BoardInputController>();
+        if (input == null) input = gameObject.AddComponent<BoardInputController>();
+        input.Initialize(this, Rotation);
+        _merges = new StackMergeProcessor(_grid, _neighbors, OnCollectedAsync);
+        _session.TryTransition(BoardState.Initializing, BoardState.Settling);
+        ResolveAsync().Forget();
       }
+      catch (Exception error) { HandleFailure(error); }
+    }
 
+    private float BuildNeighbors()
+    {
+      // Topology is built once from cell centers, independent of colliders and subsequent rotation.
+      float spacing = float.PositiveInfinity;
+      foreach (var a in _grid.Cells)
+        foreach (var b in _grid.Cells)
+          if (a != b)
+          {
+            float distance = Vector3.Distance(a.transform.position, b.transform.position);
+            if (distance > 0.001f) spacing = Mathf.Min(spacing, distance);
+          }
+      if (float.IsPositiveInfinity(spacing)) spacing = 5f;
       foreach (var cell in _grid.Cells)
-        _neighbors[cell] = GetNeighbors(cell);
-
-      _mergeProcessor = new StackMergeProcessor(_grid, _neighbors, OnStackRemoved);
-
-      UpdateScore(_currentScore);
-      ScanAndRegisterStacks();
-
-      InitialSettleAsync().Forget();
+        _neighbors[cell] = _grid.Cells.Where(other => other != cell &&
+          Vector3.Distance(cell.transform.position, other.transform.position) <= spacing * 1.1f).ToList();
+      return spacing;
     }
 
-    private async UniTaskVoid InitialSettleAsync()
+    public bool IsTrayStack(Stack stack) => _spawner != null && _spawner.IsTrayStack(stack);
+    public bool IsPlacedStack(Stack stack) => stack != null && stack.Cell != null &&
+      _grid.Cells.Contains(stack.Cell) && StackMergeProcessor.GetStack(stack.Cell) == stack;
+
+    public bool TryBeginDrag(Stack stack, Vector2 screen, Camera camera, bool hand)
     {
-      await SettleGridAsync();
-      await CheckForLoseConditionAsync();
-    }
-
-    private async UniTaskVoid Update()
-    {
-      if (_isSettling)
-        return;
-
-      if (Input.GetMouseButtonUp(0))
-      {
-        if (RescanForNewStacks(out _))
-        {
-          await SettleGridAsync();
-          await CheckForLoseConditionAsync();
-        }
-      }
-    }
-
-    private void ScanAndRegisterStacks()
-    {
-      _stacksOnGrid.Clear();
-
-      foreach (var cell in _grid.Cells)
-      {
-        var stack = cell.GetComponentInChildren<Stack>();
-        if (stack != null && !stack.IsDragged)
-          _stacksOnGrid.Add(stack);
-      }
-    }
-
-    private bool RescanForNewStacks(out Cell newCell)
-    {
-      foreach (var cell in _grid.Cells)
-      {
-        var stack = cell.GetComponentInChildren<Stack>();
-        if (stack == null || stack.IsDestroyed() || stack.IsDragged)
-          continue;
-
-        if (_stacksOnGrid.Contains(stack))
-          continue;
-
-        _stacksOnGrid.Add(stack);
-        newCell = cell;
-        return true;
-      }
-
-      newCell = null;
+      if (InputBlocked || (hand ? !IsPlacedStack(stack) : !IsTrayStack(stack))) return false;
+      var expected = hand ? BoardState.SelectingBooster : BoardState.Idle;
+      if (!_session.TryTransition(expected, BoardState.DraggingStack)) return false;
+      _drag = stack.GetComponent<StackMover>();
+      if (_drag != null && _drag.BeginDrag(this, camera, screen, hand)) return true;
+      CancelInteraction();
       return false;
     }
 
-    private async UniTask SettleGridAsync()
+    public void FollowDrag(Vector2 screen, Camera camera) { if (State == BoardState.DraggingStack) _drag?.Follow(camera, screen); }
+    public void ReleaseDrag(bool overUI)
     {
-      if (_isSettling)
-        return;
+      if (State != BoardState.DraggingStack) return;
+      if (overUI || _drag == null || _drag.HoverCell == null) { CancelInteraction(); return; }
+      var cell = _drag.HoverCell;
+      if (_session.TryTransition(BoardState.DraggingStack, BoardState.DroppingStack)) DropAsync(cell).Forget();
+    }
 
-      _isSettling = true;
+    private async UniTask DropAsync(Cell cell)
+    {
       try
       {
-        await _mergeProcessor.SettleAsync();
-        await UniTask.WaitUntil(() => !_grid.Cells.Any(c =>
-          c != null && c.TryGetComponent<CellCoverData>(out var cover) && cover.IsUnlocking),
-          cancellationToken: this.GetCancellationTokenOnDestroy());
+        await _drag.MoveToCellAsync(cell, _token);
+        if (_drag.IsHandDrag && (Boosters == null || !Boosters.TrySpendHand()))
+        {
+          _drag.Cancel();
+          _drag = null;
+          Boosters?.ClearSelection();
+          _session.TryTransition(BoardState.DroppingStack, BoardState.Idle);
+          return;
+        }
+        _drag.Commit(cell);
+        _drag = null;
+        Boosters?.ClearSelection();
+        _session.TryTransition(BoardState.DroppingStack, BoardState.Settling);
+        await ResolveAsync();
       }
-      finally
-      {
-        _isSettling = false;
-      }
+      catch (Exception error) { HandleFailure(error); }
     }
 
-    public void UpdateScore(int score)
+    public Cell FindPlacementCell(Vector3 point)
     {
-      _currentScore = score;
-      if (_grid == null)
-        return;
-      foreach (var cell in _grid.Cells)
-        if (cell != null && cell.TryGetComponent<CellCoverData>(out var cover))
-          cover.UpdateScore(score);
+      if (!Physics.Raycast(new Vector3(point.x, Rotation.Center.y + 100f, point.z), Vector3.down,
+            out var hit, 200f, _gridMask, QueryTriggerInteraction.Collide)) return null;
+      var cell = hit.collider.GetComponentInParent<Cell>();
+      if (cell == null || !_grid.Cells.Contains(cell) || !cell.IsEmpty) return null;
+      if (cell.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked) return null;
+      return cell;
     }
 
-    private void OnStackRemoved(Stack stack) =>
-      _stacksOnGrid.Remove(stack);
-
-    private List<Cell> GetNeighbors(Cell cell)
+    public float GetDragHeight()
     {
-      if (cell == null)
-        return new List<Cell>();
-
-      var hits = Physics.OverlapSphere(cell.transform.position, 5f, ~0, QueryTriggerInteraction.Collide);
-
-      return hits
-        .Select(h => h.GetComponentInParent<Cell>())
-        .Where(c => c != null && c != cell && _grid.Cells.Contains(c))
-        .Distinct()
-        .ToList();
-    }
-
-    private async UniTask CheckForLoseConditionAsync()
-    {
-      if (_resultAlreadyTriggered)
-        return;
-
-      bool allFilled = _grid.Cells.All(c => !c.IsEmpty ||
-        (c.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked));
-
-      if (!allFilled)
-        return;
-
+      float height = Rotation.Center.y + 2.5f;
       foreach (var cell in _grid.Cells)
       {
-        var stack = cell.GetComponentInChildren<Stack>();
-        if (stack == null)
-          continue;
-
-        Color color;
-
-        try
-        {
-          color = stack.GetLastCellColor();
-        }
-        catch
-        {
-          continue;
-        }
-
-        foreach (var neighbor in _neighbors[cell])
-        {
-          var neighborStack = neighbor.GetComponentInChildren<Stack>();
-          if (neighborStack == null)
-            continue;
-
-          if (neighborStack.GetLastCellColor() == color)
-            return;
-        }
+        var stack = StackMergeProcessor.GetStack(cell);
+        if (stack == null) continue;
+        foreach (var renderer in stack.GetComponentsInChildren<Renderer>())
+          height = Mathf.Max(height, renderer.bounds.max.y + 1f);
       }
-
-      TriggerDefeat();
+      return height;
     }
 
-    public void TriggerVictory()
+    public bool TryBeginRotation(Vector3 point)
     {
-#if UNITY_EDITOR
-      GameLogger.Message($"[GridObserver] TriggerVictory called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
-#endif
-
-      if (_resultAlreadyTriggered)
-        return;
-
-      _resultAlreadyTriggered = true;
-      EnterGameResultState(isVictory: true);
+      if (InputBlocked || !_session.TryTransition(BoardState.Idle, BoardState.Rotating)) return false;
+      Rotation.Begin(point);
+      return true;
     }
-
-    private void TriggerDefeat()
+    public void ReleaseRotation()
     {
-#if UNITY_EDITOR
-      GameLogger.Message($"[GridObserver] TriggerDefeat called on {gameObject.name}. alreadyTriggered={_resultAlreadyTriggered}");
-#endif
-
-      _resultAlreadyTriggered = true;
-      EnterGameResultState(isVictory: false);
+      if (_session.TryTransition(BoardState.Rotating, BoardState.SnappingRotation)) SnapAsync().Forget();
     }
-
-    private void EnterGameResultState(bool isVictory)
+    private async UniTask SnapAsync()
     {
-#if UNITY_EDITOR
-      GameLogger.Message($"[GridObserver] EnterGameResultState isVictory={isVictory}. " +
-                $"gameStateMachine={(_gameStateMachine != null)}");
-#endif
-
-      if (_gameStateMachine == null)
+      try
       {
-#if UNITY_EDITOR
-        GameLogger.Error("GridObserver: GameStateMachine not set, falling back to main menu.");
-#endif
-        _mainMenu?.Open();
-        return;
+        await Rotation.SnapAsync(_token);
+        _session.TryTransition(BoardState.SnappingRotation, BoardState.Idle);
       }
-
-      _gameStateMachine.Enter<GameResultState, GameResultPayload>(
-        new GameResultPayload(isVictory));
+      catch (Exception error) { HandleFailure(error); }
     }
 
-    public void RemoveStackFromCellByBooster(Cell cell) =>
-      _stacksOnGrid.Remove(cell.GetComponentInChildren<Stack>());
+    public void SelectBooster() => _session.TryTransition(BoardState.Idle, BoardState.SelectingBooster);
+    public void CancelInteraction()
+    {
+      var state = State;
+      if (state != BoardState.DraggingStack && state != BoardState.Rotating && state != BoardState.SelectingBooster) return;
+      _drag?.Cancel();
+      _drag = null;
+      if (state == BoardState.Rotating) Rotation.SnapImmediately();
+      Boosters?.ClearSelection();
+      _session.TryTransition(state, BoardState.Idle);
+    }
+
+    public async UniTask ExecuteBoosterAsync(Func<CancellationToken, UniTask> action)
+    {
+      if (!CanChooseBooster || !_session.TryTransition(State, BoardState.ApplyingBooster)) return;
+      try
+      {
+        await action(_token);
+        _session.TryTransition(BoardState.ApplyingBooster, BoardState.Settling);
+        await ResolveAsync();
+      }
+      catch (Exception error) { HandleFailure(error); }
+    }
+
+    public async UniTask OnCollectedAsync(Cell cell, int count, CancellationToken token)
+    {
+      _session.AddScore(count);
+      await UpdateCoversAsync(token);
+      if (!_neighbors.TryGetValue(cell, out var neighbors)) return;
+      var hits = new List<UniTask>();
+      foreach (var neighbor in neighbors)
+        if (neighbor.TryGetComponent<CellCoverData>(out var cover)) hits.Add(cover.HitAsync(token));
+      await UniTask.WhenAll(hits);
+    }
+
+    private async UniTask UpdateCoversAsync(CancellationToken token)
+    {
+      var tasks = new List<UniTask>();
+      foreach (var cell in _grid.Cells)
+        if (cell.TryGetComponent<CellCoverData>(out var cover)) tasks.Add(cover.UpdateScoreAsync(Score, token));
+      await UniTask.WhenAll(tasks);
+    }
+
+    private async UniTask ResolveAsync()
+    {
+      try
+      {
+        await UpdateCoversAsync(_token);
+        await _merges.SettleAsync(_token);
+        _token.ThrowIfCancellationRequested();
+        bool full = _grid.Cells.All(cell =>
+          (cell.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked) || StackMergeProcessor.GetStack(cell) != null);
+        var result = _session.CompleteSettlement(full);
+        if (result == BoardOutcome.None) return;
+        if (_gameStateMachine != null)
+          _gameStateMachine.Enter<GameResultState, GameResultPayload>(new GameResultPayload(result == BoardOutcome.Victory));
+        else _mainMenu?.Open();
+      }
+      catch (Exception error) { HandleFailure(error); }
+    }
+
+    private void HandleFailure(Exception error)
+    {
+      if (_token.IsCancellationRequested) return;
+      _session.Fail();
+#if UNITY_EDITOR
+      GameLogger.Error($"[GridObserver] Board operation stopped: {error}");
+#endif
+      _mainMenu?.Open();
+    }
+
+    private void OnDestroy()
+    {
+      _lifetime.Cancel();
+      _session.Dispose();
+      _lifetime.Dispose();
+    }
   }
 }

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using HexaSortTest.CodeBase.GameConfigs;
-using HexaSortTest.CodeBase.GameLogic.Cells;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.SoundLogic;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
-using HexaSortTest.CodeBase.GameLogic.UI.HUD;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.ObjectsPoolService;
 using Sirenix.OdinInspector;
@@ -15,115 +15,95 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
   public class StacksSpawner : MonoBehaviour
   {
     [SerializeField, BoxGroup("POINTS")] private List<Transform> _spawnPoints;
-
-    [SerializeField, BoxGroup("POOL PARAMETERS")] private int _maxTilesInPool = 250;
-    
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _minTilesToSpawn = 3;
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxTilesToSpawn = 10;
-    [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private int _maxColorsInStack = 3;
     [SerializeField, BoxGroup("SPAWNER PARAMETERS")] private float _verticalShift = 0.7f;
-
     private LevelConfig _levelConfig;
-    private GameObject _stack;
-    private HexGrid _grid;
-    private ObjectPool<StackTile> _poolInstance;
-    private List<GameObject> _spawnedStacks = new();
-    private bool _isSpawned = false;
-    
+    private GameObject _stackPrefab;
+    private GameObject _tilePrefab;
+    private ObjectPool<StackTile> _pool;
+    private readonly List<Stack> _tray = new();
     public List<Transform> SpawnPoints => _spawnPoints;
+    public bool HasTrayStacks => _tray.Count > 0;
+    public bool IsTrayStack(Stack stack) => stack != null && _tray.Contains(stack);
 
-    public void Initialize(LevelConfig levelConfig, ObjectPool<StackTile> poolInstance, HexGrid grid)
+    public void Initialize(LevelConfig config, ObjectPool<StackTile> pool, HexGrid grid)
     {
-      foreach (var spawnPoint in _spawnPoints)
-        spawnPoint.transform.SetParent(null);
-      
-      _levelConfig = levelConfig;
-      _stack = Resources.Load<GameObject>(AssetPaths.StackPrefab);
-      _poolInstance = poolInstance;
-      _grid = grid;
-      PrepareStack();
-      FirstSpawn();
-    }
-
-    private void Spawn()
-    {
-      if (_isSpawned) return;
-      _isSpawned = true;
-      for (int i = 0; i < _spawnPoints.Count; i++)
-      {
-        AudioFacade.Instance.PlaySpawn();
-        _spawnedStacks[i].GetComponent<Stack>().SetActive(true);
-      }
-
-      foreach (var stack in _spawnedStacks)
-        stack.GetComponent<StackMover>().OnStackParentChange += StackParentChanged;
-    }
-
-    private void PrepareStack()
-    {
-      _isSpawned = false;
-      for (int i = 0; i < _spawnPoints.Count; i++)
-      {
-        var stack = GenerateStack(_spawnPoints[i]);
-        _spawnedStacks.Add(stack);
-      }
-    }
-
-    private void FirstSpawn()
-    {
-      foreach (var cell in _grid.Cells)
+      _levelConfig = config;
+      _pool = pool;
+      _stackPrefab = Resources.Load<GameObject>(AssetPaths.StackPrefab);
+      _tilePrefab = Resources.Load<GameObject>(AssetPaths.StackTile);
+      foreach (var cell in grid.Cells)
       {
         if (!cell.IsSpawner) continue;
-
-        var additionalStack = GenerateStack(cell.transform);
-        additionalStack.transform.position += Vector3.up * _verticalShift;
-        additionalStack.GetComponent<Stack>().SetActive(true);
+        var stack = GenerateStack(cell.transform);
+        stack.transform.position += Vector3.up * 0.5f;
+        cell.SetEmpty(false);
         cell.SetSpawner(false);
       }
-      
-      Spawn();
+      Refill();
     }
 
-    private GameObject GenerateStack(Transform parent)
+    private void Refill()
     {
-      GameObject stackObject = Instantiate(_stack, parent.position, Quaternion.identity);
-      stackObject.name = $"Stack {parent.GetSiblingIndex()}";
-
-      Stack stack = stackObject.GetComponent<Stack>();
-      stack.SetParentCell(parent);
-      stack.Initialize(_poolInstance);
-
-      int tilesCount = Random.Range(_minTilesToSpawn, _maxTilesToSpawn);
-      int firstColorTilesCount = Random.Range(0, tilesCount);
-
-      var firstRandomColor = GetRandomColor();
-      var secondRandomColor = GetRandomColor();
-
-      for (int i = 0; i < tilesCount; i++)
+      foreach (var point in _spawnPoints)
       {
-        if (!_poolInstance.TryGetObject(out StackTile tile)) return null;
-        if (tile == null) continue;
+        var stack = GenerateStack(point);
+        stack.GetComponent<StackMover>().OnStackParentChange += StackParentChanged;
+        _tray.Add(stack);
+      }
+      AudioFacade.Instance?.PlaySpawn();
+    }
 
-        tile.Color = i < firstColorTilesCount ? firstRandomColor : secondRandomColor;
-
+    private Stack GenerateStack(Transform parent)
+    {
+      var go = Instantiate(_stackPrefab, parent.position, Quaternion.identity);
+      var stack = go.GetComponent<Stack>();
+      stack.SetParentCell(parent);
+      stack.Initialize(_pool);
+      int count = Random.Range(_minTilesToSpawn, _maxTilesToSpawn);
+      int split = Random.Range(0, count);
+      var first = RandomColor();
+      var second = RandomColor();
+      for (int i = 0; i < count; i++)
+      {
+        // The prewarmed pool may be exhausted by larger fields; grow it instead of returning a partial/null stack.
+        if (!_pool.TryGetObject(out StackTile tile)) tile = Instantiate(_tilePrefab).GetComponent<StackTile>();
+        tile.Color = i < split ? first : second;
         tile.SetParent(stack.transform);
-        tile.transform.position = stack.transform.position + Vector3.up * (_verticalShift * i);
+        tile.transform.SetPositionAndRotation(stack.transform.position + Vector3.up * (_verticalShift * i), Quaternion.Euler(0, 90, 0));
+        tile.SetActive(true);
         stack.Add(tile.gameObject);
       }
-
-      return stackObject;
+      return stack;
     }
 
-    private Color GetRandomColor() =>
-      _levelConfig.CellColors[Random.Range(0, _levelConfig.CellColors.Count)];
+    private Color RandomColor() => _levelConfig.CellColors[Random.Range(0, _levelConfig.CellColors.Count)];
 
     public void StackParentChanged(Stack stack)
     {
-      _spawnedStacks.Remove(stack.gameObject);
+      if (!_tray.Remove(stack)) return;
+      stack.GetComponent<StackMover>().OnStackParentChange -= StackParentChanged;
+      if (_tray.Count == 0) Refill();
+    }
 
-      if (_spawnedStacks.Count != 0) return;
-      PrepareStack();
-      Spawn();
+    public async UniTask ReplaceTrayAsync(CancellationToken token)
+    {
+      var snapshot = _tray.ToArray();
+      foreach (var stack in snapshot)
+      {
+        token.ThrowIfCancellationRequested();
+        stack.GetComponent<StackMover>().OnStackParentChange -= StackParentChanged;
+        await stack.RemoveAllAsync(token);
+      }
+      _tray.Clear();
+      Refill();
+    }
+
+    private void OnDestroy()
+    {
+      foreach (var stack in _tray)
+        if (stack != null) stack.GetComponent<StackMover>().OnStackParentChange -= StackParentChanged;
     }
   }
 }

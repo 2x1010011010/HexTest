@@ -1,300 +1,98 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using HexaSortTest.CodeBase.GameLogic.Cells;
-using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.GameLogic.StackLogic;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 {
-  public class StackMergeProcessor
+  public sealed class StackMergeProcessor
   {
     private readonly HexGrid _grid;
     private readonly Dictionary<Cell, List<Cell>> _neighbors;
-    private readonly Action<Stack> _onStackRemoved;
+    private readonly Func<Cell, int, CancellationToken, UniTask> _collected;
 
-    public StackMergeProcessor(HexGrid grid, Dictionary<Cell, List<Cell>> neighbors, Action<Stack> onStackRemoved = null)
+    public StackMergeProcessor(HexGrid grid, Dictionary<Cell, List<Cell>> neighbors,
+      Func<Cell, int, CancellationToken, UniTask> collected)
     {
       _grid = grid;
       _neighbors = neighbors;
-      _onStackRemoved = onStackRemoved;
+      _collected = collected;
     }
 
-    private readonly struct MergeAction
+    public async UniTask SettleAsync(CancellationToken token)
     {
-      public readonly Cell Source;
-      public readonly Cell Target;
-
-      public MergeAction(Cell source, Cell target)
-      {
-        Source = source;
-        Target = target;
-      }
-    }
-
-    public async UniTask SettleAsync()
-    {
-      bool anyDestroyedThisCycle;
-
+      bool collected;
       do
       {
-        bool anyMerge;
-
-        do
+        // Rebuild the decision after every completed transfer; queued targets can become stale.
+        while (await MergeOneAsync(token)) { }
+        collected = false;
+        foreach (var cell in _grid.Cells)
         {
-          anyMerge = await RunMergePassAsync();
-        } while (anyMerge);
-
-        anyDestroyedThisCycle = await RunThresholdPassAsync();
-      } while (anyDestroyedThisCycle);
+          token.ThrowIfCancellationRequested();
+          var stack = GetStack(cell);
+          if (stack == null) continue;
+          int removed = await stack.CollectTopAsync(token);
+          if (removed == 0) continue;
+          collected = true;
+          await _collected(cell, removed, token);
+        }
+      } while (collected);
     }
 
-    private async UniTask<bool> RunMergePassAsync()
+    private async UniTask<bool> MergeOneAsync(CancellationToken token)
     {
-      List<MergeAction> queue = BuildMergeQueue();
-
-      if (queue.Count == 0)
-        return false;
-
-      foreach (var action in queue)
-        await ExecuteMergeAsync(action.Source, action.Target);
-
-      return true;
-    }
-
-    private List<MergeAction> BuildMergeQueue()
-    {
-      var queue = new List<MergeAction>();
-      var processedPairs = new HashSet<(Cell, Cell)>();
-      var cellIndex = BuildCellIndex();
-
-      foreach (var cell in _grid.Cells)
+      token.ThrowIfCancellationRequested();
+      for (int i = 0; i < _grid.Cells.Count; i++)
       {
+        var cell = _grid.Cells[i];
         var stack = GetStack(cell);
-        Color? color = TryGetColor(stack);
-        if (color == null)
-          continue;
-
-        bool cellIsHub = IsHub(cell, color.Value);
-
+        if (stack == null) continue;
         foreach (var neighbor in _neighbors[cell])
         {
-          if (!cellIndex.TryGetValue(neighbor, out int neighborIndex) || neighborIndex <= cellIndex[cell])
-            continue;
-
-          if (!processedPairs.Add((cell, neighbor)))
-            continue;
-
-          var neighborStack = GetStack(neighbor);
-          Color? neighborColor = TryGetColor(neighborStack);
-          if (neighborColor == null || neighborColor.Value != color.Value)
-            continue;
-
-          bool neighborIsHub = IsHub(neighbor, neighborColor.Value);
-
-          Cell target = ResolveTarget(cell, cellIsHub, stack, neighbor, neighborIsHub, neighborStack, cellIndex);
-          Cell source = target == cell ? neighbor : cell;
-
-          queue.Add(new MergeAction(source, target));
+          int j = _grid.Cells.IndexOf(neighbor);
+          if (j <= i) continue;
+          var other = GetStack(neighbor);
+          if (other == null || stack.GetLastCellColor() != other.GetLastCellColor()) continue;
+          bool hubA = IsHub(cell, stack.GetLastCellColor());
+          bool hubB = IsHub(neighbor, other.GetLastCellColor());
+          bool targetA = hubA != hubB ? hubA : stack.Tiles.Count >= other.Tiles.Count;
+          var source = targetA ? other : stack;
+          var target = targetA ? stack : other;
+          var color = source.GetLastCellColor();
+          var moved = new List<GameObject>();
+          for (int t = source.Tiles.Count - 1; t >= 0; t--)
+          {
+            var tile = source.Tiles[t];
+            if (tile.GetComponent<StackTile>().Color != color) break;
+            moved.Add(tile);
+          }
+          moved.Reverse();
+          var direction = (target.transform.position - source.transform.position).normalized;
+          foreach (var tile in moved) source.Remove(tile);
+          await target.AnimateMoveToStack(moved, direction, token);
+          source.DestroyIfEmpty();
+          return true;
         }
       }
-
-      return queue;
-    }
-    
-    private bool IsHub(Cell cell, Color color)
-    {
-      int matchingNeighbors = 0;
-
-      foreach (var neighbor in _neighbors[cell])
-      {
-        Color? neighborColor = TryGetColor(GetStack(neighbor));
-        if (neighborColor != null && neighborColor.Value == color)
-          matchingNeighbors++;
-
-        if (matchingNeighbors >= 2)
-          return true;
-      }
-
       return false;
     }
 
-    private Cell ResolveTarget(
-      Cell cellA, bool cellAIsHub, Stack stackA,
-      Cell cellB, bool cellBIsHub, Stack stackB,
-      Dictionary<Cell, int> cellIndex)
+    private bool IsHub(Cell cell, Color color) => _neighbors[cell].Count(c =>
     {
-      if (cellAIsHub && !cellBIsHub)
-        return cellA;
+      var stack = GetStack(c);
+      return stack != null && stack.GetLastCellColor() == color;
+    }) >= 2;
 
-      if (cellBIsHub && !cellAIsHub)
-        return cellB;
-
-      int countA = stackA.Tiles.Count;
-      int countB = stackB.Tiles.Count;
-
-      if (countA != countB)
-        return countA > countB ? cellA : cellB;
-
-      return cellIndex[cellA] < cellIndex[cellB] ? cellA : cellB;
-    }
-
-    private async UniTask ExecuteMergeAsync(Cell sourceCell, Cell targetCell)
+    public static Stack GetStack(Cell cell)
     {
-      var source = GetStack(sourceCell);
-      var target = GetStack(targetCell);
-
-      if (!IsValidPair(source, target))
-        return;
-
-      Color color = source.GetLastCellColor();
-      var tilesToMove = GetCellsToMove(source, color);
-      if (tilesToMove.Count == 0)
-        return;
-
-      await MoveCellsToOtherStackAsync(tilesToMove, source, target);
-    }
-
-    private bool IsValidPair(Stack source, Stack target)
-    {
-      if (source == null || target == null || source == target)
-        return false;
-
-      if (source.IsDragged || target.IsDragged)
-        return false;
-
-      Color? sourceColor = TryGetColor(source);
-      Color? targetColor = TryGetColor(target);
-
-      return sourceColor != null && targetColor != null && sourceColor.Value == targetColor.Value;
-    }
-
-    private List<StackTile> GetCellsToMove(Stack stack, Color color)
-    {
-      var result = new List<StackTile>();
-      if (stack == null || stack.Tiles == null || stack.IsDragged)
-        return result;
-
-      for (int i = stack.Tiles.Count - 1; i >= 0; i--)
-      {
-        var go = stack.Tiles[i];
-        if (go == null)
-          break;
-
-        var tile = go.GetComponent<StackTile>();
-        if (tile.Color != color)
-          break;
-
-        result.Add(tile);
-      }
-
-      return result;
-    }
-
-    private async UniTask MoveCellsToOtherStackAsync(List<StackTile> cellsToMove, Stack sourceStack, Stack targetStack)
-    {
-      if (cellsToMove == null || cellsToMove.Count == 0 || targetStack == null || targetStack.IsDragged)
-        return;
-
-      List<GameObject> movedTiles = new List<GameObject>();
-      Vector3 moveDirection = Vector3.forward;
-
-      for (int i = cellsToMove.Count - 1; i >= 0; i--)
-      {
-        var tile = cellsToMove[i];
-        if (tile == null)
-          continue;
-
-        sourceStack.Remove(tile.gameObject);
-        moveDirection = (targetStack.transform.position - sourceStack.transform.position).normalized;
-        movedTiles.Add(tile.gameObject);
-      }
-
-      if (sourceStack.Tiles.Count == 0)
-        RemoveStack(sourceStack);
-
-      await targetStack.AnimateMoveToStack(movedTiles, moveDirection);
-    }
-
-    private void RemoveStack(Stack stack)
-    {
-      if (stack == null)
-        return;
-
-      var cell = stack.Cell;
-      if (cell != null)
-      {
-        cell.SetEmpty(true);
-        cell.ShineOff();
-      }
-
-      _onStackRemoved?.Invoke(stack);
-      UnityEngine.Object.Destroy(stack.gameObject);
-    }
-
-    private async UniTask<bool> RunThresholdPassAsync()
-    {
-      var stacksSnapshot = _grid.Cells
-        .Select(GetStack)
-        .Where(s => s != null && !s.IsDragged)
-        .ToList();
-
-      bool anyDestroyed = false;
-
-      foreach (var stack in stacksSnapshot)
-      {
-        if (stack == null || stack.IsDestroyed())
-          continue;
-
-        Cell collectedCell = stack.Cell;
-        int tileCountBefore = stack.Tiles.Count;
-
-        await stack.CheckForColorThreshold();
-
-        if (stack.IsDestroyed() || stack.Tiles.Count != tileCountBefore)
-        {
-          anyDestroyed = true;
-          if (collectedCell != null && _neighbors.TryGetValue(collectedCell, out var neighbors))
-          {
-            var hits = new List<UniTask>();
-            foreach (var neighbor in neighbors)
-              if (neighbor != null && neighbor.TryGetComponent<CellCoverData>(out var cover))
-                hits.Add(cover.HitAsync());
-            await UniTask.WhenAll(hits);
-          }
-        }
-      }
-
-      return anyDestroyed;
-    }
-
-    private Dictionary<Cell, int> BuildCellIndex()
-    {
-      var index = new Dictionary<Cell, int>();
-      for (int i = 0; i < _grid.Cells.Count; i++)
-        index[_grid.Cells[i]] = i;
-      return index;
-    }
-
-    private Stack GetStack(Cell cell) =>
-      cell != null && !(cell.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked)
-        ? cell.GetComponentInChildren<Stack>() : null;
-
-    private Color? TryGetColor(Stack stack)
-    {
-      if (stack == null || stack.Tiles == null || stack.Tiles.Count == 0 || stack.IsDragged)
-        return null;
-
-      try
-      {
-        return stack.GetLastCellColor();
-      }
-      catch
-      {
-        return null;
-      }
+      if (cell == null || (cell.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked)) return null;
+      var stack = cell.GetComponentInChildren<Stack>();
+      return stack != null && !stack.IsDragged && stack.Tiles.Count > 0 ? stack : null;
     }
   }
 }
