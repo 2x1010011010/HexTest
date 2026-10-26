@@ -25,6 +25,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
     private readonly List<GameObject> _instances = new();
 
     public LevelConfig CurrentLevelConfig => _currentLevelConfig;
+    public int CurrentLevelIndex { get; private set; } = -1;
 
     public List<IProgressReader> ProgressReaders { get; } = new();
     public List<IProgressSaver> ProgressSavers { get; } = new();
@@ -70,6 +71,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       _gridSpawner = go.GetComponent<GridSpawner>();
 
       _currentLevelConfig = _levelConfigs.GetLevel(levelIndex);
+      CurrentLevelIndex = levelIndex;
 #if UNITY_EDITOR
       GameLogger.Message($"[GameFactory] Selected level config for index {levelIndex}.");
 #endif
@@ -94,6 +96,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
 #if UNITY_EDITOR
       GameLogger.Message($"[GameFactory] Clearing {_instances.Count} tracked objects and progress registrations.");
 #endif
+      CurrentLevelIndex = -1;
       ProgressReaders.Clear();
       ProgressSavers.Clear();
 

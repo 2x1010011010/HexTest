@@ -49,7 +49,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 #endif
 
       if (_isVictory)
-        AwardLevelRewards();
+        CompleteLevel();
 
       _sceneLoader.Load(Constants.GameResultScene, onLoaded: SpawnPopup);
     }
@@ -68,8 +68,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     // NOTE: reads _gameFactory.CurrentLevelConfig, which is still valid here —
     // GameFactory isn't cleared until the next LoadLevelState.Enter() runs.
-    private void AwardLevelRewards()
+    private void CompleteLevel()
     {
+      var progress = _progressService.PlayerProgress;
+      // A repeated result for the same loaded level must not grant another reward.
+      if (_gameFactory.CurrentLevelIndex < 0 || progress.LevelIndex != _gameFactory.CurrentLevelIndex)
+        return;
+
       var levelConfig = _gameFactory.CurrentLevelConfig;
       if (levelConfig == null)
       {
@@ -79,8 +84,12 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         return;
       }
 
-      _currencyService.AddCoins(CoinsRewardFor(levelConfig.Difficulty));
-      _currencyService.AddHexCoins(levelConfig.WinCondition);
+      _saveLoadService.ExecuteTransaction(() =>
+      {
+        progress.LevelIndex++;
+        _currencyService.AddCoins(CoinsRewardFor(levelConfig.Difficulty));
+        _currencyService.AddHexCoins(levelConfig.WinCondition);
+      });
 #if UNITY_EDITOR
       GameLogger.Message($"[GameResultState] Rewards granted: {CoinsRewardFor(levelConfig.Difficulty)} Coins, {levelConfig.WinCondition} HexCoins.");
 #endif
@@ -121,28 +130,12 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 #if UNITY_EDITOR
       GameLogger.Message($"[GameResultState] Continue requested: victory={_isVictory}.");
 #endif
-      if (_isVictory)
-        AdvanceToNextLevel();
-      else
-        RestartCurrentLevel();
+      // Victory was already committed on entry. Defeat keeps the same index.
+      ReloadGameScene();
     }
 
     private void HandleMainMenuClicked() =>
       _gameStateMachine.Enter<MainMenuState>();
-
-    private void AdvanceToNextLevel()
-    {
-      _progressService.PlayerProgress.LevelIndex++;
-#if UNITY_EDITOR
-      GameLogger.Message($"[GameResultState] Advanced to level index {_progressService.PlayerProgress.LevelIndex}.");
-#endif
-      _saveLoadService.SaveProgress();
-
-      ReloadGameScene();
-    }
-
-    private void RestartCurrentLevel() =>
-      ReloadGameScene();
 
     private void ReloadGameScene() =>
       _gameStateMachine.Enter<LoadLevelState, string>(

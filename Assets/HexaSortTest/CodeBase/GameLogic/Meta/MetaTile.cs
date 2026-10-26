@@ -57,6 +57,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     }
     public void InitializeFromSave(MetaTileProgress saved)
     {
+      HideAllGroups();
       int totalGroups = _groups.Count;
 
       _currentGroupIndex = Mathf.Clamp(saved?.UnlockedGroupsCount ?? 0, 0, totalGroups);
@@ -90,7 +91,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       }
     }
     
-    public MetaTileStepResult AdvanceStep()
+    public MetaTileStepResult AdvanceStep(bool notify = true)
     {
       if (_isTileFullyOpen || _groups.Count == 0)
         return MetaTileStepResult.None;
@@ -98,7 +99,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       var group = _groups[_currentGroupIndex];
 
       if (group.Objects == null || group.Objects.Count == 0)
-        return CompleteCurrentGroupAndAdvance();
+        return CompleteCurrentGroupAndAdvance(notify);
 
       _currentObjectProgress += _progressPerStep;
 
@@ -109,19 +110,20 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
         _currentObjectIndexInGroup++;
 
         if (_currentObjectIndexInGroup >= group.Objects.Count)
-          return CompleteCurrentGroupAndAdvance();
+          return CompleteCurrentGroupAndAdvance(notify);
 
-        OnProgressChanged?.Invoke(this);
-        OnObjectRevealed?.Invoke(this);
-        return new MetaTileStepResult(true, true, false);
+        var result = new MetaTileStepResult(true, true, false);
+        if (notify) NotifyStepCompleted(result);
+        return result;
       }
 
       ApplyVisual(group.Objects[_currentObjectIndexInGroup], _currentObjectProgress);
-      OnProgressChanged?.Invoke(this);
-      return new MetaTileStepResult(true, false, false);
+      var partialResult = new MetaTileStepResult(true, false, false);
+      if (notify) NotifyStepCompleted(partialResult);
+      return partialResult;
     }
 
-    private MetaTileStepResult CompleteCurrentGroupAndAdvance()
+    private MetaTileStepResult CompleteCurrentGroupAndAdvance(bool notify)
     {
       _currentObjectIndexInGroup = 0;
       _currentObjectProgress = 0f;
@@ -138,12 +140,17 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
           ApplyVisual(obj, 0f);
       }
 
-      OnProgressChanged?.Invoke(this);
-      OnObjectRevealed?.Invoke(this);
-      if (tileFullyOpened)
-        OnTileFullyOpened?.Invoke(this);
+      var result = new MetaTileStepResult(true, true, tileFullyOpened);
+      if (notify) NotifyStepCompleted(result);
+      return result;
+    }
 
-      return new MetaTileStepResult(true, true, tileFullyOpened);
+    public void NotifyStepCompleted(MetaTileStepResult result)
+    {
+      if (!result.Success) return;
+      OnProgressChanged?.Invoke(this);
+      if (result.ObjectRevealed) OnObjectRevealed?.Invoke(this);
+      if (result.TileFullyOpened) OnTileFullyOpened?.Invoke(this);
     }
 
     private void HideAllGroups()

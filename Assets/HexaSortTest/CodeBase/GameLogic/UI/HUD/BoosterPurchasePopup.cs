@@ -4,6 +4,7 @@ using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
+using HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     [SerializeField, BoxGroup("BUTTONS")] private PopupCloseButton _closeButton;
 
     [Inject] private ICurrencyService _currencyService;
+    [Inject] private ISaveLoadService _saveLoadService;
     [Inject] private IBoosterInventoryService _boosterInventory;
 
     private BoosterShopConfig _shopConfig;
@@ -103,15 +105,14 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_pendingEntry == null)
         return;
 
-      if (!_currencyService.TrySpendCoins(_pendingEntry.PriceInCoins))
+      bool purchased = false;
+      _saveLoadService.ExecuteTransaction(() =>
       {
-#if UNITY_EDITOR
-        GameLogger.Message("[BoosterPurchasePopup] Not enough Coins.");
-#endif
-        return;
-      }
-      _boosterInventory.Add(_pendingType, 1);
-      Close();
+        if (!_currencyService.TrySpendCoins(_pendingEntry.PriceInCoins)) return;
+        _boosterInventory.Add(_pendingType, 1);
+        purchased = true;
+      });
+      if (purchased) Close();
     }
 
     private void HandleWatchAdClicked()

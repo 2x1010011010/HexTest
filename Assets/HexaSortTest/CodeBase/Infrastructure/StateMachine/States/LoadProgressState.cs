@@ -38,6 +38,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       GameLogger.Message(progress == null ? "[LoadProgressState] No saved progress; creating new progress." : "[LoadProgressState] Using saved progress.");
 #endif
       _progressService.PlayerProgress = progress ?? NewProgress();
+      // Persist new profiles, migrated saves and backup recovery before entering the menu.
+      _saveLoadService.SaveProgress();
 #if UNITY_EDITOR
       GameLogger.Message($"[LoadProgressState] Progress ready; level index {_progressService.PlayerProgress.LevelIndex}.");
 #endif

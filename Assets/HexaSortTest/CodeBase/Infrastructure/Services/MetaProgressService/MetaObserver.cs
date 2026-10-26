@@ -25,17 +25,37 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
 
     public bool TryProgressTile(MetaTile tile)
     {
-      if (tile == null || tile.IsTileFullyOpen)
+      if (tile == null || tile.IsTileFullyOpen || tile.GroupsCount == 0 ||
+          string.IsNullOrWhiteSpace(tile.TileId) || tile.HexCoinsCostPerStep < 0 ||
+          _currencyService.HexCoins < tile.HexCoinsCostPerStep)
         return false;
 
-      if (!_currencyService.TrySpendHexCoins(tile.HexCoinsCostPerStep))
-        return false;
+      var before = new MetaTileProgress(tile.TileId)
+      {
+        UnlockedGroupsCount = tile.CurrentGroupIndex,
+        UnlockedObjectsInGroupCount = tile.CurrentObjectIndexInGroup,
+        CurrentObjectProgress = tile.CurrentObjectProgress
+      };
+      MetaTileStepResult result = MetaTileStepResult.None;
+      try
+      {
+        _saveLoadService.ExecuteTransaction(() =>
+        {
+          result = tile.AdvanceStep(notify: false);
+          if (!result.Success) return;
+          if (!_currencyService.TrySpendHexCoins(tile.HexCoinsCostPerStep))
+            throw new System.InvalidOperationException("Meta balance changed during a synchronous step.");
+          SaveProgress(tile);
+        });
+      }
+      catch
+      {
+        tile.InitializeFromSave(before);
+        throw;
+      }
 
-      var result = tile.AdvanceStep();
-
-      if (result.ObjectRevealed)
-        SaveProgress(tile);
-
+      // UI unlock checks now see the just-saved progress, including the last group.
+      tile.NotifyStepCompleted(result);
       return result.Success;
     }
 

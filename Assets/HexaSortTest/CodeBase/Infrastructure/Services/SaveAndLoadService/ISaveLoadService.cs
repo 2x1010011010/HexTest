@@ -1,3 +1,4 @@
+using System;
 using HexaSortTest.CodeBase.GameLogic.Data;
 
 namespace HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService
@@ -6,5 +7,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.SaveAndLoadService
   {
     PlayerProgress LoadProgress();
     void SaveProgress();
+    // Synchronous changes are persisted together; failed changes are rolled back in memory.
+    void ExecuteTransaction(Action update);
   }
 }

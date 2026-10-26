@@ -12,6 +12,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
   public interface IGameFactory : IFactory
   {
     LevelConfig CurrentLevelConfig { get; }
+    int CurrentLevelIndex { get; }
     ObjectPool<StackTile> CreateCellPool();
     GridSpawner CreateGridSpawner(ObjectPool<StackTile> pool, MainMenuObserver mainMenu, int levelIndex);
     StacksSpawner CreateStacksSpawner(ObjectPool<StackTile> pool, HexGrid grid);

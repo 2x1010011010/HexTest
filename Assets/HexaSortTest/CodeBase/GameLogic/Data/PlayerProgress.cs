@@ -7,6 +7,9 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
   [Serializable]
   public class PlayerProgress
   {
+    public const int CurrentSaveVersion = 1;
+    public int SaveVersion;
+
     public WorldData WorldData;
     public int LevelIndex;
 
@@ -18,6 +21,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
 
     public PlayerProgress(string initialLevel)
     {
+      SaveVersion = CurrentSaveVersion;
       WorldData = new WorldData(initialLevel);
       LevelIndex = 0;
 
