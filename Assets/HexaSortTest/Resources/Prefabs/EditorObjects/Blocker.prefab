@@ -27,8 +27,8 @@ Transform:
   m_GameObject: {fileID: 3417874265247460567}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 1.5, y: 0.7, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -82,16 +82,16 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 1083463204, guid: a1e334c7adfe3d04aaf6e64bb75899ec, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 3.78, y: 3.84}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
-  m_SpriteSortPoint: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 1
 --- !u!114 &2937198549706956634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,5 +105,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.Cells.Blocker
   _spriteRenderer: {fileID: 7853500622085543144}
-  _spriteList: []
+  _spriteList:
+  - {fileID: 1083463204, guid: a1e334c7adfe3d04aaf6e64bb75899ec, type: 3}
+  - {fileID: 1692818902, guid: a1e334c7adfe3d04aaf6e64bb75899ec, type: 3}
+  - {fileID: 1648903680, guid: a1e334c7adfe3d04aaf6e64bb75899ec, type: 3}
+  - {fileID: -611199484, guid: a1e334c7adfe3d04aaf6e64bb75899ec, type: 3}
+  - {fileID: 208128604, guid: a1e334c7adfe3d04aaf6e64bb75899ec, type: 3}
   _requiredHits: 1

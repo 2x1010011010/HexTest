@@ -29,7 +29,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
           Synchronize(blocker, true);
         }
 
-      EditorGUILayout.HelpBox("Sprite = Sprite List[Required Hits - 1]. The grid editor sets each cell's Required Hits when previewing or saving. Damage behavior is not implemented.", MessageType.Info);
+      EditorGUILayout.HelpBox("Sprite = Sprite List[Required Hits - 1]. The grid editor sets each cell's Required Hits when previewing or saving. Hit Particles plays on each adjacent collection. The cell unlocks after the final effect.", MessageType.Info);
       foreach (var item in targets)
       {
         var blocker = (Blocker)item;

@@ -178,6 +178,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     private void OnTilesCounterChanged(int value)
     {
       _tilesCount += value;
+      _gridObserver?.UpdateScore(_tilesCount);
       _tilesCounter.text = _tilesCount.ToString();
       _tilesCounterSliderFill += value;
 

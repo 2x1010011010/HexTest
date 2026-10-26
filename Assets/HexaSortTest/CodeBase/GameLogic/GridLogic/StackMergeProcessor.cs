@@ -248,12 +248,23 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         if (stack == null || stack.IsDestroyed())
           continue;
 
+        Cell collectedCell = stack.Cell;
         int tileCountBefore = stack.Tiles.Count;
 
         await stack.CheckForColorThreshold();
 
         if (stack.IsDestroyed() || stack.Tiles.Count != tileCountBefore)
+        {
           anyDestroyed = true;
+          if (collectedCell != null && _neighbors.TryGetValue(collectedCell, out var neighbors))
+          {
+            var hits = new List<UniTask>();
+            foreach (var neighbor in neighbors)
+              if (neighbor != null && neighbor.TryGetComponent<CellCoverData>(out var cover))
+                hits.Add(cover.HitAsync());
+            await UniTask.WhenAll(hits);
+          }
+        }
       }
 
       return anyDestroyed;
@@ -268,7 +279,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     }
 
     private Stack GetStack(Cell cell) =>
-      cell != null ? cell.GetComponentInChildren<Stack>() : null;
+      cell != null && !(cell.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked)
+        ? cell.GetComponentInChildren<Stack>() : null;
 
     private Color? TryGetColor(Stack stack)
     {

@@ -1,29 +1,32 @@
 using System.Globalization;
+using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.GameLogic.Cells
 {
-  // Prefab view and authored values only. No score tracking or unlocking behavior.
   [DisallowMultipleComponent]
   [RequireComponent(typeof(SpriteRenderer))]
   public sealed class ScoreLocker : MonoBehaviour
   {
-    [Header("References")]
-    [SerializeField] private SpriteRenderer _spriteRenderer;
-    [SerializeField] private Canvas _canvas;
-    [SerializeField] private TMP_Text _scoreText;
-    [SerializeField, Tooltip("Reserved for the future unlock effect. Not played by this component.")]
-    private ParticleSystem _unlockParticles;
-
-    [Header("Authoring")]
-    [SerializeField, Min(0)] private int _requiredScore;
+    [SerializeField, BoxGroup("REFERENCES")] private SpriteRenderer _spriteRenderer;
+    [SerializeField, BoxGroup("REFERENCES")] private Canvas _canvas;
+    [SerializeField, BoxGroup("REFERENCES")] private TMP_Text _scoreText;
+    [SerializeField, BoxGroup("REFERENCES")] private ParticleSystem _unlockParticles;
+    
+    [SerializeField, Min(0), BoxGroup("AUTHORING")] private int _requiredScore;
 
     public SpriteRenderer SpriteRenderer => _spriteRenderer;
     public Canvas Canvas => _canvas;
     public TMP_Text ScoreText => _scoreText;
     public ParticleSystem UnlockParticles => _unlockParticles;
     public int RequiredScore => _requiredScore;
+
+    public void SetRemainingScore(int remaining)
+    {
+      if (_scoreText != null)
+        _scoreText.text = Mathf.Max(0, remaining).ToString(CultureInfo.InvariantCulture);
+    }
 
 #if UNITY_EDITOR
     public void ConfigureForEditor(int requiredScore)
@@ -60,7 +63,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
 
     private void OnValidate()
     {
-      // Do not mutate TMP objects from OnValidate: it may run during asset loading.
       _requiredScore = Mathf.Max(0, _requiredScore);
     }
 #endif

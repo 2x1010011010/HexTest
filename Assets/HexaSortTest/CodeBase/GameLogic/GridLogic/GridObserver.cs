@@ -25,13 +25,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private GameStateMachine _gameStateMachine;
     private bool _resultAlreadyTriggered;
+    private int _currentScore;
 
     private StackMergeProcessor _mergeProcessor;
-
-    // Guards against a new settle being kicked off (e.g. from a new stack
-    // landing on the grid) while the current merge queue is still draining.
-    // All queued grid movements must finish before anything else reacts to
-    // the grid state — this is what enforces "movements first" ordering.
     private bool _isSettling;
 
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
@@ -61,6 +57,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
       _mergeProcessor = new StackMergeProcessor(_grid, _neighbors, OnStackRemoved);
 
+      UpdateScore(_currentScore);
       ScanAndRegisterStacks();
 
       InitialSettleAsync().Forget();
@@ -74,8 +71,6 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private async UniTaskVoid Update()
     {
-      // Nothing new should react to the grid (new drops, lose checks, etc.)
-      // while a settle is already draining its movement queue.
       if (_isSettling)
         return;
 
@@ -130,11 +125,24 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       try
       {
         await _mergeProcessor.SettleAsync();
+        await UniTask.WaitUntil(() => !_grid.Cells.Any(c =>
+          c != null && c.TryGetComponent<CellCoverData>(out var cover) && cover.IsUnlocking),
+          cancellationToken: this.GetCancellationTokenOnDestroy());
       }
       finally
       {
         _isSettling = false;
       }
+    }
+
+    public void UpdateScore(int score)
+    {
+      _currentScore = score;
+      if (_grid == null)
+        return;
+      foreach (var cell in _grid.Cells)
+        if (cell != null && cell.TryGetComponent<CellCoverData>(out var cover))
+          cover.UpdateScore(score);
     }
 
     private void OnStackRemoved(Stack stack) =>
@@ -145,13 +153,12 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (cell == null)
         return new List<Cell>();
 
-      LayerMask mask = 1 << cell.gameObject.layer;
-
-      var hits = Physics.OverlapSphere(cell.transform.position, 5f, mask);
+      var hits = Physics.OverlapSphere(cell.transform.position, 5f, ~0, QueryTriggerInteraction.Collide);
 
       return hits
-        .Select(h => h.GetComponent<Cell>())
-        .Where(c => c != null && c != cell)
+        .Select(h => h.GetComponentInParent<Cell>())
+        .Where(c => c != null && c != cell && _grid.Cells.Contains(c))
+        .Distinct()
         .ToList();
     }
 
@@ -160,7 +167,8 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (_resultAlreadyTriggered)
         return;
 
-      bool allFilled = _grid.Cells.All(c => !c.IsEmpty);
+      bool allFilled = _grid.Cells.All(c => !c.IsEmpty ||
+        (c.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked));
 
       if (!allFilled)
         return;

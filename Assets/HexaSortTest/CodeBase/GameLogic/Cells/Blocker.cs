@@ -1,21 +1,32 @@
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace HexaSortTest.CodeBase.GameLogic.Cells
 {
-  // Authored blocker view only. No damage, hit counting or destruction behavior.
   [DisallowMultipleComponent]
   [RequireComponent(typeof(SpriteRenderer))]
   public sealed class Blocker : MonoBehaviour
   {
-    [SerializeField] private SpriteRenderer _spriteRenderer;
-    [SerializeField, Tooltip("Required Hits 1 uses element 0, 2 uses element 1, etc.")]
+    [SerializeField, BoxGroup("BLOCKER RENDER")] private SpriteRenderer _spriteRenderer;
+    [SerializeField, Tooltip("Required Hits 1 uses element 0, 2 uses element 1, etc."), BoxGroup("BLOCKER SETUP")]
     private List<Sprite> _spriteList = new();
-    [SerializeField, Min(1)] private int _requiredHits = 1;
+    [SerializeField, Min(1), BoxGroup("BLOCKER SETUP")] private int _requiredHits = 1;
+
+    [SerializeField, BoxGroup("FX")] private ParticleSystem _hitParticles;
+    public ParticleSystem HitParticles => _hitParticles;
 
     public SpriteRenderer SpriteRenderer => _spriteRenderer;
     public IReadOnlyList<Sprite> SpriteList => _spriteList;
     public int RequiredHits => _requiredHits;
+
+    public void SetRemainingHits(int remaining)
+    {
+      if (_spriteRenderer == null)
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+      TryGetSprite(remaining, out Sprite sprite);
+      _spriteRenderer.sprite = sprite;
+    }
 
     public bool TryGetSprite(int requiredHits, out Sprite sprite)
     {
@@ -37,6 +48,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     {
       if (_spriteRenderer == null)
         _spriteRenderer = GetComponent<SpriteRenderer>();
+      if (_hitParticles == null)
+        _hitParticles = GetComponentInChildren<ParticleSystem>(true);
     }
 
     public void RefreshEditorSprite()
@@ -44,7 +57,6 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       if (_spriteRenderer == null)
         return;
       TryGetSprite(_requiredHits, out Sprite sprite);
-      // Missing entries stay visibly missing instead of displaying a stale stage.
       _spriteRenderer.sprite = sprite;
     }
 
