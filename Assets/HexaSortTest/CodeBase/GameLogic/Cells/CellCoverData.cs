@@ -16,7 +16,11 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     [SerializeField, BoxGroup("CELL SETUP")] private SpriteRenderer _coverRenderer;
 
     public CellCoverType Type => _type;
-    public int RequiredScore => _requiredScore;
+    // ScoreLocker is the authored source for visible locks. Keep the cell field
+    // only as a fallback for old levels without a ScoreLocker component.
+    public int RequiredScore => Locker != null ? Locker.RequiredScore : _requiredScore;
+    private ScoreLocker Locker => _locker != null ? _locker :
+      (_locker = _visualRoot != null ? _visualRoot.GetComponentInChildren<ScoreLocker>(true) : null);
     public int RequiredHits => _type == CellCoverType.BreakableBlocker ? Mathf.Max(1, _requiredHits) : 0;
     public GameObject VisualRoot => _visualRoot;
     public SpriteRenderer CoverRenderer => _coverRenderer;
@@ -50,11 +54,19 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     {
       if (_type != CellCoverType.ScoreLock || _unlocked || IsUnlocking)
         return;
-      int remaining = Mathf.Max(0, _requiredScore - Mathf.Max(0, score));
+      int threshold = RequiredScore;
+      int remaining = Mathf.Max(0, threshold - Mathf.Max(0, score));
       if (_locker != null)
         _locker.SetRemainingScore(remaining);
       if (remaining == 0)
+      {
+#if UNITY_EDITOR
+        GameLogger.Message($"[ScoreLock] Cell={name} position={transform.position}, " +
+          $"visual={(_visualRoot != null ? _visualRoot.name : "missing")}, " +
+          $"threshold={threshold}, score={score}. Starting unlock.");
+#endif
         await UnlockAsync(_locker != null ? _locker.UnlockParticles : null, token);
+      }
     }
 
     public async UniTask HitAsync(CancellationToken token)
@@ -120,6 +132,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       _requiredScore = type == CellCoverType.ScoreLock ? Mathf.Max(0, requiredScore) : 0;
       _requiredHits = type == CellCoverType.BreakableBlocker ? Mathf.Max(1, requiredHits) : 0;
       _visualRoot = visualRoot;
+      _cell = GetComponent<Cell>();
+      _locker = visualRoot != null ? visualRoot.GetComponentInChildren<ScoreLocker>(true) : null;
+      if (_type == CellCoverType.ScoreLock && _locker != null)
+        _locker.ConfigureRequiredScore(_requiredScore);
       _coverRenderer = visualRoot != null ? visualRoot.GetComponentInChildren<SpriteRenderer>(true) : null;
     }
   }

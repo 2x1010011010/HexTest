@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfa8539c60b74cd69e03578606939cf0, type: 3}
+  m_Name: 10
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameConfigs.LevelConfig
+  <Material>k__BackingField: {fileID: 2100000, guid: 82a77f2dc1bd7c543a228751c11516de, type: 2}
+  <CellColors>k__BackingField:
+  - {r: 0.25217015, g: 0.87169814, b: 0.21545745, a: 0}
+  - {r: 0.19077952, g: 0.53187954, b: 0.8792453, a: 0}
+  - {r: 0.89433956, g: 0.2136812, b: 0.18055533, a: 0}
+  - {r: 0.7207546, g: 0.11287284, b: 0.7207546, a: 0}
+  <GridPrefab>k__BackingField: {fileID: 1422275792040722321, guid: bf2c819598dbb5544bd0062639dd7672, type: 3}
+  <FieldOfView>k__BackingField: 50
+  <WinCondition>k__BackingField: 200
+  <Difficulty>k__BackingField: 0

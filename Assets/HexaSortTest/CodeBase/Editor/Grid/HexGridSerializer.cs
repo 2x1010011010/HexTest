@@ -88,6 +88,10 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       if (coverData == null)
         coverData = hexInstance.AddComponent<CellCoverData>();
       coverData.Initialize(cellData.CoverType, cellData.RequiredScore, cellData.RequiredHits, coverVisual);
+      // Persist values and visual ownership even when the base cell prefab already
+      // contains CellCoverData (rather than adding a new component above).
+      if (PrefabUtility.IsPartOfPrefabInstance(coverData))
+        PrefabUtility.RecordPrefabInstancePropertyModifications(coverData);
 
       if (cellData.State == CellState.SpawnPoint)
       {

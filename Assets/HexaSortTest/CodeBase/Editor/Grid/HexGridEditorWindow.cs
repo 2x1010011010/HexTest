@@ -51,6 +51,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       _view.SettingsChanged += RegenerateAndRepaint;
       _view.GenerateRequested += RegenerateAndRepaint;
       _view.SaveRequested += SaveGrid;
+      _view.ClearRequested += ClearGrid;
       _preview.CellClicked += OnCellClicked;
     }
 
@@ -60,6 +61,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       _view.SettingsChanged -= RegenerateAndRepaint;
       _view.GenerateRequested -= RegenerateAndRepaint;
       _view.SaveRequested -= SaveGrid;
+      _view.ClearRequested -= ClearGrid;
       _preview.CellClicked -= OnCellClicked;
 
       _preview.Dispose();
@@ -96,13 +98,19 @@ namespace HexaSortTest.CodeBase.Editor.Grid
       _previewContainer?.MarkDirtyRepaint();
     }
 
-    private void Regenerate()
+    private void ClearGrid()
+    {
+      Regenerate(false);
+      _previewContainer?.MarkDirtyRepaint();
+    }
+
+    private void Regenerate(bool preserveCellSettings = true)
     {
       var generated = HexGridGenerator.Generate(_settings);
       // Preserve painted types/scores when model or cover appearance changes.
       // Index order is stable for a fixed grid shape.
       string layoutKey = $"{_settings.GridType}:{_settings.Width}:{_settings.Height}:{_settings.Radius}";
-      if (layoutKey == _layoutKey && generated.Count == _data.Cells.Count)
+      if (preserveCellSettings && layoutKey == _layoutKey && generated.Count == _data.Cells.Count)
         for (int i = 0; i < generated.Count; i++)
         {
           generated[i].State = _data.Cells[i].State;

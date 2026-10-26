@@ -222,8 +222,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private async UniTask UpdateCoversAsync(CancellationToken token)
     {
       var tasks = new List<UniTask>();
+      int score = Score; // One score snapshot for every lock; never spend it per lock.
       foreach (var cell in _grid.Cells)
-        if (cell.TryGetComponent<CellCoverData>(out var cover)) tasks.Add(cover.UpdateScoreAsync(Score, token));
+        if (cell.TryGetComponent<CellCoverData>(out var cover)) tasks.Add(cover.UpdateScoreAsync(score, token));
       await UniTask.WhenAll(tasks);
     }
 

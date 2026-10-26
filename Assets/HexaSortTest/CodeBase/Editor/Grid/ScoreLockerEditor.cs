@@ -30,7 +30,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
         }
 
       EditorGUILayout.HelpBox(
-        "The grid editor writes each cell's Required Score into this view. Font, alignment and position are configured on the TMP child. Unlock Particles is a reference only.",
+        "Required Score is the total level score needed to open this lock, not a cost deducted from the score. The label and unlock logic use this same value.",
         MessageType.Info);
       foreach (var item in targets)
         DrawWarnings((ScoreLocker)item);

@@ -12,6 +12,7 @@ namespace HexaSortTest.CodeBase.Editor.Grid
     public event Action SettingsChanged;
     public event Action GenerateRequested;
     public event Action SaveRequested;
+    public event Action ClearRequested;
 
     private readonly HexGridSettings _settings;
 
@@ -352,6 +353,14 @@ namespace HexaSortTest.CodeBase.Editor.Grid
 
       var generateButton = new Button(() => GenerateRequested?.Invoke()) { text = "Generate Grid" };
       _root.Add(generateButton);
+
+      var clearButton = new Button(() => ClearRequested?.Invoke())
+      {
+        text = "Clear",
+        tooltip = "Clear cell layout while keeping grid size, type and model settings.",
+        style = { marginTop = 4 }
+      };
+      _root.Add(clearButton);
 
       var saveButton = new Button(() => SaveRequested?.Invoke())
       {

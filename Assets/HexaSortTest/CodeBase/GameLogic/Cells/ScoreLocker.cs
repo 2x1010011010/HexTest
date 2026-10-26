@@ -22,6 +22,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     public ParticleSystem UnlockParticles => _unlockParticles;
     public int RequiredScore => _requiredScore;
 
+    public void ConfigureRequiredScore(int requiredScore)
+    {
+      _requiredScore = Mathf.Max(0, requiredScore);
+      SetRemainingScore(_requiredScore);
+    }
+
     public void SetRemainingScore(int remaining)
     {
       if (_scoreText != null)
@@ -31,8 +37,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
 #if UNITY_EDITOR
     public void ConfigureForEditor(int requiredScore)
     {
-      _requiredScore = Mathf.Max(0, requiredScore);
-      RefreshEditorText();
+      ConfigureRequiredScore(requiredScore);
     }
 
     public void AssignMissingEditorReferences()

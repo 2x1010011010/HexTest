@@ -14,13 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameConfigs.LevelConfig
   <Material>k__BackingField: {fileID: 2100000, guid: 82a77f2dc1bd7c543a228751c11516de, type: 2}
   <CellColors>k__BackingField:
-  - {r: 0.5641509, g: 1, b: 0.94927174, a: 0}
-  - {r: 0.25217015, g: 0.87169814, b: 0.21545745, a: 0}
   - {r: 0.19077952, g: 0.53187954, b: 0.8792453, a: 0}
-  - {r: 0.89433956, g: 0.2136812, b: 0.18055533, a: 0}
-  - {r: 1, g: 0.8661475, b: 0.20943397, a: 0}
   - {r: 0.7207546, g: 0.11287284, b: 0.7207546, a: 0}
-  <GridPrefab>k__BackingField: {fileID: 964728634895531678, guid: affd8a85c627ad74a85a3f0fd7f15712, type: 3}
+  <GridPrefab>k__BackingField: {fileID: 8275151741763822765, guid: c0a5c2200f63f9b44b27c04bd7045784, type: 3}
   <FieldOfView>k__BackingField: 50
-  <WinCondition>k__BackingField: 350
+  <WinCondition>k__BackingField: 100
   <Difficulty>k__BackingField: 0
