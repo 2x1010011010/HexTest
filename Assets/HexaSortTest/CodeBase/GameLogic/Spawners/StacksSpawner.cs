@@ -89,13 +89,18 @@ namespace HexaSortTest.CodeBase.GameLogic.Spawners
 
     public async UniTask ReplaceTrayAsync(CancellationToken token)
     {
+      token.ThrowIfCancellationRequested();
       var snapshot = _tray.ToArray();
-      foreach (var stack in snapshot)
+      var removals = new UniTask<int>[snapshot.Length];
+      for (int i = 0; i < snapshot.Length; i++)
       {
-        token.ThrowIfCancellationRequested();
+        var stack = snapshot[i];
         stack.GetComponent<StackMover>().OnStackParentChange -= StackParentChanged;
-        await stack.RemoveAllAsync(token);
+        // Start every removal immediately; wait for the whole tray only once.
+        removals[i] = stack.RemoveAllAsync(token);
       }
+      await UniTask.WhenAll(removals);
+      token.ThrowIfCancellationRequested();
       _tray.Clear();
       Refill();
     }
