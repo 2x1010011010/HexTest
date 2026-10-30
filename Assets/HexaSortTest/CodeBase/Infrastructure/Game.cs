@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.Infrastructure.Services.LivesService;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.Infrastructure.Services;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
@@ -25,7 +26,8 @@ namespace HexaSortTest.CodeBase.Infrastructure
       IUIListenerService uiListenerService,
       IUIFactory uiFactory,
       IMetaObjectFactory metaObjectFactory,
-      ICurrencyService currencyService
+      ICurrencyService currencyService,
+      LivesService livesService
     ) =>
       StateMachine = new GameStateMachine(
         new SceneLoader(coroutineRunner),
@@ -36,6 +38,7 @@ namespace HexaSortTest.CodeBase.Infrastructure
         uiListenerService,
         uiFactory,
         metaObjectFactory,
-        currencyService);
+        currencyService,
+        livesService);
   }
 }

@@ -16,6 +16,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
     public int HexCoins;
     public int Coins;
 
+    public bool LivesInitialized;
+    public int Lives;
+    public long NextLifeUtcTicks;
+
     public List<MetaTileProgress> MetaProgress;
     public List<BoosterInventoryEntry> Boosters;
 

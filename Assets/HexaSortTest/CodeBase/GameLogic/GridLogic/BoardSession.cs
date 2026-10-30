@@ -33,6 +33,15 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       return true;
     }
 
+    // Settlement runs independently from pointer gestures in GridObserver.
+    public void BeginSettlement()
+    {
+      if (State == BoardState.Settling) return;
+      if (State != BoardState.Initializing && State != BoardState.Idle)
+        throw new InvalidOperationException("Cannot settle a finished board.");
+      SetState(BoardState.Settling);
+    }
+
     public void AddScore(int count)
     {
       if (count < 0 || (State != BoardState.Settling && State != BoardState.ApplyingBooster))

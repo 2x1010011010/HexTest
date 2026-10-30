@@ -61,7 +61,8 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     {
       if (movedTiles.Count == 0) return;
       var sequence = DOTween.Sequence();
-      Quaternion restRotation = target.transform.rotation * Quaternion.Euler(0f, 90f, 0f);
+      Quaternion restRotation = Quaternion.Euler(0f, 90f, 0f);
+      direction = target.transform.InverseTransformDirection(direction);
       Vector3 flipAxis = Vector3.Cross(-Vector3.up, direction).normalized;
       if (flipAxis.sqrMagnitude < 0.001f) flipAxis = Vector3.right;
       for (int i = 0; i < movedTiles.Count; i++)
@@ -70,16 +71,17 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         var tile = go.GetComponent<StackTile>();
         tile.SetParent(target.transform);
         target.Add(go);
-        var destination = target.transform.position + Vector3.up * (_verticalShift * (target.Tiles.Count - 1));
-        var path = new[] { destination, go.transform.position + Vector3.up * _curveHeight, destination + Vector3.up * _curveHeight };
+        var destination = target.transform.InverseTransformVector(Vector3.up * (_verticalShift * (target.Tiles.Count - 1)));
+        var arc = target.transform.InverseTransformVector(Vector3.up * _curveHeight);
+        var path = new[] { destination, go.transform.localPosition + arc, destination + arc };
         float delay = i * _movePauseBetween;
-        sequence.Insert(delay, go.transform.DOPath(path, _moveDuration, PathType.CubicBezier).SetEase(Ease.InOutSine));
-        sequence.Insert(delay, go.transform.DORotateQuaternion(Quaternion.AngleAxis(180f, flipAxis) * restRotation,
+        sequence.Insert(delay, go.transform.DOLocalPath(path, _moveDuration, PathType.CubicBezier).SetEase(Ease.InOutSine));
+        sequence.Insert(delay, go.transform.DOLocalRotateQuaternion(Quaternion.AngleAxis(180f, flipAxis) * restRotation,
           _moveDuration * _durationCent).SetEase(Ease.InOutSine));
       }
       // A sequence waits for BOTH translation and rotation, including the last delayed tile.
       await BoardTween.PlayAsync(sequence, token);
-      foreach (var go in movedTiles) go.transform.rotation = restRotation;
+      foreach (var go in movedTiles) go.transform.localRotation = restRotation;
       AudioFacade.Instance?.PlaySort();
     }
   }

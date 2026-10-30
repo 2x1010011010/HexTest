@@ -1,3 +1,4 @@
+using TMPro;
 using System;
 using DG.Tweening;
 using Sirenix.OdinInspector;
@@ -15,6 +16,19 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
 
     [SerializeField, BoxGroup("ANIMATION")]
     private float _openDuration = 0.3f;
+
+    [SerializeField, BoxGroup("REWARDS")] private TMP_Text _victoryCoinsText;
+    [SerializeField, BoxGroup("REWARDS")] private TMP_Text _victoryHexCoinsText;
+    [SerializeField, BoxGroup("REWARDS")] private TMP_Text _defeatCoinsText;
+    [SerializeField, BoxGroup("REWARDS")] private TMP_Text _defeatHexCoinsText;
+
+    public void SetRewards(int coins, int hexCoins)
+    {
+      if (_victoryCoinsText != null) _victoryCoinsText.text = $"+{coins}";
+      if (_victoryHexCoinsText != null) _victoryHexCoinsText.text = $"+{hexCoins}";
+      if (_defeatCoinsText != null) _defeatCoinsText.text = $"+{coins}";
+      if (_defeatHexCoinsText != null) _defeatHexCoinsText.text = $"+{hexCoins}";
+    }
 
     public event Action OnContinueClicked;
     public event Action OnMainMenuClicked;

@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.Infrastructure.Services.LivesService;
 using System;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
@@ -26,16 +27,17 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
       IUIListenerService        uiListenerService,
       IUIFactory                uiFactory,
       IMetaObjectFactory         metaObjectFactory,
-      ICurrencyService           currencyService)
+      ICurrencyService           currencyService,
+      LivesService              livesService)
     {
       _states = new Dictionary<Type, IExitState>
       {
         [typeof(BootstrapState)]    = new BootstrapState(this, sceneLoader, curtain),
         [typeof(LoadProgressState)] = new LoadProgressState(this, progressService, saveLoadService),
         [typeof(MainMenuState)]     = new MainMenuState(this, sceneLoader, curtain, uiFactory, progressService),
-        [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, uiFactory, progressService),
+        [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, uiFactory, progressService, livesService),
         [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory, uiFactory),
-        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, uiFactory, progressService, saveLoadService, gameFactory, currencyService),
+        [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, uiFactory, progressService, saveLoadService, gameFactory, currencyService, livesService),
         [typeof(MetaState)]         = new MetaState(this, sceneLoader, curtain, uiFactory, metaObjectFactory),
         [typeof(ShopState)]         = new ShopState(this, sceneLoader, curtain, uiFactory),
       };
@@ -44,6 +46,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
 #endif
     }
     
+    public void BeginLevelAttempt() => GetState<GameResultState>().BeginAttempt();
+
     public void Enter<TState>() where TState : class, IState
     {
       IState state = ChangeState<TState>();

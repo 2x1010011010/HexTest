@@ -12,14 +12,26 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
   public sealed class StackMergeProcessor
   {
     private readonly HexGrid _grid;
+    private readonly Func<bool> _paused;
+    private readonly Func<bool> _movementPaused;
+    public bool IsMovingTiles { get; private set; }
+    private readonly HashSet<Cell> _busy = new();
+    public bool HasActiveOperation => _busy.Count > 0;
+    public bool IsBusy(Cell cell) => cell != null && _busy.Contains(cell);
+    private async UniTask WaitForInputAsync(CancellationToken token)
+    {
+      while (_paused?.Invoke() == true) await UniTask.Yield(PlayerLoopTiming.Update, token);
+    }
     private readonly Action<float> _removalProgress;
     private readonly Dictionary<Cell, List<Cell>> _neighbors;
     private readonly Func<Cell, int, CancellationToken, UniTask> _collected;
 
     public StackMergeProcessor(HexGrid grid, Dictionary<Cell, List<Cell>> neighbors,
-      Func<Cell, int, CancellationToken, UniTask> collected, Action<float> removalProgress = null)
+      Func<Cell, int, CancellationToken, UniTask> collected, Action<float> removalProgress = null, Func<bool> paused = null, Func<bool> movementPaused = null)
     {
       _grid = grid;
+      _paused = paused;
+      _movementPaused = movementPaused;
       _neighbors = neighbors;
       _collected = collected;
       _removalProgress = removalProgress;
@@ -35,19 +47,27 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         collected = false;
         foreach (var cell in _grid.Cells)
         {
+          await WaitForInputAsync(token);
           token.ThrowIfCancellationRequested();
           var stack = GetStack(cell);
           if (stack == null) continue;
-          int removed = await stack.CollectTopAsync(token, _removalProgress);
-          if (removed == 0) continue;
-          collected = true;
-          await _collected(cell, removed, token);
+          _busy.Add(cell);
+          try
+          {
+            int removed = await stack.CollectTopAsync(token, _removalProgress);
+            if (removed == 0) continue;
+            collected = true;
+            await _collected(cell, removed, token);
+          }
+          finally { _busy.Remove(cell); }
         }
       } while (collected);
     }
 
     private async UniTask<bool> MergeOneAsync(CancellationToken token)
     {
+      while ((_paused?.Invoke() ?? false) || (_movementPaused?.Invoke() ?? false))
+        await UniTask.Yield(PlayerLoopTiming.Update, token);
       token.ThrowIfCancellationRequested();
       for (int i = 0; i < _grid.Cells.Count; i++)
       {
@@ -75,9 +95,21 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           }
           moved.Reverse();
           var direction = (target.transform.position - source.transform.position).normalized;
-          foreach (var tile in moved) source.Remove(tile);
-          await target.AnimateMoveToStack(moved, direction, token);
-          source.DestroyIfEmpty();
+          _busy.Add(cell);
+          _busy.Add(neighbor);
+          IsMovingTiles = true;
+          try
+          {
+            foreach (var tile in moved) source.Remove(tile);
+            await target.AnimateMoveToStack(moved, direction, token);
+            source.DestroyIfEmpty();
+          }
+          finally
+          {
+            IsMovingTiles = false;
+            _busy.Remove(cell);
+            _busy.Remove(neighbor);
+          }
           return true;
         }
       }

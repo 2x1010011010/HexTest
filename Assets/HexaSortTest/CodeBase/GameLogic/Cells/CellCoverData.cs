@@ -50,71 +50,89 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       }
     }
 
-    public async UniTask UpdateScoreAsync(int score, CancellationToken token)
+    // Keep the async API for existing callers, but commit gameplay synchronously.
+    public UniTask UpdateScoreAsync(int score, CancellationToken token)
     {
-      if (_type != CellCoverType.ScoreLock || _unlocked || IsUnlocking)
-        return;
-      int threshold = RequiredScore;
-      int remaining = Mathf.Max(0, threshold - Mathf.Max(0, score));
-      if (_locker != null)
-        _locker.SetRemainingScore(remaining);
-      if (remaining == 0)
-      {
-#if UNITY_EDITOR
-        GameLogger.Message($"[ScoreLock] Cell={name} position={transform.position}, " +
-          $"visual={(_visualRoot != null ? _visualRoot.name : "missing")}, " +
-          $"threshold={threshold}, score={score}. Starting unlock.");
-#endif
-        await UnlockAsync(_locker != null ? _locker.UnlockParticles : null, token);
-      }
+      token.ThrowIfCancellationRequested();
+      if (_type != CellCoverType.ScoreLock || _unlocked)
+        return UniTask.CompletedTask;
+      int remaining = Mathf.Max(0, RequiredScore - Mathf.Max(0, score));
+      if (Locker != null) Locker.SetRemainingScore(remaining);
+      if (remaining == 0) Unlock(_locker != null ? _locker.UnlockParticles : null);
+      return UniTask.CompletedTask;
     }
 
-    public async UniTask HitAsync(CancellationToken token)
+    public UniTask HitAsync(CancellationToken token)
     {
-      if (_type != CellCoverType.BreakableBlocker || _unlocked || IsUnlocking)
-        return;
+      token.ThrowIfCancellationRequested();
+      if (_type != CellCoverType.BreakableBlocker || _unlocked)
+        return UniTask.CompletedTask;
       _remainingHits = Mathf.Max(0, _remainingHits - 1);
-      if (_blocker != null)
-        _blocker.SetRemainingHits(_remainingHits);
-      ParticleSystem particles = _blocker != null ? _blocker.HitParticles : null;
-      if (_remainingHits == 0)
-        await UnlockAsync(particles, token);
-      else
-        await PlayParticlesAsync(particles, token);
+      if (_blocker != null) _blocker.SetRemainingHits(_remainingHits);
+      var particles = _blocker != null ? _blocker.HitParticles : null;
+      if (_remainingHits == 0) Unlock(particles);
+      else PlayParticles(particles);
+      return UniTask.CompletedTask;
     }
 
-    private async UniTask UnlockAsync(ParticleSystem particles, CancellationToken token)
+    private void Unlock(ParticleSystem particles)
     {
-      IsUnlocking = true;
-      await PlayParticlesAsync(particles, token);
-      if (this == null)
-        return;
+      // No particle lifetime participates in cell state or the board's operation queue.
       _unlocked = true;
       IsUnlocking = false;
-      if (_visualRoot != null)
-        _visualRoot.SetActive(false);
       SetCellLayer(LayerMask.NameToLayer("Grid"));
-      _cell.SetEmpty(_cell.GetComponentInChildren<Stack>() == null);
+      if (_cell != null) _cell.SetEmpty(_cell.GetComponentInChildren<Stack>() == null);
+      HideCover(particles);
+      PlayParticles(particles);
 #if UNITY_EDITOR
       GameLogger.Message($"[CellCoverData] Unlocked {name} ({_type}).");
 #endif
     }
 
-    private async UniTask PlayParticlesAsync(ParticleSystem particles, CancellationToken token)
+    private void HideCover(ParticleSystem particles)
     {
-      if (particles == null)
-        return;
-      particles.gameObject.SetActive(true);
-      particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-      foreach (var system in particles.GetComponentsInChildren<ParticleSystem>(true))
+      if (_visualRoot == null) return;
+      // Keep the effect under the cell (and scene lifetime), outside the hidden cover.
+      if (particles != null && particles.gameObject != _visualRoot &&
+          particles.transform.IsChildOf(_visualRoot.transform))
+        particles.transform.SetParent(transform, true);
+
+      if (particles == null || !particles.transform.IsChildOf(_visualRoot.transform))
       {
-        var main = system.main;
-        main.loop = false;
-        main.stopAction = ParticleSystemStopAction.None;
+        _visualRoot.SetActive(false);
+        return;
       }
-      particles.Play(true);
-      await UniTask.WaitUntil(() => particles == null || !particles.IsAlive(true),
-        cancellationToken: token);
+
+      // Also support prefabs with the ParticleSystem on the cover root itself.
+      foreach (var renderer in _visualRoot.GetComponentsInChildren<Renderer>(true))
+        if (!(renderer is ParticleSystemRenderer)) renderer.enabled = false;
+      foreach (var canvas in _visualRoot.GetComponentsInChildren<Canvas>(true)) canvas.enabled = false;
+      foreach (var collider in _visualRoot.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
+    }
+
+    private void PlayParticles(ParticleSystem particles)
+    {
+      if (particles == null) return;
+      try
+      {
+        particles.gameObject.SetActive(true);
+        foreach (var system in particles.GetComponentsInChildren<ParticleSystem>(true))
+        {
+          var main = system.main;
+          main.loop = false;
+          main.stopAction = ParticleSystemStopAction.None;
+        }
+        // Restart emission for repeated hits without clearing already emitted particles.
+        particles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        particles.Play(true);
+      }
+      catch (System.Exception error)
+      {
+        // A cosmetic failure must never fault the gameplay session.
+#if UNITY_EDITOR
+        GameLogger.Error($"[CellCoverData] VFX failed on {name}: {error}");
+#endif
+      }
     }
 
     private void SetCellLayer(int layer)

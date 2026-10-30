@@ -32,9 +32,19 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private StackMover _drag;
     private Func<bool> _inputBlocked;
     private int _gridMask;
-    public BoardState State => _session.State;
+    private BoardState _interactionState = BoardState.Initializing;
+    private bool _resolving;
+    private bool _resolveRequested;
+    public BoardState State => _interactionState;
+    private bool TryTransition(BoardState expected, BoardState next)
+    {
+      if (State != expected) return false;
+      _interactionState = next;
+      return true;
+    }
     public int Score => _session.Score;
-    public bool InputBlocked => (_mainMenu != null && _mainMenu.IsOpen) || (_inputBlocked?.Invoke() ?? false);
+    public bool InputBlocked => State == BoardState.Initializing || State == BoardState.Completed ||
+      State == BoardState.Faulted || State == BoardState.Disposed || (_mainMenu != null && _mainMenu.IsOpen) || (_inputBlocked?.Invoke() ?? false);
     public bool CanChooseBooster => !InputBlocked && (State == BoardState.Idle || State == BoardState.SelectingBooster);
     public BoardRotationController Rotation { get; private set; }
     public BoosterTools Boosters { get; private set; }
@@ -70,8 +80,10 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
         var input = GetComponent<BoardInputController>();
         if (input == null) input = gameObject.AddComponent<BoardInputController>();
         input.Initialize(this, Rotation);
-        _merges = new StackMergeProcessor(_grid, _neighbors, OnCollectedAsync, PresentRemovalProgress);
-        _session.TryTransition(BoardState.Initializing, BoardState.Settling);
+        _merges = new StackMergeProcessor(_grid, _neighbors, OnCollectedAsync, PresentRemovalProgress,
+          () => State == BoardState.ApplyingBooster,
+          () => State == BoardState.Rotating || State == BoardState.SnappingRotation);
+        TryTransition(BoardState.Initializing, BoardState.Idle);
         ResolveAsync().Forget();
       }
       catch (Exception error) { HandleFailure(error); }
@@ -97,15 +109,20 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     public bool IsTrayStack(Stack stack) => _spawner != null && _spawner.IsTrayStack(stack);
     public bool IsPlacedStack(Stack stack) => stack != null && stack.Cell != null &&
-      _grid.Cells.Contains(stack.Cell) && StackMergeProcessor.GetStack(stack.Cell) == stack;
+      _grid.Cells.Contains(stack.Cell) && !(_merges?.IsBusy(stack.Cell) ?? false) &&
+      StackMergeProcessor.GetStack(stack.Cell) == stack;
 
     public bool TryBeginDrag(Stack stack, Vector2 screen, Camera camera, bool hand)
     {
       if (InputBlocked || (hand ? !IsPlacedStack(stack) : !IsTrayStack(stack))) return false;
       var expected = hand ? BoardState.SelectingBooster : BoardState.Idle;
-      if (!_session.TryTransition(expected, BoardState.DraggingStack)) return false;
+      if (!TryTransition(expected, BoardState.DraggingStack)) return false;
       _drag = stack.GetComponent<StackMover>();
-      if (_drag != null && _drag.BeginDrag(this, camera, screen, hand)) return true;
+      if (_drag != null && _drag.BeginDrag(this, camera, screen, hand))
+      {
+        if (hand) _resolveRequested = true;
+        return true;
+      }
       CancelInteraction();
       return false;
     }
@@ -116,7 +133,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (State != BoardState.DraggingStack) return;
       if (overUI || _drag == null || _drag.HoverCell == null) { CancelInteraction(); return; }
       var cell = _drag.HoverCell;
-      if (_session.TryTransition(BoardState.DraggingStack, BoardState.DroppingStack)) DropAsync(cell).Forget();
+      if (TryTransition(BoardState.DraggingStack, BoardState.DroppingStack)) DropAsync(cell).Forget();
     }
 
     private async UniTask DropAsync(Cell cell)
@@ -129,13 +146,13 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           _drag.Cancel();
           _drag = null;
           Boosters?.ClearSelection();
-          _session.TryTransition(BoardState.DroppingStack, BoardState.Idle);
+          TryTransition(BoardState.DroppingStack, BoardState.Idle);
           return;
         }
         _drag.Commit(cell);
         _drag = null;
         Boosters?.ClearSelection();
-        _session.TryTransition(BoardState.DroppingStack, BoardState.Settling);
+        TryTransition(BoardState.DroppingStack, BoardState.Idle);
         await ResolveAsync();
       }
       catch (Exception error) { HandleFailure(error); }
@@ -146,7 +163,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       if (!Physics.Raycast(new Vector3(point.x, Rotation.Center.y + 100f, point.z), Vector3.down,
             out var hit, 200f, _gridMask, QueryTriggerInteraction.Collide)) return null;
       var cell = hit.collider.GetComponentInParent<Cell>();
-      if (cell == null || !_grid.Cells.Contains(cell) || !cell.IsEmpty) return null;
+      if (cell == null || !_grid.Cells.Contains(cell) || !cell.IsEmpty || (_merges?.IsBusy(cell) ?? false)) return null;
       if (cell.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked) return null;
       return cell;
     }
@@ -166,25 +183,26 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     public bool TryBeginRotation(Vector3 point)
     {
-      if (InputBlocked || !_session.TryTransition(BoardState.Idle, BoardState.Rotating)) return false;
+      if (InputBlocked || (_merges?.IsMovingTiles ?? false) ||
+          !TryTransition(BoardState.Idle, BoardState.Rotating)) return false;
       Rotation.Begin(point);
       return true;
     }
     public void ReleaseRotation()
     {
-      if (_session.TryTransition(BoardState.Rotating, BoardState.SnappingRotation)) SnapAsync().Forget();
+      if (TryTransition(BoardState.Rotating, BoardState.SnappingRotation)) SnapAsync().Forget();
     }
     private async UniTask SnapAsync()
     {
       try
       {
         await Rotation.SnapAsync(_token);
-        _session.TryTransition(BoardState.SnappingRotation, BoardState.Idle);
+        TryTransition(BoardState.SnappingRotation, BoardState.Idle);
       }
       catch (Exception error) { HandleFailure(error); }
     }
 
-    public void SelectBooster() => _session.TryTransition(BoardState.Idle, BoardState.SelectingBooster);
+    public void SelectBooster() => TryTransition(BoardState.Idle, BoardState.SelectingBooster);
     public void CancelInteraction()
     {
       var state = State;
@@ -193,16 +211,19 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       _drag = null;
       if (state == BoardState.Rotating) Rotation.SnapImmediately();
       Boosters?.ClearSelection();
-      _session.TryTransition(state, BoardState.Idle);
+      TryTransition(state, BoardState.Idle);
     }
 
     public async UniTask ExecuteBoosterAsync(Func<CancellationToken, UniTask> action)
     {
-      if (!CanChooseBooster || !_session.TryTransition(State, BoardState.ApplyingBooster)) return;
+      if (!CanChooseBooster || !TryTransition(State, BoardState.ApplyingBooster)) return;
       try
       {
+        _session.BeginSettlement();
+        // Finish only the current atomic transfer before modifying a stack with a booster.
+        while (_merges.HasActiveOperation) await UniTask.Yield(PlayerLoopTiming.Update, _token);
         await action(_token);
-        _session.TryTransition(BoardState.ApplyingBooster, BoardState.Settling);
+        TryTransition(BoardState.ApplyingBooster, BoardState.Idle);
         await ResolveAsync();
       }
       catch (Exception error) { HandleFailure(error); }
@@ -230,26 +251,43 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private async UniTask ResolveAsync()
     {
+      _resolveRequested = true;
+      if (_resolving) return;
+      _resolving = true;
       try
       {
-        await UpdateCoversAsync(_token);
-        await _merges.SettleAsync(_token);
+        _session.BeginSettlement();
+        do
+        {
+          _resolveRequested = false;
+          await UpdateCoversAsync(_token);
+          await _merges.SettleAsync(_token);
+          // Do not finish a level while a stack is held or a booster/drop is in flight.
+          while (State != BoardState.Idle)
+          {
+            if (State == BoardState.Faulted || State == BoardState.Completed) return;
+            await UniTask.Yield(PlayerLoopTiming.Update, _token);
+          }
+        } while (_resolveRequested);
         _token.ThrowIfCancellationRequested();
         bool full = _grid.Cells.All(cell =>
           (cell.TryGetComponent<CellCoverData>(out var cover) && cover.IsBlocked) || StackMergeProcessor.GetStack(cell) != null);
         var result = _session.CompleteSettlement(full);
         if (result == BoardOutcome.None) return;
+        _interactionState = BoardState.Completed;
         if (_gameStateMachine != null)
-          _gameStateMachine.Enter<GameResultState, GameResultPayload>(new GameResultPayload(result == BoardOutcome.Victory));
+          _gameStateMachine.Enter<GameResultState, GameResultPayload>(new GameResultPayload(result == BoardOutcome.Victory, Score));
         else _mainMenu?.Open();
       }
       catch (Exception error) { HandleFailure(error); }
+      finally { _resolving = false; }
     }
 
     private void HandleFailure(Exception error)
     {
       if (_token.IsCancellationRequested) return;
       _session.Fail();
+      _interactionState = BoardState.Faulted;
 #if UNITY_EDITOR
       GameLogger.Error($"[GridObserver] Board operation stopped: {error}");
 #endif
@@ -258,6 +296,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     private void OnDestroy()
     {
+      _interactionState = BoardState.Disposed;
       _lifetime.Cancel();
       _session.Dispose();
       _lifetime.Dispose();

@@ -180,8 +180,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_coinsCounter != null && _currencyService != null)
         _coinsCounter.text = _currencyService.Coins.ToString();
     }
-
-    // The removal sequence drives the UI directly; no independent HUD timer.
+    
     private void DisplayScore(int score) => SetScoreImmediately(score);
 
     private void SetScoreImmediately(int score)

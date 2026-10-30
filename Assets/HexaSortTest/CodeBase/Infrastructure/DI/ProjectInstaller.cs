@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.Infrastructure.Services.LivesService;
 using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
 using HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService;
@@ -86,6 +87,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
 #if UNITY_EDITOR
       GameLogger.Message("[DI][ProjectInstaller] Binding registered: IMetaObjectFactory.");
 #endif
+
+      Container.Bind<LivesService>().AsSingle();
 
       Container
         .Bind<ICurrencyService>()

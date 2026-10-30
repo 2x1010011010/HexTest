@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.Infrastructure.Services.LivesService;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.Infrastructure.Logging;
 using HexaSortTest.CodeBase.Infrastructure.Services.Factories;
@@ -8,6 +9,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 {
   public class LoadLevelState : IPayloadState<string>
   {
+    private readonly LivesService _lives;
     private readonly SceneLoader _sceneLoader;
     private readonly GameStateMachine _gameStateMachine;
     private readonly IGameFactory _gameFactory;
@@ -19,17 +21,25 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       SceneLoader sceneLoader,
       IGameFactory gameFactory,
       IUIFactory uiFactory,
-      IPersistentProgressService progressService)
+      IPersistentProgressService progressService,
+      LivesService lives)
     {
       _gameStateMachine = gameStateMachine;
       _sceneLoader = sceneLoader;
       _gameFactory = gameFactory;
       _uiFactory = uiFactory;
       _progressService = progressService;
+      _lives = lives;
     }
 
     public void Enter(string sceneName)
     {
+      _lives.Refresh();
+      if (_lives.Lives <= 0)
+      {
+        _gameStateMachine.Enter<MainMenuState>();
+        return;
+      }
 #if UNITY_EDITOR
       GameLogger.Message($"[LoadLevelState] Preparing scene {sceneName}, level index {_progressService.PlayerProgress.LevelIndex}; clearing previous objects.");
 #endif
@@ -47,6 +57,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       InitGameWorld();
       InformProgressReaders();
 
+      _gameStateMachine.BeginLevelAttempt();
       _gameStateMachine.Enter<GameLoopState>();
     }
 

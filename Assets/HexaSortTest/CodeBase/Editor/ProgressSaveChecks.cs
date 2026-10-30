@@ -1,3 +1,5 @@
+using HexaSortTest.CodeBase.Infrastructure.Services.LivesService;
+using HexaSortTest.CodeBase.Infrastructure.StateMachine.States.CustomPayloadStructures;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -45,6 +47,7 @@ namespace HexaSortTest.CodeBase.Editor
       Run(PartialMetaAndCompletion, ref count);
       Run(InsufficientFundsDoNotAdvanceMeta, ref count);
       Run(VictoryIsCommittedOnce, ref count);
+      Run(DefeatRewardsAndLives, ref count);
       Run(NewerSaveIsNotOverwritten, ref count);
       Debug.Log($"[ProgressSaveChecks] PASS: {count} checks. Player profile was not touched.");
     }
@@ -192,15 +195,43 @@ namespace HexaSortTest.CodeBase.Editor
       SetField(config, "<Difficulty>k__BackingField", LevelDifficulty.Hard);
       f.Factory.CurrentLevelConfig = config;
       f.Factory.CurrentLevelIndex = 0;
-      var state = new GameResultState(null, null, null, f.Service, f.Save, f.Factory, f.Currency);
-      var complete = typeof(GameResultState).GetMethod("CompleteLevel", BindingFlags.NonPublic | BindingFlags.Instance);
-      complete.Invoke(state, null);
+      var state = new GameResultState(null, null, null, f.Service, f.Save, f.Factory, f.Currency, new LivesService(f.Service, f.Save));
+      var complete = typeof(GameResultState).GetMethod("ApplyResult", BindingFlags.NonPublic | BindingFlags.Instance);
+      state.BeginAttempt();
+      complete.Invoke(state, new object[] { new GameResultPayload(true, 250) });
       var loaded = f.Reload();
       Require(loaded.LevelIndex == 1 && loaded.Coins == Constants.HardLevelCoinsReward && loaded.HexCoins == 250,
         "Victory saved without Continue button");
-      complete.Invoke(state, null);
+      complete.Invoke(state, new object[] { new GameResultPayload(true, 250) });
       Require(f.Reload().LevelIndex == 1 && f.Reload().Coins == Constants.HardLevelCoinsReward,
         "Duplicate result cannot grant another reward");
+    }
+
+    private static void DefeatRewardsAndLives(Fixture f)
+    {
+      var config = ScriptableObject.CreateInstance<LevelConfig>();
+      f.Objects.Add(config);
+      SetField(config, "<WinCondition>k__BackingField", 250);
+      SetField(config, "<Difficulty>k__BackingField", LevelDifficulty.Hard);
+      f.Factory.CurrentLevelConfig = config;
+      f.Factory.CurrentLevelIndex = 0;
+      var lives = new LivesService(f.Service, f.Save);
+      var state = new GameResultState(null, null, null, f.Service, f.Save, f.Factory, f.Currency, lives);
+      var apply = typeof(GameResultState).GetMethod("ApplyResult", BindingFlags.NonPublic | BindingFlags.Instance);
+      state.BeginAttempt();
+      apply.Invoke(state, new object[] { new GameResultPayload(false, 100) });
+      var saved = f.Reload();
+      long deadline = saved.NextLifeUtcTicks;
+      Require(saved.LevelIndex == 0 && saved.Coins == 0 && saved.HexCoins == 0 && saved.Lives == 4,
+        "Defeat grants no currency and persists one lost life without advancing level");
+      Require(deadline > DateTime.UtcNow.Ticks, "Defeat starts recovery deadline");
+      apply.Invoke(state, new object[] { new GameResultPayload(false, 100) });
+      Require(f.Reload().Lives == 4 && f.Reload().Coins == 0, "Duplicate defeat has no effect");
+      state.BeginAttempt();
+      apply.Invoke(state, new object[] { new GameResultPayload(false, 0) });
+      saved = f.Reload();
+      Require(saved.Lives == 3 && saved.Coins == 0 && saved.HexCoins == 0 && saved.NextLifeUtcTicks == deadline,
+        "New attempt loses a life without resetting recovery; zero score gives no reward");
     }
 
     private static void NewerSaveIsNotOverwritten(Fixture f)
