@@ -9,6 +9,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
   public sealed class BoardRotationController : MonoBehaviour
   {
     [SerializeField, Min(0.01f)] private float _snapDuration = 0.18f;
+    private HexGrid _grid;
     private Vector3 _initialPosition;
     private Quaternion _initialRotation;
     private Vector3 _previousDirection;
@@ -20,6 +21,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
 
     public void Initialize(HexGrid grid, float spacing)
     {
+      _grid = grid;
       _initialPosition = transform.position;
       _initialRotation = transform.rotation;
       var bounds = new Bounds(grid.Cells[0].transform.position, Vector3.zero);
@@ -68,13 +70,32 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       float target = BoardRotationMath.Snap(Angle);
       await BoardTween.PlayAsync(DOTween.To(() => Angle, SetAngle, target, _snapDuration).SetEase(Ease.OutCubic), token);
       SetAngle(BoardRotationMath.Normalize(target));
+      SynchronizeStackRotations();
       Physics.SyncTransforms();
     }
 
     public void SnapImmediately()
     {
       SetAngle(BoardRotationMath.Normalize(BoardRotationMath.Snap(Angle)));
+      SynchronizeStackRotations();
       Physics.SyncTransforms();
+    }
+
+    public void SynchronizeStackRotation(StackLogic.Stack stack)
+    {
+      if (stack == null || stack.IsDragged || stack.Cell == null ||
+          _grid == null || !_grid.Cells.Contains(stack.Cell)) return;
+
+      // All stacks must use the board's frame for local tile-flip animations.
+      // Keep the tile model's existing local rotation (90 degrees) intact.
+      stack.transform.rotation = transform.rotation;
+    }
+
+    private void SynchronizeStackRotations()
+    {
+      if (_grid == null) return;
+      foreach (var cell in _grid.Cells)
+        SynchronizeStackRotation(StackMergeProcessor.GetStack(cell));
     }
 
     private void SetAngle(float angle)

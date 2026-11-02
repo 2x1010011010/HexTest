@@ -49,8 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.GridLogic.Stack
   _stack: []
-  _pauseBetween: 0.1
-  _scaleDuration: 0.05
+  _colorTreshold: 10
 --- !u!114 &4025328620672466540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,10 +62,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f5fbadf08ce45809442a08ecdd65cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.StackLogic.StackAnimator
-  _scaleDuration: 0.5
+  _scaleDuration: 0.35
   _pauseBetween: 0.05
   _movePauseBetween: 0.045
-  _moveDuration: 0.82
+  _moveDuration: 0.6
+  _durationCent: 0.9
+  _curveHeight: 6
+  _verticalShift: 0.7
 --- !u!114 &5937415863697100280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,12 +85,6 @@ MonoBehaviour:
   _gridLayer:
     serializedVersion: 2
     m_Bits: 64
-  _groundLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  _cellLayer:
-    serializedVersion: 2
-    m_Bits: 256
   _verticalShift: 1
   _movementSpeed: 250
 --- !u!114 &3673557651193220927

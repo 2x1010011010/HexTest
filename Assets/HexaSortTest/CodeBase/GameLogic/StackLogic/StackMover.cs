@@ -94,6 +94,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
       _originCell?.SetEmpty(true);
       cell.SetEmpty(false);
       EndDrag();
+      _board.Rotation.SynchronizeStackRotation(_stack);
       AudioFacade.Instance?.PlayOpen();
       OnStackParentChange?.Invoke(_stack);
     }
