@@ -10,139 +10,116 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
   public class MetaTile : MonoBehaviour
   {
     [SerializeField, BoxGroup("SETUP")] private string _tileId;
-    [SerializeField, BoxGroup("SETUP")] private Material _blackMaterial;
-    [SerializeField, BoxGroup("SETUP")] private Material _mainMaterial;
-
-    [SerializeField, BoxGroup("GROUPS"),
-     Tooltip("Reveal order. Group 0 is visible (in black material) from the start; " +
-             "each group fully unlocking reveals the next.")]
+    [SerializeField, BoxGroup("GROUPS"), Tooltip("Cover objects in reveal order. Keep the background outside these objects.")]
     private List<MetaTileObjectGroup> _groups = new();
-
     [SerializeField, BoxGroup("PROGRESS SETTINGS"), Range(0.01f, 1f), FormerlySerializedAs("_progressPerTap")]
-    private float _progressPerStep = 0.2f;
-
-    [SerializeField, BoxGroup("PROGRESS SETTINGS"), FormerlySerializedAs("_currencyCostPerTap")]
+    private float _progressPerStep = 1f;
+    [SerializeField, BoxGroup("PROGRESS SETTINGS"), Min(0), FormerlySerializedAs("_currencyCostPerTap")]
     private int _hexCoinsCostPerStep = 10;
-
-    private static readonly int ProgressId = Shader.PropertyToID("_Progress");
-    private static readonly int MainColorId = Shader.PropertyToID("_MainColor");
-    private static readonly int BlackColorId = Shader.PropertyToID("_BlackColor");
-    private static readonly int MainTexId = Shader.PropertyToID("_MainTex");
-    private static readonly int MinYId = Shader.PropertyToID("_MinY");
-    private static readonly int MaxYId = Shader.PropertyToID("_MaxY");
 
     private int _currentGroupIndex;
     private int _currentObjectIndexInGroup;
     private float _currentObjectProgress;
     private bool _isTileFullyOpen;
-    private MaterialPropertyBlock _propertyBlock;
 
     public event Action<MetaTile> OnProgressChanged;
     public event Action<MetaTile> OnObjectRevealed;
     public event Action<MetaTile> OnTileFullyOpened;
-
     public string TileId => _tileId;
     public bool IsTileFullyOpen => _isTileFullyOpen;
     public int GroupsCount => _groups?.Count ?? 0;
-    public int HexCoinsCostPerStep => _hexCoinsCostPerStep;
-
+    public int HexCoinsCostPerStep
+    {
+      get
+      {
+        var cell = CurrentCell;
+        return cell != null ? cell.HexCoinsCost : _hexCoinsCostPerStep;
+      }
+    }
+    private MetaLocationCell CurrentCell
+    {
+      get
+      {
+        if (_currentGroupIndex < 0 || _currentGroupIndex >= GroupsCount) return null;
+        var objects = _groups[_currentGroupIndex]?.Objects;
+        if (objects == null || _currentObjectIndexInGroup < 0 || _currentObjectIndexInGroup >= objects.Count) return null;
+        var cover = objects[_currentObjectIndexInGroup];
+        return cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+      }
+    }
     public int CurrentGroupIndex => _currentGroupIndex;
     public int CurrentObjectIndexInGroup => _currentObjectIndexInGroup;
     public float CurrentObjectProgress => _currentObjectProgress;
 
-    private void Awake()
-    {
-      _propertyBlock = new MaterialPropertyBlock();
-      HideAllGroups();
-    }
+    private void Awake() => InitializeFromSave(null);
+
     public void InitializeFromSave(MetaTileProgress saved)
     {
-      HideAllGroups();
-      int totalGroups = _groups.Count;
-
-      _currentGroupIndex = Mathf.Clamp(saved?.UnlockedGroupsCount ?? 0, 0, totalGroups);
+      // A save from a different location must never reveal this location.
+      if (saved != null && saved.TileId != _tileId) saved = null;
+      _currentGroupIndex = Mathf.Clamp(saved?.UnlockedGroupsCount ?? 0, 0, GroupsCount);
       _currentObjectIndexInGroup = Mathf.Max(0, saved?.UnlockedObjectsInGroupCount ?? 0);
-      _currentObjectProgress = Mathf.Clamp01(saved?.CurrentObjectProgress ?? 0f);
-      _isTileFullyOpen = totalGroups > 0 && _currentGroupIndex >= totalGroups;
-
-      if (_isTileFullyOpen)
-      {
-        for (int g = 0; g < totalGroups; g++)
-          RevealGroupInstantly(_groups[g]);
-        return;
-      }
-
-      for (int g = 0; g < _currentGroupIndex; g++)
-        RevealGroupInstantly(_groups[g]);
-
-      if (_currentGroupIndex >= totalGroups)
-        return;
-
-      var currentGroup = _groups[_currentGroupIndex];
-      SetGroupActive(currentGroup, true);
-
-      for (int o = 0; o < currentGroup.Objects.Count; o++)
-      {
-        float progress = o < _currentObjectIndexInGroup ? 1f
-          : o == _currentObjectIndexInGroup ? _currentObjectProgress
-          : 0f;
-
-        ApplyVisual(currentGroup.Objects[o], progress);
-      }
+      float progress = saved?.CurrentObjectProgress ?? 0f;
+      _currentObjectProgress = float.IsNaN(progress) || float.IsInfinity(progress) ? 0f : Mathf.Clamp01(progress);
+      NormalizeCursor();
+      RefreshVisuals();
     }
-    
+
     public MetaTileStepResult AdvanceStep(bool notify = true)
     {
-      if (_isTileFullyOpen || _groups.Count == 0)
-        return MetaTileStepResult.None;
+      // Reject malformed layouts before the observer spends currency.
+      if (!ValidateLayout(out _)) return MetaTileStepResult.None;
+      NormalizeCursor();
+      if (_isTileFullyOpen || GroupsCount == 0) return MetaTileStepResult.None;
 
-      var group = _groups[_currentGroupIndex];
-
-      if (group.Objects == null || group.Objects.Count == 0)
-        return CompleteCurrentGroupAndAdvance(notify);
-
-      _currentObjectProgress += _progressPerStep;
-
-      if (_currentObjectProgress >= 1f)
+      _currentObjectProgress = Mathf.Clamp01(_currentObjectProgress + (CurrentCell != null ? 1f : _progressPerStep));
+      bool revealed = _currentObjectProgress >= 1f - 0.00001f;
+      if (revealed)
       {
         _currentObjectProgress = 0f;
-        ApplyVisual(group.Objects[_currentObjectIndexInGroup], 1f);
         _currentObjectIndexInGroup++;
-
-        if (_currentObjectIndexInGroup >= group.Objects.Count)
-          return CompleteCurrentGroupAndAdvance(notify);
-
-        var result = new MetaTileStepResult(true, true, false);
-        if (notify) NotifyStepCompleted(result);
-        return result;
+        NormalizeCursor();
       }
-
-      ApplyVisual(group.Objects[_currentObjectIndexInGroup], _currentObjectProgress);
-      var partialResult = new MetaTileStepResult(true, false, false);
-      if (notify) NotifyStepCompleted(partialResult);
-      return partialResult;
-    }
-
-    private MetaTileStepResult CompleteCurrentGroupAndAdvance(bool notify)
-    {
-      _currentObjectIndexInGroup = 0;
-      _currentObjectProgress = 0f;
-      _currentGroupIndex++;
-
-      bool tileFullyOpened = _currentGroupIndex >= _groups.Count;
-      _isTileFullyOpen = tileFullyOpened;
-
-      if (!tileFullyOpened)
-      {
-        var nextGroup = _groups[_currentGroupIndex];
-        SetGroupActive(nextGroup, true);
-        foreach (var obj in nextGroup.Objects)
-          ApplyVisual(obj, 0f);
-      }
-
-      var result = new MetaTileStepResult(true, true, tileFullyOpened);
+      RefreshVisuals();
+      var result = new MetaTileStepResult(true, revealed, _isTileFullyOpen);
       if (notify) NotifyStepCompleted(result);
       return result;
+    }
+
+    private void NormalizeCursor()
+    {
+      // Empty groups and stale indices never cost a paid step or index outside a list.
+      while (_currentGroupIndex < GroupsCount)
+      {
+        int count = _groups[_currentGroupIndex]?.Objects?.Count ?? 0;
+        if (_currentObjectIndexInGroup < count) break;
+        _currentGroupIndex++;
+        _currentObjectIndexInGroup = 0;
+        _currentObjectProgress = 0f;
+      }
+      _isTileFullyOpen = GroupsCount > 0 && _currentGroupIndex >= GroupsCount;
+      if (_isTileFullyOpen)
+      {
+        _currentObjectIndexInGroup = 0;
+        _currentObjectProgress = 0f;
+      }
+    }
+
+    private void RefreshVisuals()
+    {
+      for (int g = 0; g < GroupsCount; g++)
+      {
+        var objects = _groups[g]?.Objects;
+        if (objects == null) continue;
+        for (int o = 0; o < objects.Count; o++)
+        {
+          var cover = objects[o];
+          if (cover == null || cover == gameObject || !cover.transform.IsChildOf(transform)) continue;
+          bool opened = g < _currentGroupIndex || (g == _currentGroupIndex && o < _currentObjectIndexInGroup);
+          // All future covers remain opaque. Do not reveal future groups early.
+          cover.SetActive(!opened);
+        }
+      }
     }
 
     public void NotifyStepCompleted(MetaTileStepResult result)
@@ -153,70 +130,67 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       if (result.TileFullyOpened) OnTileFullyOpened?.Invoke(this);
     }
 
-    private void HideAllGroups()
+    public bool ValidateLayout(out string error)
     {
-      foreach (var group in _groups)
-        SetGroupActive(group, false);
-    }
-
-    private void RevealGroupInstantly(MetaTileObjectGroup group)
-    {
-      SetGroupActive(group, true);
-      foreach (var obj in group.Objects)
-        ApplyVisual(obj, 1f);
-    }
-
-    private void SetGroupActive(MetaTileObjectGroup group, bool active)
-    {
-      if (group?.Objects == null)
-        return;
-
-      foreach (var obj in group.Objects)
-        if (obj != null)
-          obj.SetActive(active);
-    }
-
-    private void ApplyVisual(GameObject target, float progress)
-    {
-      if (target == null)
-        return;
-
-      foreach (var rend in target.GetComponentsInChildren<Renderer>())
-        ApplyVisualToRenderer(rend, progress);
-    }
-
-    private void ApplyVisualToRenderer(Renderer rend, float progress)
-    {
-      rend.GetPropertyBlock(_propertyBlock);
-
-      Bounds localBounds = GetLocalBounds(rend);
-      _propertyBlock.SetFloat(MinYId, localBounds.min.y);
-      _propertyBlock.SetFloat(MaxYId, localBounds.max.y);
-      _propertyBlock.SetFloat(ProgressId, progress);
-
-      if (_mainMaterial != null)
+      if (string.IsNullOrWhiteSpace(_tileId)) { error = "Tile Id is empty."; return false; }
+      if (_hexCoinsCostPerStep < 0 || float.IsNaN(_progressPerStep) ||
+          _progressPerStep <= 0f || _progressPerStep > 1f)
+      { error = "Invalid cost or progress per step."; return false; }
+      var seen = new HashSet<GameObject>();
+      for (int g = 0; g < GroupsCount; g++)
       {
-        if (_mainMaterial.HasProperty(MainColorId))
-          _propertyBlock.SetColor(MainColorId, _mainMaterial.color);
-        if (_mainMaterial.mainTexture != null)
-          _propertyBlock.SetTexture(MainTexId, _mainMaterial.mainTexture);
+        var objects = _groups[g]?.Objects;
+        if (objects == null || objects.Count == 0)
+        { error = $"Group {g} is empty. Collect covers again."; return false; }
+        foreach (var cover in objects)
+        {
+          var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+          if (cell != null && (cell.HexCoinsCost < 0 || cell.CoverRoot != cover))
+          { error = $"Group {g}: invalid cell cost or cover root."; return false; }
+          if (cover == null || cover == gameObject || !cover.transform.IsChildOf(transform) || !seen.Add(cover))
+          { error = $"Group {g}: missing, duplicate, or non-child cover."; return false; }
+        }
       }
-
-      if (_blackMaterial != null && _blackMaterial.HasProperty(BlackColorId))
-        _propertyBlock.SetColor(BlackColorId, _blackMaterial.color);
-
-      rend.SetPropertyBlock(_propertyBlock);
+      foreach (var cover in seen)
+        for (var parent = cover.transform.parent; parent != transform; parent = parent.parent)
+          if (seen.Contains(parent.gameObject))
+          { error = "A cover cannot contain another cover."; return false; }
+      error = seen.Count == 0 ? "No covers configured." : null;
+      return error == null;
     }
 
-    private Bounds GetLocalBounds(Renderer rend)
+#if UNITY_EDITOR
+    public void ConfigureAuthoring(string tileId, int cost, List<GameObject> covers)
     {
-      if (rend.TryGetComponent(out MeshFilter meshFilter) && meshFilter.sharedMesh != null)
-        return meshFilter.sharedMesh.bounds;
-
-      if (rend.TryGetComponent(out SkinnedMeshRenderer skinned) && skinned.sharedMesh != null)
-        return skinned.sharedMesh.bounds;
-
-      return new Bounds(Vector3.zero, Vector3.one);
+      _tileId = tileId;
+      _hexCoinsCostPerStep = Mathf.Max(0, cost);
+      _progressPerStep = 1f;
+      var group = new MetaTileObjectGroup();
+      group.Objects.AddRange(covers);
+      _groups = covers.Count > 0 ? new List<MetaTileObjectGroup> { group } : new List<MetaTileObjectGroup>();
+      InitializeFromSave(null);
     }
+
+    public bool MatchesAuthoringCovers(List<GameObject> covers)
+    {
+      if (GroupsCount != 1 || _groups[0]?.Objects == null || _groups[0].Objects.Count != covers.Count) return false;
+      for (int i = 0; i < covers.Count; i++)
+        if (_groups[0].Objects[i] != covers[i]) return false;
+      return true;
+    }
+
+    public void PreviewOpenedCount(int count)
+    {
+      InitializeFromSave(null);
+      for (int i = 0; i < count; i++)
+      {
+        _currentObjectProgress = 0f;
+        if (_currentGroupIndex >= GroupsCount) break;
+        _currentObjectIndexInGroup++;
+        NormalizeCursor();
+      }
+      RefreshVisuals();
+    }
+#endif
   }
 }

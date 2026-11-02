@@ -30,6 +30,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
           _currencyService.HexCoins < tile.HexCoinsCostPerStep)
         return false;
 
+      // AdvanceStep moves the cursor. Capture THIS cell's cost before moving to the next.
+      int stepCost = tile.HexCoinsCostPerStep;
       var before = new MetaTileProgress(tile.TileId)
       {
         UnlockedGroupsCount = tile.CurrentGroupIndex,
@@ -43,7 +45,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
         {
           result = tile.AdvanceStep(notify: false);
           if (!result.Success) return;
-          if (!_currencyService.TrySpendHexCoins(tile.HexCoinsCostPerStep))
+          if (!_currencyService.TrySpendHexCoins(stepCost))
             throw new System.InvalidOperationException("Meta balance changed during a synchronous step.");
           SaveProgress(tile);
         });

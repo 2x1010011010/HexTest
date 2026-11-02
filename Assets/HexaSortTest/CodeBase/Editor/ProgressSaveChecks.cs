@@ -46,6 +46,7 @@ namespace HexaSortTest.CodeBase.Editor
       Run(PurchasePersistsBothHalves, ref count);
       Run(PartialMetaAndCompletion, ref count);
       Run(InsufficientFundsDoNotAdvanceMeta, ref count);
+      Run(IndividualMetaCellPrices, ref count);
       Run(VictoryIsCommittedOnce, ref count);
       Run(DefeatRewardsAndLives, ref count);
       Run(NewerSaveIsNotOverwritten, ref count);
@@ -185,6 +186,43 @@ namespace HexaSortTest.CodeBase.Editor
       var observer = new MetaObserver(f.Service, f.Save, f.Currency);
       Require(!observer.TryProgressTile(tile), "Unfunded step rejected");
       Require(tile.CurrentObjectProgress == 0f && f.Progress.MetaProgress.Count == 0, "No unpaid meta progress");
+    }
+
+    private static void IndividualMetaCellPrices(Fixture f)
+    {
+      var tile = f.CreateTile();
+      var covers = new List<GameObject>();
+      var frames = new List<GameObject>();
+      foreach (int price in new[] { 7, 31, 0 })
+      {
+        var cellRoot = new GameObject("Cell");
+        cellRoot.transform.SetParent(tile.transform, false);
+        var cell = cellRoot.AddComponent<MetaLocationCell>();
+        var cover = new GameObject("Cover");
+        cover.transform.SetParent(cellRoot.transform, false);
+        var frame = new GameObject("Frame");
+        frame.transform.SetParent(cellRoot.transform, false);
+        cell.Configure(price, cover, null, null, null, null, null);
+        covers.Add(cover);
+        frames.Add(frame);
+      }
+      tile.ConfigureAuthoring("priced-tile", 99, covers);
+      var observer = new MetaObserver(f.Service, f.Save, f.Currency);
+      f.Currency.AddHexCoins(7);
+      Require(tile.HexCoinsCostPerStep == 7, "First cell has individual price");
+      Require(observer.TryProgressTile(tile) && f.Currency.HexCoins == 0, "First cell charges 7, not next cell's 31");
+      Require(!covers[0].activeSelf && frames[0].activeInHierarchy, "Opening preserves frame");
+      Require(tile.HexCoinsCostPerStep == 31 && !observer.TryProgressTile(tile), "Unaffordable second cell stays closed");
+      var saved = f.Reload();
+      tile.InitializeFromSave(saved.MetaProgress.Find(p => p.TileId == tile.TileId));
+      Require(!covers[0].activeSelf && covers[1].activeSelf && tile.HexCoinsCostPerStep == 31, "Reload restores price cursor");
+      f.Currency.AddHexCoins(31);
+      Require(observer.TryProgressTile(tile) && f.Currency.HexCoins == 0, "Second cell charges 31 even though next is free");
+      Require(observer.TryProgressTile(tile) && tile.IsTileFullyOpen && f.Currency.HexCoins == 0, "Free final cell completes without charging fallback price");
+      Require(!observer.TryProgressTile(tile), "No payment after completion");
+      saved = f.Reload();
+      Require(saved.HexCoins == 0 && saved.MetaProgress.Find(p => p.TileId == tile.TileId).UnlockedGroupsCount == 1,
+        "Individual prices and final progress persist together");
     }
 
     private static void VictoryIsCommittedOnce(Fixture f)
