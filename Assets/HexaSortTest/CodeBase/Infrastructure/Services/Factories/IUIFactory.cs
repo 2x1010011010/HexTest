@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.Infrastructure.StateMachine;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Meta;
 using HexaSortTest.CodeBase.GameLogic.Spawners;
@@ -13,7 +14,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
   public interface IUIFactory : IFactory
   {
     MainMenuObserver CreateMainMenu();
-    void CreateHud(int winCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver, BoosterPurchasePopup boosterPurchasePopup = null);
+    void CreateHud(int winCondition, GameStateMachine gameStateMachine, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver, BoosterPurchasePopup boosterPurchasePopup = null);
     MainMenuScreen CreateMainMenuScreen();
     GameResultPopup CreateGameResultPopup();
     MetaUIObserver CreateMetaUI();

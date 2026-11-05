@@ -49,5 +49,16 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _uiFactory.Clear();
       _gameStateMachine.Enter<BootstrapState>();
     }
+
+    public void LeaveForMainMenu()
+    {
+#if UNITY_EDITOR
+      GameLogger.Message("[GameLoopState] Attempt abandoned; returning to main menu.");
+#endif
+      _loadingCurtain.Show();
+      _gameFactory.Clear();
+      _uiFactory.Clear();
+      _gameStateMachine.Enter<MainMenuState>();
+    }
   }
 }

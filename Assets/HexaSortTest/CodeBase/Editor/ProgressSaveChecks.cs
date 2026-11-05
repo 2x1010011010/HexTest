@@ -53,6 +53,7 @@ namespace HexaSortTest.CodeBase.Editor
       Run(HexHitGeometry, ref count);
       Run(VictoryIsCommittedOnce, ref count);
       Run(DefeatRewardsAndLives, ref count);
+      Run(AbandonAttemptSpendsExactlyOnce, ref count);
       Run(NewerSaveIsNotOverwritten, ref count);
       Debug.Log($"[ProgressSaveChecks] PASS: {count} checks. Player profile was not touched.");
     }
@@ -379,6 +380,37 @@ namespace HexaSortTest.CodeBase.Editor
       saved = f.Reload();
       Require(saved.Lives == 3 && saved.Coins == 0 && saved.HexCoins == 0 && saved.NextLifeUtcTicks == deadline,
         "New attempt loses a life without resetting recovery; zero score gives no reward");
+    }
+
+    private static void AbandonAttemptSpendsExactlyOnce(Fixture f)
+    {
+      var config = ScriptableObject.CreateInstance<LevelConfig>();
+      f.Objects.Add(config);
+      SetField(config, "<WinCondition>k__BackingField", 250);
+      f.Factory.CurrentLevelConfig = config;
+      f.Factory.CurrentLevelIndex = 0;
+      f.Progress.Coins = 42;
+      f.Progress.HexCoins = 73;
+      var lives = new LivesService(f.Service, f.Save);
+      lives.Refresh();
+      var state = new GameResultState(null, null, null, f.Service, f.Save, f.Factory, f.Currency, lives);
+      Require(!state.TryAbandonAttempt() && lives.Lives == 5, "Cannot abandon without a started attempt");
+      state.BeginAttempt();
+      Require(lives.Lives == 5, "Starting an attempt does not charge a life");
+      Require(state.TryAbandonAttempt(), "Active attempt can be abandoned");
+      var saved = f.Reload();
+      long deadline = saved.NextLifeUtcTicks;
+      Require(saved.Lives == 4 && saved.LevelIndex == 0 && saved.Coins == 42 && saved.HexCoins == 73,
+        "Abandon saves one lost life; keeps level and existing balances; grants no rewards");
+      Require(!state.TryAbandonAttempt() && f.Reload().Lives == 4, "Double confirmation cannot spend twice");
+      state.BeginAttempt();
+      Require(state.TryAbandonAttempt() && f.Reload().Lives == 3 && f.Reload().NextLifeUtcTicks == deadline,
+        "Next attempt can be abandoned without resetting regeneration");
+      state.BeginAttempt();
+      var apply = typeof(GameResultState).GetMethod("ApplyResult", BindingFlags.NonPublic | BindingFlags.Instance);
+      apply.Invoke(state, new object[] { new GameResultPayload(true, 250) });
+      Require(!state.TryAbandonAttempt() && f.Reload().Lives == 3,
+        "A completed victory cannot subsequently lose a life through Exit");
     }
 
     private static void NewerSaveIsNotOverwritten(Fixture f)

@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.Infrastructure.StateMachine;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameLogic.GridLogic;
 using HexaSortTest.CodeBase.GameLogic.Meta;
@@ -31,10 +32,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.Factories
       return go.GetComponent<MainMenuObserver>();
     }
 
-    public void CreateHud(int winCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver, BoosterPurchasePopup boosterPurchasePopup = null)
+    public void CreateHud(int winCondition, GameStateMachine gameStateMachine, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver, BoosterPurchasePopup boosterPurchasePopup = null)
     {
       var go = InstantiateInjected(AssetPaths.HUD);
-      go.GetComponent<HudObserver>().Init(winCondition, mainMenu, stacksSpawner, gridObserver, boosterPurchasePopup);
+      go.GetComponent<HudObserver>().Init(winCondition, gameStateMachine, mainMenu, stacksSpawner, gridObserver, boosterPurchasePopup);
     }
 
     public MainMenuScreen CreateMainMenuScreen()

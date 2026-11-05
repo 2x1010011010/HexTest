@@ -9,13 +9,13 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
     [SerializeField] private TMP_Text _message;
     [SerializeField] private Button _closeButton;
     public bool IsOpen => gameObject.activeInHierarchy;
-    private void Awake() => gameObject.SetActive(false);
     private void OnEnable() { if (_closeButton != null) _closeButton.onClick.AddListener(Close); }
     private void OnDisable() { if (_closeButton != null) _closeButton.onClick.RemoveListener(Close); }
     public void Configure(TMP_Text message, Button closeButton)
     {
       _message = message;
       _closeButton = closeButton;
+      Close();
     }
     public void Show(int cost, int balance)
     {

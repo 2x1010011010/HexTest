@@ -31,6 +31,7 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     private StacksSpawner _spawner;
     private StackMover _drag;
     private Func<bool> _inputBlocked;
+    private Func<bool> _resultBlocked;
     private int _gridMask;
     private BoardState _interactionState = BoardState.Initializing;
     private bool _resolving;
@@ -56,10 +57,11 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
     public void SetMainMenu(MainMenuObserver mainMenu) => _mainMenu = mainMenu;
     public void Init(HexGrid grid) => _grid = grid;
     public void SetGameResultHandler(GameStateMachine stateMachine) => _gameStateMachine = stateMachine;
-    public void Configure(int goal, Func<bool> inputBlocked)
+    public void Configure(int goal, Func<bool> inputBlocked, Func<bool> resultBlocked = null)
     {
       _session.ConfigureGoal(goal);
       _inputBlocked = inputBlocked;
+      _resultBlocked = resultBlocked;
     }
     public void AttachBoosters(BoosterTools tools, StacksSpawner spawner) { Boosters = tools; _spawner = spawner; }
 
@@ -263,9 +265,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           await UpdateCoversAsync(_token);
           await _merges.SettleAsync(_token);
           // Do not finish a level while a stack is held or a booster/drop is in flight.
-          while (State != BoardState.Idle)
+          while (State != BoardState.Idle || (_resultBlocked?.Invoke() ?? false))
           {
-            if (State == BoardState.Faulted || State == BoardState.Completed) return;
+            if (State == BoardState.Faulted || State == BoardState.Completed || State == BoardState.Disposed) return;
             await UniTask.Yield(PlayerLoopTiming.Update, _token);
           }
         } while (_resolveRequested);
@@ -292,6 +294,14 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
       GameLogger.Error($"[GridObserver] Board operation stopped: {error}");
 #endif
       _mainMenu?.Open();
+    }
+
+    public void StopForExit()
+    {
+      if (_lifetime.IsCancellationRequested) return;
+      CancelInteraction();
+      _interactionState = BoardState.Disposed;
+      _lifetime.Cancel();
     }
 
     private void OnDestroy()

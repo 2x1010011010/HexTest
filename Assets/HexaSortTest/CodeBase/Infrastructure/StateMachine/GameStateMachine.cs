@@ -48,6 +48,18 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
     
     public void BeginLevelAttempt() => GetState<GameResultState>().BeginAttempt();
 
+    public bool CanAbandonLevel => _currentState is GameLoopState;
+
+    public bool TryAbandonLevel(Action stopGameplay)
+    {
+      if (!(_currentState is GameLoopState loop) ||
+          !GetState<GameResultState>().TryAbandonAttempt()) return false;
+      // Save the loss before clearing the factory's current level configuration.
+      stopGameplay?.Invoke();
+      loop.LeaveForMainMenu();
+      return true;
+    }
+
     public void Enter<TState>() where TState : class, IState
     {
       IState state = ChangeState<TState>();

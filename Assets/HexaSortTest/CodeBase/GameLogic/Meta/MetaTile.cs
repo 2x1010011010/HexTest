@@ -22,6 +22,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     private int _currentObjectIndexInGroup;
     private float _currentObjectProgress;
     private bool _isTileFullyOpen;
+    private MetaLocationCompletionEffect _completionEffect;
 
     public event Action<MetaTile> OnProgressChanged;
     public event Action<MetaTile> OnObjectRevealed;
@@ -141,6 +142,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
         }
         UpdateCellCursor();
         foreach (var cell in Cells) cell.SetOpened(IsCellOpen(cell));
+        RestoreCompletionEffect();
         return;
       }
       _currentGroupIndex = Mathf.Clamp(saved?.UnlockedGroupsCount ?? 0, 0, GroupsCount);
@@ -149,6 +151,18 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       _currentObjectProgress = float.IsNaN(progress) || float.IsInfinity(progress) ? 0f : Mathf.Clamp01(progress);
       NormalizeCursor();
       RefreshVisuals();
+      RestoreCompletionEffect();
+    }
+
+    private void RestoreCompletionEffect()
+    {
+      if (!Application.isPlaying) return;
+      if (_completionEffect == null)
+      {
+        _completionEffect = GetComponent<MetaLocationCompletionEffect>();
+        if (_completionEffect == null) _completionEffect = gameObject.AddComponent<MetaLocationCompletionEffect>();
+      }
+      _completionEffect.Restore(this);
     }
 
     public MetaTileStepResult AdvanceStep(bool notify = true)
@@ -219,7 +233,11 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       if (!result.Success) return;
       OnProgressChanged?.Invoke(this);
       if (result.ObjectRevealed) OnObjectRevealed?.Invoke(this);
-      if (result.TileFullyOpened) OnTileFullyOpened?.Invoke(this);
+      if (result.TileFullyOpened)
+      {
+        _completionEffect?.Play();
+        OnTileFullyOpened?.Invoke(this);
+      }
     }
 
     public bool ValidateLayout(out string error)

@@ -1,0 +1,390 @@
+fileFormatVersion: 2
+guid: 1bf1c4465cd04f0aaecc93117803a5c6
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 21300000
+    second: Panel
+  - first:
+      213: 21300002
+    second: Square
+  - first:
+      213: 21300004
+    second: Counter
+  - first:
+      213: 21300006
+    second: Gold
+  - first:
+      213: 21300008
+    second: Purple
+  - first:
+      213: 21300010
+    second: Track
+  - first:
+      213: 21300012
+    second: Fill
+  - first:
+      213: 21300014
+    second: Back
+  - first:
+      213: 21300016
+    second: Play
+  - first:
+      213: 21300018
+    second: Pin
+  - first:
+      213: 21300020
+    second: Coin
+  serializedVersion: 13
+  mipmaps:
+    enableMipMap: 0
+  isReadable: 0
+  textureType: 8
+  textureShape: 1
+  alphaIsTransparency: 1
+  alphaUsage: 1
+  spriteMode: 2
+  spritePixelsToUnits: 100
+  spriteMeshType: 0
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Panel
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 862
+        width: 770
+        height: 330
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 70
+        y: 70
+        z: 70
+        w: 70
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f0d0bfd9e57f420ca3927e3caec52d5e
+      internalID: 21300000
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Square
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 651
+        width: 188
+        height: 178
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 50
+        y: 50
+        z: 50
+        w: 50
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54197abf052c4ff6b1a5374164923303
+      internalID: 21300002
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Counter
+      rect:
+        serializedVersion: 2
+        x: 887
+        y: 680
+        width: 316
+        height: 120
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 45
+        y: 45
+        z: 45
+        w: 45
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4647737b720843c887b23506b685f8bc
+      internalID: 21300004
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Gold
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 486
+        width: 400
+        height: 138
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 42
+        y: 42
+        z: 42
+        w: 42
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 477f1492f1c2426fa7c1c494c1dbc82d
+      internalID: 21300006
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Purple
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 324
+        width: 427
+        height: 131
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 42
+        y: 42
+        z: 42
+        w: 42
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 006b504266da4830acf5ff2e6152e27f
+      internalID: 21300008
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Track
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 218
+        width: 430
+        height: 70
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 28
+        y: 28
+        z: 28
+        w: 28
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d77d119e45cd4e5f9f6860dc4669f985
+      internalID: 21300010
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fill
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 218
+        width: 416
+        height: 70
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 28
+        y: 28
+        z: 28
+        w: 28
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ae38c2706e1477eb160b771867c605a
+      internalID: 21300012
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Back
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 44
+        width: 126
+        height: 110
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 0
+        y: 0
+        z: 0
+        w: 0
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dad85f3969a94b2a8b6350d45f2294f0
+      internalID: 21300014
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Play
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 38
+        width: 112
+        height: 116
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 0
+        y: 0
+        z: 0
+        w: 0
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2325ddb20c9e4445ade2abe0b7fdfa3c
+      internalID: 21300016
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pin
+      rect:
+        serializedVersion: 2
+        x: 398
+        y: 28
+        width: 108
+        height: 137
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 0
+        y: 0
+        z: 0
+        w: 0
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 425fead9f42f47c28392455b00e0302b
+      internalID: 21300018
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Coin
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 27
+        width: 140
+        height: 136
+      alignment: 0
+      pivot:
+        x: 0.5
+        y: 0.5
+      border:
+        x: 0
+        y: 0
+        z: 0
+        w: 0
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad23be84aa1645098613add3a9ab2c43
+      internalID: 21300020
+      vertices: []
+      indices: ''
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: e960c3438efa418892bb3c80c3f241de
+    internalID: 0
+    vertices: []
+    indices: ''
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Panel: 21300000
+      Square: 21300002
+      Counter: 21300004
+      Gold: 21300006
+      Purple: 21300008
+      Track: 21300010
+      Fill: 21300012
+      Back: 21300014
+      Play: 21300016
+      Pin: 21300018
+      Coin: 21300020
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0

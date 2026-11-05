@@ -10,6 +10,7 @@ using HexaSortTest.CodeBase.GameLogic.Spawners;
 using HexaSortTest.CodeBase.GameLogic.UI.MainMenu;
 using HexaSortTest.CodeBase.Infrastructure.Services.BoosterInventoryService;
 using HexaSortTest.CodeBase.Infrastructure.Services.CurrencyService;
+using HexaSortTest.CodeBase.Infrastructure.StateMachine;
 using Zenject;
 using Random = UnityEngine.Random;
 
@@ -34,8 +35,13 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     [SerializeField, BoxGroup("TILES COUNTER")] private TMP_Text _winConditionText;
     [SerializeField, BoxGroup("TILES COUNTER")] private Slider _tilesCounterSlider;
 
+    [SerializeField, BoxGroup("EXIT")] private Button _exitButton;
+    [SerializeField, BoxGroup("EXIT")] private ExitConfirmationPopup _exitPopup;
+
     [Inject] private ICurrencyService _currencyService;
     [Inject] private IBoosterInventoryService _boosterInventory;
+    private GameStateMachine _gameStateMachine;
+    private bool _leaving;
 
     public static HudObserver Instance { get; private set; }
 
@@ -57,8 +63,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       _tilesCounterSlider.value = _tilesCount;
     }
 
-    public void Init(int configWinCondition, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver = null, BoosterPurchasePopup boosterPurchasePopup = null)
+    public void Init(int configWinCondition, GameStateMachine gameStateMachine, MainMenuObserver mainMenu, StacksSpawner stacksSpawner, GridObserver gridObserver = null, BoosterPurchasePopup boosterPurchasePopup = null)
     {
+      _gameStateMachine = gameStateMachine ?? throw new System.ArgumentNullException(nameof(gameStateMachine));
       _winCondition = configWinCondition;
       _mainMenu = mainMenu;
       _stacksSpawner = stacksSpawner;
@@ -68,7 +75,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
       if (_settingsPanel != null) _settingsPanel.gameObject.SetActive(true);
       _gridObserver.Configure(_winCondition, () =>
         (_boosterPurchasePopup != null && _boosterPurchasePopup.IsOpen) ||
-        (_settingsPanel != null && _settingsPanel.IsOpen));
+        (_settingsPanel != null && _settingsPanel.IsOpen) ||
+        (_exitPopup != null && _exitPopup.IsOpen) || _leaving,
+        () => (_exitPopup != null && _exitPopup.IsOpen) || _leaving);
       _gridObserver.ScoreChanged += DisplayScore;
       _gridObserver.ScorePresentationChanged += RenderScore;
       _boosterTools.Initialize(_gridObserver, _stacksSpawner, _boosterInventory);
@@ -77,6 +86,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     private void OnEnable()
     {
+      if (_exitButton != null) _exitButton.onClick.AddListener(RequestExit);
+      if (_exitPopup != null) _exitPopup.Confirmed += ConfirmExit;
       _hammerButton.OnHammerButtonClick += OnHammerButtonClick;
       _handButton.OnHandButtonClick += OnHandButtonClick;
       _respawnButton.OnRespawnButtonClick += OnRespawnButtonClick;
@@ -104,6 +115,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     private void OnDisable()
     {
+      if (_exitButton != null) _exitButton.onClick.RemoveListener(RequestExit);
+      if (_exitPopup != null)
+      {
+        _exitPopup.Confirmed -= ConfirmExit;
+        _exitPopup.Hide();
+      }
       Close();
       _hammerButton.OnHammerButtonClick -= OnHammerButtonClick;
       _handButton.OnHandButtonClick -= OnHandButtonClick;
@@ -117,6 +134,38 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     }
 
     private void OnRespawnButtonClick(IBooster booster) => TryUseOrPromptPurchase(BoosterType.Respawn, booster);
+
+    private void RequestExit()
+    {
+      if (_leaving || _exitPopup == null || _exitPopup.IsOpen ||
+          _gridObserver == null || _gameStateMachine == null || !_gameStateMachine.CanAbandonLevel) return;
+      AudioFacade.Instance?.PlayClick();
+      _exitPopup.Show();
+      _gridObserver.CancelInteraction();
+      _settingsPanel?.Close();
+      if (_boosterPurchasePopup != null && _boosterPurchasePopup.IsOpen)
+        _boosterPurchasePopup.Close();
+    }
+
+    private void ConfirmExit()
+    {
+      if (_leaving || _exitPopup == null || !_exitPopup.IsOpen) return;
+      _leaving = true;
+      try
+      {
+        if (!_gameStateMachine.TryAbandonLevel(() => _gridObserver.StopForExit()))
+        {
+          _leaving = false;
+          _exitPopup.Hide();
+        }
+      }
+      catch (System.Exception error)
+      {
+        _leaving = false;
+        _exitPopup.AllowRetry();
+        Debug.LogException(error, this);
+      }
+    }
     private void OnHammerButtonClick(IBooster booster) => TryUseOrPromptPurchase(BoosterType.Hammer, booster);
     private void OnHandButtonClick(IBooster booster) => TryUseOrPromptPurchase(BoosterType.Hand, booster);
 

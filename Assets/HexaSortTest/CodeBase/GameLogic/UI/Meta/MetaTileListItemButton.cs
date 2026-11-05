@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using HexaSortTest.CodeBase.GameConfigs;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -14,11 +15,14 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
     public event Action<MetaTileListItemButton> OnItemButtonClick;
 
+    [SerializeField] private TMP_Text _title;
+
     public MetaTileConfig Config { get; private set; }
 
     public void Setup(MetaTileConfig config)
     {
       Config = config;
+      if (_title != null) _title.text = config?.DisplayName ?? "Location";
 
       if (_icon != null && config?.Icon != null)
         _icon.sprite = config.Icon;

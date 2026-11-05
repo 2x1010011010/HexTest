@@ -32,6 +32,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     public void BeginAttempt() => _resultCommitted = false;
 
+    public bool TryAbandonAttempt()
+    {
+      if (_resultCommitted) return false;
+      ApplyResult(new GameResultPayload(false, 0));
+      return true;
+    }
+
     public GameResultState(
       GameStateMachine gameStateMachine,
       SceneLoader sceneLoader,

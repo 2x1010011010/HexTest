@@ -33,8 +33,13 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
       GameLogger.Message($"[MetaObjectFactory] Spawning {config.TilePrefab.name} at {position}.");
 #endif
 
-      var go = _container.InstantiatePrefab(config.TilePrefab.gameObject, position, Quaternion.identity, null);
-      SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
+      var go = _container.InstantiatePrefab(config.TilePrefab.gameObject, position, config.TilePrefab.transform.rotation, null);
+      // Zenject can use its default parent even when the explicit parent is null.
+      // Unity only allows scene transfer for a root GameObject.
+      go.transform.SetParent(null, true);
+      var targetScene = SceneManager.GetActiveScene();
+      if (go.scene != targetScene)
+        SceneManager.MoveGameObjectToScene(go, targetScene);
 
       _currentInstance = go;
       CurrentTile = go.GetComponent<MetaTile>();

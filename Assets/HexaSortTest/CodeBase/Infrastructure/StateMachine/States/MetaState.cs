@@ -40,7 +40,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public void Exit()
     {
       if (_metaUI != null)
+      {
         _metaUI.OnExitRequested -= HandleExitRequested;
+        _metaUI.OnPlayRequested -= HandlePlayRequested;
+      }
 
       _metaUI = null;
       _metaObjectFactory.Clear();
@@ -63,10 +66,14 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       }
 
       _metaUI.OnExitRequested += HandleExitRequested;
+      _metaUI.OnPlayRequested += HandlePlayRequested;
 #if UNITY_EDITOR
       GameLogger.Message("[MetaState] UI created and event handlers subscribed.");
 #endif
     }
+
+    private void HandlePlayRequested(string level) =>
+      _gameStateMachine.Enter<LoadLevelState, string>(level);
 
     private void HandleExitRequested() =>
       _gameStateMachine.Enter<MainMenuState>();

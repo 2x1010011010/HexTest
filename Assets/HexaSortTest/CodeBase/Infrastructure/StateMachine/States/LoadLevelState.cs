@@ -91,7 +91,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
       var boosterPurchasePopup = _uiFactory.CreateBoosterPurchasePopup();
 
-      _uiFactory.CreateHud(_gameFactory.CurrentLevelConfig.WinCondition, mainMenuInstance, stacksSpawner, gridObserver, boosterPurchasePopup);
+      _uiFactory.CreateHud(_gameFactory.CurrentLevelConfig.WinCondition, _gameStateMachine, mainMenuInstance, stacksSpawner, gridObserver, boosterPurchasePopup);
 
       gridObserver.SetGameResultHandler(_gameStateMachine);
 #if UNITY_EDITOR
