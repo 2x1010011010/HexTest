@@ -5,5 +5,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.MetaProgressService
   public interface IMetaObserver : IService
   {
     bool TryProgressTile(MetaTile tile);
+    MetaCellPurchaseResult TryOpenCell(MetaTile tile, MetaLocationCell cell);
   }
 }

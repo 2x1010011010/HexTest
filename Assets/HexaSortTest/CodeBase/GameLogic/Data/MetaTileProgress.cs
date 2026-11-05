@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace HexaSortTest.CodeBase.GameLogic.Data
 {
@@ -6,6 +7,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
   public class MetaTileProgress
   {
     public string TileId;
+    public bool UsesCellIds;
+    public List<string> OpenedCellIds = new();
     public int UnlockedGroupsCount;
     public int UnlockedObjectsInGroupCount;
     public float CurrentObjectProgress;

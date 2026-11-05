@@ -7,7 +7,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
   [Serializable]
   public class PlayerProgress
   {
-    public const int CurrentSaveVersion = 1;
+    public const int CurrentSaveVersion = 2;
     public int SaveVersion;
 
     public WorldData WorldData;

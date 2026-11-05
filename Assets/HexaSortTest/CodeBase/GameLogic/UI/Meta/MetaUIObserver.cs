@@ -31,6 +31,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
     public event Action OnExitRequested;
 
     private readonly List<MetaTileListItemButton> _listItems = new();
+    private readonly Dictionary<MetaTileListItemButton, int> _itemIndices = new();
     private MetaTile _activeTile;
     private bool _isListOpen;
 
@@ -130,6 +131,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         item.OnItemButtonClick += HandleItemClicked;
 
         _listItems.Add(item);
+        _itemIndices.Add(item, i);
       }
     }
 
@@ -145,18 +147,30 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       }
 
       _listItems.Clear();
+      _itemIndices.Clear();
     }
 
     private void HandleItemClicked(MetaTileListItemButton item)
     {
-      if (item?.Config == null || item.Config.TilePrefab == null)
+      if (item == null || item.Config == null || item.Config.TilePrefab == null)
       {
         Debug.LogError("[MetaUIObserver] Clicked list item has no valid MetaTileConfig/TilePrefab.");
         return;
       }
 
+      // Check the catalog index, not the compacted list of instantiated buttons.
+      if (!_itemIndices.TryGetValue(item, out int index) || !IsTileUnlocked(index)) return;
+      if (_tileInteractor == null || _metaObjectFactory == null)
+      {
+        Debug.LogError("[MetaUIObserver] Missing tile interactor or meta factory.", this);
+        return;
+      }
+
+      // Finish pending visuals and discard old input before the factory destroys the tile.
+      _tileInteractor.SetCurrentTile(null);
       if (_activeTile != null)
         _activeTile.OnTileFullyOpened -= HandleTileFullyOpened;
+      _activeTile = null;
 
       var tile = _metaObjectFactory.SpawnTile(item.Config, Vector3.zero);
       if (tile == null)
@@ -166,14 +180,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         return;
       }
 
+      HideList();
       tile.InitializeFromSave(FindSavedProgress(tile.TileId));
       tile.OnTileFullyOpened += HandleTileFullyOpened;
       _activeTile = tile;
 
-      if (_tileInteractor != null)
-        _tileInteractor.SetCurrentTile(tile);
-      else
-        Debug.LogError("[MetaUIObserver] _tileInteractor is not assigned in the inspector!");
+      _tileInteractor.SetCurrentTile(tile);
     }
 
     private void HandleTileFullyOpened(MetaTile tile) =>
@@ -181,28 +193,37 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
     private void RefreshLockStates()
     {
-      for (int i = 0; i < _listItems.Count; i++)
-        _listItems[i].SetLocked(!IsTileUnlocked(i));
+      foreach (var item in _listItems)
+        if (item != null && _itemIndices.TryGetValue(item, out int index))
+          item.SetLocked(!IsTileUnlocked(index));
     }
     
     private bool IsTileUnlocked(int index)
     {
-      if (index <= 0)
-        return true;
+      if (_tileConfigsList?.Tiles == null || index < 0 || index >= _tileConfigsList.Tiles.Count)
+        return false;
+      if (_tileConfigsList.Tiles[index]?.TilePrefab == null) return false;
+      if (index == 0) return true;
 
       var prevConfig = _tileConfigsList.Tiles[index - 1];
-      if (prevConfig?.TilePrefab == null)
-        return true;
+      // A broken predecessor must not silently unlock the following location.
+      if (prevConfig?.TilePrefab == null) return false;
+      if (!prevConfig.TilePrefab.ValidateLayout(out _)) return false;
 
       int totalGroups = prevConfig.TilePrefab.GroupsCount;
-      if (totalGroups <= 0)
-        return true;
 
       var prevProgress = FindSavedProgress(prevConfig.TilePrefab.TileId);
-      return prevProgress != null && prevProgress.UnlockedGroupsCount >= totalGroups;
+      if (prevProgress == null) return false;
+      if (prevProgress.UsesCellIds)
+      {
+        var cells = prevConfig.TilePrefab.Cells;
+        return cells.Count > 0 && cells.TrueForAll(cell => prevProgress.OpenedCellIds != null &&
+          prevProgress.OpenedCellIds.Contains(cell.CellId));
+      }
+      return prevProgress.UnlockedGroupsCount >= totalGroups;
     }
 
     private MetaTileProgress FindSavedProgress(string tileId) =>
-      _progressService.PlayerProgress?.MetaProgress?.Find(p => p.TileId == tileId);
+      _progressService?.PlayerProgress?.MetaProgress?.Find(p => p != null && p.TileId == tileId);
   }
 }

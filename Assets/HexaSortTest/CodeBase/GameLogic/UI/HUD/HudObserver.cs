@@ -95,7 +95,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
     {
       _tilesCounterSlider.maxValue = _winCondition;
       SetScoreImmediately(_gridObserver != null ? _gridObserver.Score : 0);
-      _winConditionText.text = ("/" +_winCondition).ToString();
+      _winConditionText.text = (_winCondition).ToString();
       _tilesCounter.text = _tilesCount.ToString();
 
       RefreshCoinsCounter();

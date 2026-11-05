@@ -47,6 +47,10 @@ namespace HexaSortTest.CodeBase.Editor
       Run(PartialMetaAndCompletion, ref count);
       Run(InsufficientFundsDoNotAdvanceMeta, ref count);
       Run(IndividualMetaCellPrices, ref count);
+      Run(SelectedCellPurchaseAndReload, ref count);
+      Run(LegacyCellMigrationAndReorder, ref count);
+      Run(SelectedCellTransactionRollback, ref count);
+      Run(HexHitGeometry, ref count);
       Run(VictoryIsCommittedOnce, ref count);
       Run(DefeatRewardsAndLives, ref count);
       Run(NewerSaveIsNotOverwritten, ref count);
@@ -223,6 +227,111 @@ namespace HexaSortTest.CodeBase.Editor
       saved = f.Reload();
       Require(saved.HexCoins == 0 && saved.MetaProgress.Find(p => p.TileId == tile.TileId).UnlockedGroupsCount == 1,
         "Individual prices and final progress persist together");
+    }
+
+    private static List<MetaLocationCell> CreateCells(Fixture f, out MetaTile tile)
+    {
+      tile = f.CreateTile();
+      var cells = new List<MetaLocationCell>();
+      var covers = new List<GameObject>();
+      foreach (int price in new[] { 7, 31, 0 })
+      {
+        var root = new GameObject("Cell");
+        root.transform.SetParent(tile.transform, false);
+        var cell = root.AddComponent<MetaLocationCell>();
+        var cover = new GameObject("Cover");
+        cover.transform.SetParent(root.transform, false);
+        cell.Configure(price, cover, null, null, null, null, null);
+        cells.Add(cell);
+        covers.Add(cover);
+      }
+      tile.ConfigureAuthoring("selected-cell-test", 99, covers);
+      return cells;
+    }
+
+    private static void SelectedCellPurchaseAndReload(Fixture f)
+    {
+      var cells = CreateCells(f, out var tile);
+      var observer = new MetaObserver(f.Service, f.Save, f.Currency);
+      f.Currency.AddHexCoins(31);
+      Require(observer.TryOpenCell(tile, cells[1]) == MetaCellPurchaseResult.Success, "Select second cell directly");
+      Require(f.Currency.HexCoins == 0 && tile.IsCellOpen(cells[1]) && !tile.IsCellOpen(cells[0]), "Only selected price/cell committed");
+      Require(cells[1].CoverRoot.activeSelf, "Paid cover remains visible until presentation");
+      Require(observer.TryOpenCell(tile, cells[1]) == MetaCellPurchaseResult.AlreadyOpened, "Repeated click cannot charge again");
+      Require(observer.TryOpenCell(tile, cells[0]) == MetaCellPurchaseResult.InsufficientFunds, "Unaffordable selection rejected");
+      Require(!tile.IsCellOpen(cells[0]) && f.Currency.HexCoins == 0, "Rejection leaves balance/progress intact");
+      var saved = f.Reload().MetaProgress.Find(p => p.TileId == tile.TileId);
+      Require(saved.UsesCellIds && saved.OpenedCellIds.Count == 1 && saved.OpenedCellIds[0] == cells[1].CellId,
+        "Selected ID survives JSON round trip");
+      tile.InitializeFromSave(saved);
+      Require(!cells[1].CoverRoot.activeSelf && cells[0].CoverRoot.activeSelf, "Reload during animation reveals paid cell");
+      cells[1].PlayReveal(); // Null lock and null ParticleSystem must be safe.
+      Require(observer.TryOpenCell(tile, cells[2]) == MetaCellPurchaseResult.Success && !tile.IsTileFullyOpen, "Free cell opens once");
+      f.Currency.AddHexCoins(7);
+      int completed = 0;
+      tile.OnTileFullyOpened += _ =>
+      {
+        completed++;
+        Require(f.Reload().MetaProgress[0].OpenedCellIds.Count == 3, "Completion observes committed IDs");
+      };
+      Require(observer.TryOpenCell(tile, cells[0]) == MetaCellPurchaseResult.Success && tile.IsTileFullyOpen, "Last missing cell completes tile");
+      Require(observer.TryOpenCell(tile, cells[0]) == MetaCellPurchaseResult.AlreadyOpened && completed == 1, "No duplicate completion/payment");
+      var foreign = CreateCells(f, out var otherTile);
+      Require(observer.TryOpenCell(tile, foreign[0]) == MetaCellPurchaseResult.Invalid, "Foreign cell rejected even with same tile name");
+    }
+
+    private static void LegacyCellMigrationAndReorder(Fixture f)
+    {
+      var cells = CreateCells(f, out var tile);
+      tile.InitializeFromSave(new MetaTileProgress(tile.TileId) { UnlockedObjectsInGroupCount = 2 });
+      Require(tile.IsCellOpen(cells[0]) && tile.IsCellOpen(cells[1]) && !tile.IsCellOpen(cells[2]), "Legacy completed covers migrate");
+      var saved = tile.CaptureProgress();
+      string id = cells[1].CellId;
+      tile.ConfigureAuthoring(tile.TileId, 99, new List<GameObject> { cells[2].CoverRoot, cells[0].CoverRoot, cells[1].CoverRoot });
+      tile.InitializeFromSave(saved);
+      Require(cells[1].CellId == id && tile.IsCellOpen(cells[1]) && !tile.IsCellOpen(cells[2]), "Reorder preserves stable identity");
+      tile.InitializeFromSave(new MetaTileProgress(tile.TileId) { UsesCellIds = true, OpenedCellIds = new List<string> { "unknown" } });
+      Require(!tile.IsTileFullyOpen && !tile.IsCellOpen(cells[0]), "Unknown saved ID does not unlock a cell");
+    }
+
+    private static void SelectedCellTransactionRollback(Fixture f)
+    {
+      var cells = CreateCells(f, out var tile);
+      var observer = new MetaObserver(f.Service, f.Save, f.Currency);
+      f.Currency.AddHexCoins(31);
+      Action<int> fail = _ => throw new InvalidOperationException("Expected currency callback failure");
+      f.Currency.OnHexCoinsChanged += fail;
+      bool failed = false;
+      try { observer.TryOpenCell(tile, cells[1]); }
+      catch (InvalidOperationException) { failed = true; }
+      finally { f.Currency.OnHexCoinsChanged -= fail; }
+      Require(failed && f.Currency.HexCoins == 31 && !tile.IsCellOpen(cells[1]), "Failed transaction restores debit and ID");
+      Require(f.Reload().HexCoins == 31 && f.Reload().MetaProgress.Count == 0, "Failed purchase does not persist");
+    }
+
+    private static void HexHitGeometry(Fixture f)
+    {
+      var cells = CreateCells(f, out _);
+      var cell = cells[0];
+      var renderer = cell.CoverRoot.AddComponent<SpriteRenderer>();
+      var texture = new Texture2D(16, 16);
+      var sprite = Sprite.Create(texture, new Rect(0, 0, 16, 16), Vector2.one * 0.5f, 8);
+      f.Objects.Add(texture);
+      f.Objects.Add(sprite);
+      renderer.sprite = sprite;
+      SetField(cell, "_cover", renderer);
+      foreach (var rotation in new[] { Quaternion.identity, Quaternion.Euler(90, 20, 0) })
+      {
+        cell.transform.localRotation = rotation;
+        cell.transform.localScale = new Vector3(2, 3, 1);
+        var t = renderer.transform;
+        Ray RayAt(float x, float y) => new Ray(t.TransformPoint(new Vector3(x, y, -2)), t.TransformDirection(Vector3.forward));
+        Require(cell.TryHit(RayAt(0, 0), out _), "Center hit in XY and rotated plane");
+        Require(!cell.TryHit(RayAt(0.95f, 0.95f), out _), "Transparent corner excluded");
+        cell.ConfigureHitShape(false);
+        Require(cell.TryHit(RayAt(0.9f, 0), out _), "Flat-top tip accepted");
+        cell.ConfigureHitShape(true);
+      }
     }
 
     private static void VictoryIsCommittedOnce(Fixture f)

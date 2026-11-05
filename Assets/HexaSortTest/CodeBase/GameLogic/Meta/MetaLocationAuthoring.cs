@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 #endif
 
 namespace HexaSortTest.CodeBase.GameLogic.Meta
@@ -46,6 +47,14 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     [SerializeField, BoxGroup("PREVIEW"), Min(0)] private int _previewOpenedCount;
 
 #if UNITY_EDITOR
+    // Prefab Mode uses editable scene objects, so prefab asset/instance checks alone
+    // do not cover an isolated prefab stage.
+    private bool IsSavedPrefab => PrefabUtility.IsPartOfPrefabAsset(gameObject) ||
+      PrefabUtility.IsPartOfPrefabInstance(gameObject) ||
+      PrefabStageUtility.GetPrefabStage(gameObject) != null;
+
+    private bool IsPrefabAsset => EditorUtility.IsPersistent(gameObject);
+
     [ShowInInspector, ReadOnly, BoxGroup("GENERATED")]
     private int CoverCount => _generatedRoot == null ? 0 : _generatedRoot.childCount;
     [ShowInInspector, ReadOnly, BoxGroup("GENERATED")]
@@ -83,7 +92,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       _hexCoinsPerCover = GetComponent<MetaTile>().HexCoinsCostPerStep;
     }
 
-    [Button("Generate Grid"), BoxGroup("ACTIONS"), DisableInPlayMode]
+    [Button("Generate Grid"), BoxGroup("ACTIONS"), HideIf(nameof(IsSavedPrefab)), DisableInPlayMode]
     public void GenerateGrid()
     {
       if (!CanEdit()) return;
@@ -135,7 +144,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       ? new Vector2((col + (row % 2) * 0.5f) * _cellSize.x, row * _cellSize.y * 0.75f) * _spacing
       : new Vector2(col * _cellSize.x * 0.75f, (row + (col % 2) * 0.5f) * _cellSize.y) * _spacing;
 
-    [Button("Collect Covers / Apply Settings"), BoxGroup("ACTIONS"), DisableInPlayMode]
+    [Button("Collect Covers / Apply Settings"), BoxGroup("ACTIONS"), HideIf(nameof(IsSavedPrefab)), DisableInPlayMode]
     public void ApplySettings()
     {
       if (!CanEdit()) return;
@@ -174,7 +183,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       MarkChanged(this);
     }
 
-    [Button("Validate Location"), BoxGroup("ACTIONS"), DisableInPlayMode]
+    [Button("Validate Location"), BoxGroup("ACTIONS"), HideIf(nameof(IsSavedPrefab)), DisableInPlayMode]
     public void ValidateLocation()
     {
       var tile = GetComponent<MetaTile>();
@@ -188,17 +197,25 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
           _pictureRenderer.transform.IsChildOf(_generatedRoot))
       { Debug.LogError("Assign a picture renderer inside the location, outside Generated Covers.", this); return; }
       if (_pictureRenderer.sprite == null) { Debug.LogError("Picture renderer has no sprite.", this); return; }
-      if (GetComponentInChildren<Collider>(true) == null)
-      { Debug.LogError("Add a 3D Collider on the location for MetaTileInteractor and set its layer.", this); return; }
+      foreach (var cell in tile.Cells)
+        if (!cell.ValidateEffects(out var effectError)) { Debug.LogError(effectError, cell); return; }
       if (tile.TileId != _locationId)
       { Debug.LogError("Settings changed. Click Collect Covers / Apply Settings.", this); return; }
       if (!HasSpriteSettings() || _pictureRenderer.maskInteraction != SpriteMaskInteraction.VisibleInsideMask ||
           GetComponent<SortingGroup>() == null)
       { Debug.LogError("Assign all sprites/font and click Collect Covers / Apply Settings.", this); return; }
-      Debug.Log($"Meta location valid: {CoverCount} covers, {TotalHexCoins} HexCoins. Also check unique Location Id in the location list and the input layer.", this);
+      Debug.Log($"Meta location valid: {CoverCount} covers, {TotalHexCoins} HexCoins. Also check unique Location Id in the location list and configure MetaTileInteractor feedback UI.", this);
     }
 
-    [Button("Preview Opened Count"), BoxGroup("PREVIEW"), DisableInPlayMode]
+    [Button("Open Prefab For Preview"), BoxGroup("PREVIEW"), ShowIf(nameof(IsPrefabAsset)), DisableInPlayMode]
+    public void OpenPrefabForPreview()
+    {
+      if (!IsPrefabAsset) return;
+      string path = AssetDatabase.GetAssetPath(gameObject);
+      if (!string.IsNullOrEmpty(path)) PrefabStageUtility.OpenPrefab(path);
+    }
+
+    [Button("Preview Opened Count"), BoxGroup("PREVIEW"), DisableIf(nameof(IsPrefabAsset)), DisableInPlayMode]
     public void Preview()
     {
       if (!CanEdit()) return;
@@ -209,7 +226,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       FinishUndo(undo);
     }
 
-    [Button("Show All Covers"), BoxGroup("PREVIEW"), DisableInPlayMode]
+    [Button("Show All Covers"), BoxGroup("PREVIEW"), DisableIf(nameof(IsPrefabAsset)), DisableInPlayMode]
     public void ShowAllCovers()
     {
       if (!CanEdit()) return;
@@ -219,7 +236,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       MarkChanged(this);
     }
 
-    [Button("Clear Generated Covers"), BoxGroup("ACTIONS"), DisableInPlayMode]
+    [Button("Clear Generated Covers"), BoxGroup("ACTIONS"), HideIf(nameof(IsSavedPrefab)), DisableInPlayMode]
     public void ClearGeneratedCovers()
     {
       if (!CanEdit() || _generatedRoot == null) return;
@@ -231,7 +248,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       FinishUndo(undo);
     }
 
-    [Button("Save Location As Prefab"), BoxGroup("ACTIONS"), DisableInPlayMode]
+    [Button("Save Location As Prefab"), BoxGroup("ACTIONS"), HideIf(nameof(IsSavedPrefab)), DisableInPlayMode]
     public void SaveAsPrefab()
     {
       if (!CanEdit()) return;
@@ -326,6 +343,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
 
     private void UpdateCellVisuals(MetaLocationCell cell)
     {
+      cell.ConfigureHitShape(_orientation == HexOrientation.PointyTop);
       SetSprite(cell.Frame, _maskSprite, _cellSize, 1);
       SetSprite(cell.Cover, _coverSprite, _cellSize, 2);
       float lockWidth = Mathf.Min(_cellSize.x, _cellSize.y) * _lockSize;

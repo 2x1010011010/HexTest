@@ -17,6 +17,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     [SerializeField, BoxGroup("PROGRESS SETTINGS"), Min(0), FormerlySerializedAs("_currencyCostPerTap")]
     private int _hexCoinsCostPerStep = 10;
 
+    private readonly HashSet<string> _openedCellIds = new();
     private int _currentGroupIndex;
     private int _currentObjectIndexInGroup;
     private float _currentObjectProgress;
@@ -51,12 +52,97 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     public int CurrentObjectIndexInGroup => _currentObjectIndexInGroup;
     public float CurrentObjectProgress => _currentObjectProgress;
 
+    public List<MetaLocationCell> Cells
+    {
+      get
+      {
+        var result = new List<MetaLocationCell>();
+        if (_groups == null) return result;
+        foreach (var group in _groups)
+          if (group?.Objects != null)
+            foreach (var cover in group.Objects)
+            {
+              var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+              if (cell != null && cell.CoverRoot == cover) result.Add(cell);
+            }
+        return result;
+      }
+    }
+
+    public bool UsesCells => Cells.Count > 0;
+    public bool IsCellOpen(MetaLocationCell cell) => cell != null && _openedCellIds.Contains(cell.CellId);
+
+    public MetaTileProgress CaptureProgress() => new MetaTileProgress(_tileId)
+    {
+      UsesCellIds = UsesCells,
+      OpenedCellIds = new List<string>(_openedCellIds),
+      UnlockedGroupsCount = _currentGroupIndex,
+      UnlockedObjectsInGroupCount = _currentObjectIndexInGroup,
+      CurrentObjectProgress = _currentObjectProgress
+    };
+
+    public MetaTileStepResult OpenCell(MetaLocationCell cell, bool deferVisuals)
+    {
+      if (cell == null || !Cells.Contains(cell) || IsCellOpen(cell) || !ValidateLayout(out _))
+        return MetaTileStepResult.None;
+      _openedCellIds.Add(cell.CellId);
+      if (!deferVisuals) cell.SetOpened(true);
+      UpdateCellCursor();
+      return new MetaTileStepResult(true, true, _isTileFullyOpen);
+    }
+
+    private void UpdateCellCursor()
+    {
+      _currentGroupIndex = GroupsCount;
+      _currentObjectIndexInGroup = 0;
+      _currentObjectProgress = 0f;
+      _isTileFullyOpen = GroupsCount > 0;
+      for (int g = 0; g < GroupsCount; g++)
+        for (int o = 0; o < (_groups[g]?.Objects?.Count ?? 0); o++)
+        {
+          var cover = _groups[g].Objects[o];
+          var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+          if (cell == null || !IsCellOpen(cell))
+          {
+            _currentGroupIndex = g;
+            _currentObjectIndexInGroup = o;
+            _isTileFullyOpen = false;
+            return;
+          }
+        }
+    }
+
     private void Awake() => InitializeFromSave(null);
 
     public void InitializeFromSave(MetaTileProgress saved)
     {
       // A save from a different location must never reveal this location.
       if (saved != null && saved.TileId != _tileId) saved = null;
+      _openedCellIds.Clear();
+      if (UsesCells)
+      {
+        if (saved != null && saved.UsesCellIds)
+        {
+          foreach (var cell in Cells)
+            if (saved.OpenedCellIds != null && saved.OpenedCellIds.Contains(cell.CellId))
+              _openedCellIds.Add(cell.CellId);
+        }
+        else if (saved != null)
+        {
+          // One-time migration: retain fully opened legacy covers, never charge again.
+          for (int g = 0; g < GroupsCount; g++)
+            for (int o = 0; o < (_groups[g]?.Objects?.Count ?? 0); o++)
+              if (g < saved.UnlockedGroupsCount ||
+                  (g == saved.UnlockedGroupsCount && o < saved.UnlockedObjectsInGroupCount))
+              {
+                var cell = _groups[g].Objects[o]?.GetComponentInParent<MetaLocationCell>();
+                if (cell != null) _openedCellIds.Add(cell.CellId);
+              }
+        }
+        UpdateCellCursor();
+        foreach (var cell in Cells) cell.SetOpened(IsCellOpen(cell));
+        return;
+      }
       _currentGroupIndex = Mathf.Clamp(saved?.UnlockedGroupsCount ?? 0, 0, GroupsCount);
       _currentObjectIndexInGroup = Mathf.Max(0, saved?.UnlockedObjectsInGroupCount ?? 0);
       float progress = saved?.CurrentObjectProgress ?? 0f;
@@ -69,6 +155,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     {
       // Reject malformed layouts before the observer spends currency.
       if (!ValidateLayout(out _)) return MetaTileStepResult.None;
+      if (UsesCells)
+      {
+        var cellResult = OpenCell(CurrentCell, false);
+        if (notify) NotifyStepCompleted(cellResult);
+        return cellResult;
+      }
       NormalizeCursor();
       if (_isTileFullyOpen || GroupsCount == 0) return MetaTileStepResult.None;
 
@@ -137,6 +229,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
           _progressPerStep <= 0f || _progressPerStep > 1f)
       { error = "Invalid cost or progress per step."; return false; }
       var seen = new HashSet<GameObject>();
+      var cellIds = new HashSet<string>();
+      bool usesCells = UsesCells;
       for (int g = 0; g < GroupsCount; g++)
       {
         var objects = _groups[g]?.Objects;
@@ -145,6 +239,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
         foreach (var cover in objects)
         {
           var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+          if (usesCells && (cell == null || string.IsNullOrWhiteSpace(cell.CellId) || !cellIds.Add(cell.CellId)))
+          { error = "Missing or duplicate Cell Id. Click Collect Covers / Apply Settings."; return false; }
           if (cell != null && (cell.HexCoinsCost < 0 || cell.CoverRoot != cover))
           { error = $"Group {g}: invalid cell cost or cover root."; return false; }
           if (cover == null || cover == gameObject || !cover.transform.IsChildOf(transform) || !seen.Add(cover))
@@ -162,6 +258,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
 #if UNITY_EDITOR
     public void ConfigureAuthoring(string tileId, int cost, List<GameObject> covers)
     {
+      var ids = new HashSet<string>();
+      foreach (var cover in covers)
+      {
+        var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+        if (cell != null) cell.EnsureUniqueId(ids);
+      }
       _tileId = tileId;
       _hexCoinsCostPerStep = Mathf.Max(0, cost);
       _progressPerStep = 1f;
@@ -182,6 +284,12 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     public void PreviewOpenedCount(int count)
     {
       InitializeFromSave(null);
+      if (UsesCells)
+      {
+        var cells = Cells;
+        for (int i = 0; i < Mathf.Min(count, cells.Count); i++) OpenCell(cells[i], false);
+        return;
+      }
       for (int i = 0; i < count; i++)
       {
         _currentObjectProgress = 0f;
