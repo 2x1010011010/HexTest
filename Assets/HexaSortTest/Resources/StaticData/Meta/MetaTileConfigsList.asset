@@ -15,3 +15,4 @@ MonoBehaviour:
   <Tiles>k__BackingField:
   - _icon: {fileID: 21300000, guid: 6b2d984b7d1ee5a4eaf9377a35145526, type: 3}
     _tilePrefab: {fileID: 8379718870057165537, guid: a6509ffa363b64648a85704ed276b335, type: 3}
+    _displayName: Sunny Harbor

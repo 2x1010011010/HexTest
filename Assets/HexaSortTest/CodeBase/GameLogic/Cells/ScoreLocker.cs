@@ -16,11 +16,26 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
     
     [SerializeField, Min(0), BoxGroup("AUTHORING")] private int _requiredScore;
 
+    private Quaternion _initialWorldRotation;
+
     public SpriteRenderer SpriteRenderer => _spriteRenderer;
     public Canvas Canvas => _canvas;
     public TMP_Text ScoreText => _scoreText;
     public ParticleSystem UnlockParticles => _unlockParticles;
     public int RequiredScore => _requiredScore;
+
+    private void Start()
+    {
+      // Capture after spawning/parenting so the authored tilt is preserved.
+      _initialWorldRotation = transform.rotation;
+    }
+
+    private void LateUpdate()
+    {
+      // Follow the cell's position, but keep the lock and its child score canvas
+      // upright throughout dragging and the board's snap tween.
+      transform.rotation = _initialWorldRotation;
+    }
 
     public void ConfigureRequiredScore(int requiredScore)
     {
