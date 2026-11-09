@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Menu;
 using HexaSortTest.CodeBase.Infrastructure.Logging;
@@ -42,8 +43,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       if (_screen != null)
       {
         _screen.OnPlayClicked -= HandlePlayClicked;
-        _screen.OnMetaClicked -= HandleMetaClicked;
-        _screen.OnShopClicked -= HandleShopClicked;
       }
 
       _screen = null;
@@ -55,6 +54,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _loadingCurtain.Hide();
 
       _screen = _uiFactory.CreateMainMenuScreen();
+      NavigationPanelObserver.InitializeInScene(_gameStateMachine, Constants.MainMenuScene);
 
       if (_screen == null)
       {
@@ -66,8 +66,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       }
       
       _screen.OnPlayClicked += HandlePlayClicked;
-      _screen.OnMetaClicked += HandleMetaClicked;
-      _screen.OnShopClicked += HandleShopClicked;
 #if UNITY_EDITOR
       GameLogger.Message("[MainMenuState] UI created and event handlers subscribed.");
 #endif
@@ -81,22 +79,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _loadingCurtain.Show();
       _gameStateMachine.Enter<LoadLevelState, string>(
         _progressService.PlayerProgress.WorldData.LastLevel.Level);
-    }
-
-    private void HandleMetaClicked()
-    {
-#if UNITY_EDITOR
-      GameLogger.Message("[MainMenuState] HandleMetaClicked");
-#endif
-      _gameStateMachine.Enter<MetaState>();
-    }
-
-    private void HandleShopClicked()
-    {
-#if UNITY_EDITOR
-      GameLogger.Message("[MainMenuState] HandleShopClicked");
-#endif
-      _gameStateMachine.Enter<ShopState>();
     }
   }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement;
@@ -10,34 +9,16 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Shop
 {
   public class ShopSceneObserver : MonoBehaviour
   {
-    [SerializeField, BoxGroup("BUTTONS")] private ShopExitButton _exitButton;
-
     [SerializeField, BoxGroup("LIST SETUP")] private Transform _bundlesContainer;
     [SerializeField, BoxGroup("LIST SETUP")] private StorePositionBundleListItem _bundleItemPrefab;
 
     [SerializeField, BoxGroup("STATUS"), Tooltip("Shown when there's nothing to list (missing catalog or empty). Hidden once the list is populated.")]
     private TMP_Text _statusText;
 
-    public event Action OnExitRequested;
-
     private readonly List<StorePositionBundleListItem> _listItems = new();
 
     private void Start() =>
       BuildBundleList();
-
-    private void OnEnable()
-    {
-      if (_exitButton != null)
-        _exitButton.OnExitButtonClick += HandleExitClicked;
-      else
-        Debug.LogError("[ShopSceneObserver] _exitButton is not assigned in the inspector!");
-    }
-
-    private void OnDisable()
-    {
-      if (_exitButton != null)
-        _exitButton.OnExitButtonClick -= HandleExitClicked;
-    }
 
     private void BuildBundleList()
     {
@@ -95,8 +76,5 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Shop
       _statusText.gameObject.SetActive(!string.IsNullOrEmpty(message));
       _statusText.text = message;
     }
-
-    private void HandleExitClicked() =>
-      OnExitRequested?.Invoke();
   }
 }

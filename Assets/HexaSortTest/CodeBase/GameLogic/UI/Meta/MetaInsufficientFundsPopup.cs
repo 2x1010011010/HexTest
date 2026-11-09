@@ -1,17 +1,16 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 {
   public class MetaInsufficientFundsPopup : MonoBehaviour
   {
     [SerializeField] private TMP_Text _message;
-    [SerializeField] private Button _closeButton;
+    [SerializeField] private MetaPopupCloseButton _closeButton;
     public bool IsOpen => gameObject.activeInHierarchy;
-    private void OnEnable() { if (_closeButton != null) _closeButton.onClick.AddListener(Close); }
-    private void OnDisable() { if (_closeButton != null) _closeButton.onClick.RemoveListener(Close); }
-    public void Configure(TMP_Text message, Button closeButton)
+    private void OnEnable() { if (_closeButton != null) _closeButton.OnCloseButtonClick += Close; }
+    private void OnDisable() { if (_closeButton != null) _closeButton.OnCloseButtonClick -= Close; }
+    public void Configure(TMP_Text message, MetaPopupCloseButton closeButton)
     {
       _message = message;
       _closeButton = closeButton;

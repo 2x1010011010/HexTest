@@ -32,6 +32,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       if (popup == null)
       {
         var overlay = Rect("Insufficient HexCoins", root.transform, Vector2.one * 0.5f, Vector2.zero, Vector2.zero);
+        overlay.gameObject.SetActive(false);
         overlay.anchorMin = Vector2.zero;
         overlay.anchorMax = Vector2.one;
         overlay.offsetMin = overlay.offsetMax = Vector2.zero;
@@ -47,7 +48,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         button.targetGraphic = image;
         Text("Label", buttonRect, "OK", Vector2.zero, new Vector2(400, 80), 36);
         popup = overlay.gameObject.AddComponent<MetaInsufficientFundsPopup>();
-        popup.Configure(message, button);
+        var closeButton = buttonRect.gameObject.AddComponent<MetaPopupCloseButton>();
+        closeButton.Configure(button);
+        popup.Configure(message, closeButton);
       }
       return root;
     }

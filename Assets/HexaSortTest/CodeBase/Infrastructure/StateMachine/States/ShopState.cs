@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Shop;
 using HexaSortTest.CodeBase.Infrastructure.Logging;
@@ -35,9 +36,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     public void Exit()
     {
-      if (_shopUI != null)
-        _shopUI.OnExitRequested -= HandleExitRequested;
-
       _shopUI = null;
       _uiFactory.Clear();
     }
@@ -47,6 +45,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _loadingCurtain.Hide();
 
       _shopUI = _uiFactory.CreateShopSceneUI();
+      NavigationPanelObserver.InitializeInScene(_gameStateMachine, Constants.ShopScene);
 
       if (_shopUI == null)
       {
@@ -57,13 +56,9 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         return;
       }
 
-      _shopUI.OnExitRequested += HandleExitRequested;
 #if UNITY_EDITOR
-      GameLogger.Message("[ShopState] UI created and event handlers subscribed.");
+      GameLogger.Message("[ShopState] UI created.");
 #endif
     }
-
-    private void HandleExitRequested() =>
-      _gameStateMachine.Enter<MainMenuState>();
   }
 }

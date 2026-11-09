@@ -1,3 +1,4 @@
+using HexaSortTest.CodeBase.GameLogic.UI;
 using HexaSortTest.CodeBase.GameLogic.UI.Loading;
 using HexaSortTest.CodeBase.GameLogic.UI.Meta;
 using HexaSortTest.CodeBase.Infrastructure.Logging;
@@ -39,12 +40,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     public void Exit()
     {
-      if (_metaUI != null)
-      {
-        _metaUI.OnExitRequested -= HandleExitRequested;
-        _metaUI.OnPlayRequested -= HandlePlayRequested;
-      }
-
       _metaUI = null;
       _metaObjectFactory.Clear();
       _uiFactory.Clear();
@@ -55,6 +50,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
       _loadingCurtain.Hide();
 
       _metaUI = _uiFactory.CreateMetaUI();
+      NavigationPanelObserver.InitializeInScene(_gameStateMachine, Constants.MetaScene);
 
       if (_metaUI == null)
       {
@@ -65,17 +61,10 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         return;
       }
 
-      _metaUI.OnExitRequested += HandleExitRequested;
-      _metaUI.OnPlayRequested += HandlePlayRequested;
 #if UNITY_EDITOR
-      GameLogger.Message("[MetaState] UI created and event handlers subscribed.");
+      GameLogger.Message("[MetaState] UI created.");
 #endif
     }
 
-    private void HandlePlayRequested(string level) =>
-      _gameStateMachine.Enter<LoadLevelState, string>(level);
-
-    private void HandleExitRequested() =>
-      _gameStateMachine.Enter<MainMenuState>();
   }
 }

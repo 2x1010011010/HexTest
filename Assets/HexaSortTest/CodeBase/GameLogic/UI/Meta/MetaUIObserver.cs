@@ -1,7 +1,4 @@
-using System;
-using TMPro;
 using UnityEngine.UI;
-using HexaSortTest.CodeBase.Infrastructure.Services.LivesService;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameConfigs;
 using HexaSortTest.CodeBase.GameLogic.Data;
@@ -16,58 +13,31 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 {
   public class MetaUIObserver : MonoBehaviour
   {
-    [SerializeField, BoxGroup("LIST SETUP"), Tooltip("The ScrollBox toggled open/closed by the list button.")]
-    private GameObject _listPanel;
-
     [SerializeField, BoxGroup("LIST SETUP")] private MetaTileConfigsList _tileConfigsList;
     [SerializeField, BoxGroup("LIST SETUP")] private Transform _listContainer;
     [SerializeField, BoxGroup("LIST SETUP")] private MetaTileListItemButton _listItemPrefab;
 
-    [SerializeField, BoxGroup("BUTTONS")] private MetaSwitchButton _switchButton;
-    [SerializeField, BoxGroup("BUTTONS")] private MetaExitButton _exitButton;
+    [SerializeField, BoxGroup("LIST SETUP")] private ScrollRect _locationsScroll;
 
     [SerializeField, BoxGroup("TILE INTERACTION")] private MetaTileInteractor _tileInteractor;
 
     [Inject] private IMetaObjectFactory _metaObjectFactory;
     [Inject] private IPersistentProgressService _progressService;
 
-    public event Action OnExitRequested;
-    public event Action<string> OnPlayRequested;
-    [SerializeField] private Button _playButton;
-    [SerializeField] private Button _closeListButton;
-    [SerializeField] private TMP_Text _locationTitle;
-    [SerializeField] private TMP_Text _progressText;
-    [SerializeField] private Image _progressFill;
     [SerializeField] private MetaLocationViewport _viewport;
-    [SerializeField] private GameObject _noLivesPanel;
-    [SerializeField] private Button _closeNoLivesButton;
-    [Inject] private LivesService _lives;
 
-    private void HandlePlay()
-    {
-      _lives.Refresh();
-      if (_lives.Lives <= 0) { if (_noLivesPanel != null) _noLivesPanel.SetActive(true); return; }
-      OnPlayRequested?.Invoke(_progressService.PlayerProgress.WorldData.LastLevel.Level);
-    }
-    private void CloseNoLives() { if (_noLivesPanel != null) _noLivesPanel.SetActive(false); }
     private void RefreshProgress(MetaTile tile)
     {
+      if (_selectedItem == null || tile == null) return;
       int total = tile.UsesCells ? tile.Cells.Count : tile.GroupsCount;
       int opened = tile.UsesCells ? tile.Cells.FindAll(tile.IsCellOpen).Count : tile.CurrentGroupIndex;
-      if (_progressText != null) _progressText.text = $"{opened}/{total}";
-      if (_progressFill != null) _progressFill.fillAmount = total > 0 ? (float)opened / total : 0;
+      _selectedItem.SetProgress(opened, total);
     }
 
     private readonly List<MetaTileListItemButton> _listItems = new();
     private readonly Dictionary<MetaTileListItemButton, int> _itemIndices = new();
     private MetaTile _activeTile;
-    private bool _isListOpen;
-
-    private void Awake()
-    {
-      if (_listPanel != null)
-        _listPanel.SetActive(false);
-    }
+    private MetaTileListItemButton _selectedItem;
 
     private void Start()
     {
@@ -83,34 +53,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       if (selected != null) HandleItemClicked(selected);
     }
 
-    private void OnEnable()
-    {
-      if (_playButton != null) _playButton.onClick.AddListener(HandlePlay);
-      if (_closeListButton != null) _closeListButton.onClick.AddListener(HideList);
-      if (_closeNoLivesButton != null) _closeNoLivesButton.onClick.AddListener(CloseNoLives);
-      if (_exitButton != null)
-        _exitButton.OnExitButtonClick += HandleExitClicked;
-      else
-        Debug.LogError("[MetaUIObserver] _exitButton is not assigned in the inspector!");
-
-      if (_switchButton != null)
-        _switchButton.OnSwitchButtonClick += HandleSwitchClicked;
-      else
-        Debug.LogError("[MetaUIObserver] _switchButton is not assigned in the inspector!");
-    }
-
-    private void OnDisable()
-    {
-      if (_playButton != null) _playButton.onClick.RemoveListener(HandlePlay);
-      if (_closeListButton != null) _closeListButton.onClick.RemoveListener(HideList);
-      if (_closeNoLivesButton != null) _closeNoLivesButton.onClick.RemoveListener(CloseNoLives);
-      if (_exitButton != null)
-        _exitButton.OnExitButtonClick -= HandleExitClicked;
-
-      if (_switchButton != null)
-        _switchButton.OnSwitchButtonClick -= HandleSwitchClicked;
-    }
-
     private void OnDestroy()
     {
       ClearTileList();
@@ -121,35 +63,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         _activeTile.OnProgressChanged -= RefreshProgress;
       }
     }
-
-    private void HandleSwitchClicked()
-    {
-      if (_isListOpen)
-        HideList();
-      else
-        ShowList();
-    }
-
-    private void ShowList()
-    {
-      _isListOpen = true;
-
-      if (_listPanel != null)
-        _listPanel.SetActive(true);
-      else
-        Debug.LogError("[MetaUIObserver] _listPanel is not assigned in the inspector! The ScrollBox cannot be shown.");
-    }
-
-    private void HideList()
-    {
-      _isListOpen = false;
-
-      if (_listPanel != null)
-        _listPanel.SetActive(false);
-    }
-
-    private void HandleExitClicked() =>
-      OnExitRequested?.Invoke();
 
     private void BuildTileList()
     {
@@ -174,23 +87,16 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
           continue;
 
         var item = Instantiate(_listItemPrefab, _listContainer);
-        var rect = item.transform as RectTransform;
-        if (rect != null)
-        {
-          rect.anchorMin = new Vector2(0, 1); rect.anchorMax = new Vector2(1, 1);
-          rect.pivot = new Vector2(0.5f, 1);
-          rect.sizeDelta = new Vector2(-16, 260);
-          rect.anchoredPosition = new Vector2(0, -_listItems.Count * 280);
-        }
         item.Setup(config);
         item.SetLocked(!IsTileUnlocked(i));
         item.OnItemButtonClick += HandleItemClicked;
+        RefreshSavedProgress(item);
+        item.gameObject.SetActive(true);
 
         _listItems.Add(item);
         _itemIndices.Add(item, i);
       }
-      if (_listContainer is RectTransform container)
-        container.sizeDelta = new Vector2(container.sizeDelta.x, Mathf.Max(0, _listItems.Count * 280));
+
     }
 
     private void ClearTileList()
@@ -210,6 +116,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
     private void HandleItemClicked(MetaTileListItemButton item)
     {
+      if (!isActiveAndEnabled || item == _selectedItem) return;
       if (item == null || item.Config == null || item.Config.TilePrefab == null)
       {
         Debug.LogError("[MetaUIObserver] Clicked list item has no valid MetaTileConfig/TilePrefab.");
@@ -232,6 +139,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         _activeTile.OnProgressChanged -= RefreshProgress;
       }
       _activeTile = null;
+      if (_selectedItem != null) _selectedItem.SetSelected(false);
+      _selectedItem = null;
 
       var tile = _metaObjectFactory.SpawnTile(item.Config, Vector3.zero);
       if (tile == null)
@@ -241,20 +150,57 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         return;
       }
 
-      HideList();
       tile.InitializeFromSave(FindSavedProgress(tile.TileId));
       tile.OnTileFullyOpened += HandleTileFullyOpened;
       _activeTile = tile;
       tile.OnProgressChanged += RefreshProgress;
-      if (_locationTitle != null) _locationTitle.text = item.Config.DisplayName;
+      _selectedItem = item;
+      item.SetSelected(true);
+      ScrollToSelected(item);
       RefreshProgress(tile);
       if (_viewport != null) _viewport.SetTile(tile);
 
       _tileInteractor.SetCurrentTile(tile);
     }
 
-    private void HandleTileFullyOpened(MetaTile tile) =>
+    private void HandleTileFullyOpened(MetaTile tile)
+    {
+      RefreshProgress(tile);
       RefreshLockStates();
+    }
+
+    private void RefreshSavedProgress(MetaTileListItemButton item)
+    {
+      var tile = item.Config?.TilePrefab;
+      if (tile == null) { item.SetProgress(0, 0); return; }
+      var saved = FindSavedProgress(tile.TileId);
+      int total = tile.UsesCells ? tile.Cells.Count : tile.GroupsCount;
+      int opened = 0;
+      if (saved != null)
+      {
+        if (tile.UsesCells && saved.UsesCellIds)
+          opened = tile.Cells.FindAll(cell => cell != null && saved.OpenedCellIds != null &&
+            saved.OpenedCellIds.Contains(cell.CellId)).Count;
+        else opened = saved.UnlockedGroupsCount;
+      }
+      item.SetProgress(opened, total);
+    }
+
+    private void ScrollToSelected(MetaTileListItemButton item)
+    {
+      if (_locationsScroll == null || _locationsScroll.content == null ||
+          _locationsScroll.viewport == null) return;
+      Canvas.ForceUpdateCanvases();
+      var content = _locationsScroll.content;
+      LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+      float overflow = content.rect.width - _locationsScroll.viewport.rect.width;
+      _locationsScroll.StopMovement();
+      if (overflow <= 0f) { _locationsScroll.horizontalNormalizedPosition = 0f; return; }
+      var rect = (RectTransform)item.transform;
+      float center = content.InverseTransformPoint(rect.TransformPoint(rect.rect.center)).x - content.rect.xMin;
+      _locationsScroll.horizontalNormalizedPosition = Mathf.Clamp01(
+        (center - _locationsScroll.viewport.rect.width * 0.5f) / overflow);
+    }
 
     private void RefreshLockStates()
     {
