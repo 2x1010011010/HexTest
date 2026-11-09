@@ -17,6 +17,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI
     [SerializeField, BoxGroup("BUTTON SIZES")] private Vector2 _activeButtonSize = new Vector2(300f, 300f);
     [SerializeField, BoxGroup("BUTTON SIZES")] private Vector2 _inactiveButtonSize = new Vector2(150f, 150f);
 
+    [SerializeField, BoxGroup("BUTTON POSITIONS")] private float _activeButtonY = 37f;
+    [SerializeField, BoxGroup("BUTTON POSITIONS")] private float _inactiveButtonY = -15f;
+
     private GameStateMachine _gameStateMachine;
     private string _currentScene;
     private bool _isNavigating;
@@ -98,6 +101,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI
       size.y = Mathf.Max(1f, size.y);
       rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
       rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+
+      // Absolute anchored Y: repeated refreshes must not accumulate an offset.
+      Vector2 position = rect.anchoredPosition;
+      position.y = selected ? _activeButtonY : _inactiveButtonY;
+      rect.anchoredPosition = position;
 
       // Keep the requested size when the panel uses a LayoutGroup.
       var layout = rect.GetComponent<LayoutElement>();
