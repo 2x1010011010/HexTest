@@ -1234,7 +1234,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -1.6944885, y: 487}
+  m_AnchoredPosition: {x: -1.6944885, y: 479}
   m_SizeDelta: {x: -241.46, y: 124.0104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1342284291462139506
@@ -3023,6 +3023,7 @@ GameObject:
   - component: {fileID: 1623936945474141851}
   - component: {fileID: 722906326668066899}
   - component: {fileID: 840573891670150344}
+  - component: {fileID: 5865995802401533930}
   m_Layer: 0
   m_Name: ConfirmButton
   m_TagString: Untagged
@@ -3132,6 +3133,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5865995802401533930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5796091566583554957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ff0c4a7dded42a8a6c74ee5c4fdc0b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.ExitConfirmButton
+  _button: {fileID: 840573891670150344}
 --- !u!1 &5800980006185940902
 GameObject:
   m_ObjectHideFlags: 0
@@ -3221,8 +3235,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efb7cef766b1427fb7fdff67fe0bfafc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.ExitConfirmationPopup
-  _confirmButton: {fileID: 840573891670150344}
-  _cancelButton: {fileID: 8391823575147101982}
+  _confirmButton: {fileID: 5865995802401533930}
+  _cancelButton: {fileID: 6599951239779370731}
 --- !u!1 &6269817082273129661
 GameObject:
   m_ObjectHideFlags: 0
@@ -3535,6 +3549,7 @@ GameObject:
   - component: {fileID: 8655389425546792193}
   - component: {fileID: 9133812734487809731}
   - component: {fileID: 8391823575147101982}
+  - component: {fileID: 6599951239779370731}
   m_Layer: 0
   m_Name: CancelButton
   m_TagString: Untagged
@@ -3644,6 +3659,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6599951239779370731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7118493380781928270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56479ca808e4e14a9976ac109491c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameLogic.UI.HUD.ExitCancelButton
+  _button: {fileID: 8391823575147101982}
 --- !u!1 &7559858520239121575
 GameObject:
   m_ObjectHideFlags: 0
