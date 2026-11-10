@@ -41,16 +41,24 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         var panel = Rect("Panel", overlay, Vector2.one * 0.5f, new Vector2(820, 560), Vector2.zero);
         panel.gameObject.AddComponent<Image>().color = new Color(0.15f, 0.19f, 0.29f);
         var message = Text("Message", panel, "", new Vector2(0, 65), new Vector2(760, 350), 40);
-        var buttonRect = Rect("Close", panel, Vector2.one * 0.5f, new Vector2(420, 90), new Vector2(0, -180));
+        var buttonRect = Rect("Close", panel, Vector2.one * 0.5f, new Vector2(320, 90), new Vector2(-180, -180));
         var image = buttonRect.gameObject.AddComponent<Image>();
         image.color = new Color(0.3f, 0.5f, 0.7f);
         var button = buttonRect.gameObject.AddComponent<Button>();
         button.targetGraphic = image;
-        Text("Label", buttonRect, "OK", Vector2.zero, new Vector2(400, 80), 36);
+        Text("Label", buttonRect, "Ok", Vector2.zero, new Vector2(300, 80), 36);
         popup = overlay.gameObject.AddComponent<MetaInsufficientFundsPopup>();
         var closeButton = buttonRect.gameObject.AddComponent<MetaPopupCloseButton>();
         closeButton.Configure(button);
-        popup.Configure(message, closeButton);
+        var playRect = Rect("Play", panel, Vector2.one * 0.5f, new Vector2(320, 90), new Vector2(180, -180));
+        var playImage = playRect.gameObject.AddComponent<Image>();
+        playImage.color = new Color(0.3f, 0.65f, 0.4f);
+        var play = playRect.gameObject.AddComponent<Button>();
+        play.targetGraphic = playImage;
+        Text("Label", playRect, "Play", Vector2.zero, new Vector2(300, 80), 36);
+        var playButton = playRect.gameObject.AddComponent<MetaPopupPlayButton>();
+        playButton.Configure(play);
+        popup.Configure(message, closeButton, playButton);
       }
       return root;
     }

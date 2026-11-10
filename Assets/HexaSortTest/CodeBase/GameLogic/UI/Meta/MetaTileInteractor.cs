@@ -1,3 +1,5 @@
+using System;
+using HexaSortTest.CodeBase.Infrastructure.Services.LivesService;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -21,6 +23,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
     [Inject] private IInputService _inputService;
     [Inject] private IMetaObserver _metaObserver;
     [Inject] private ICurrencyService _currency;
+    [Inject] private LivesService _lives;
+    public event Action OnPlayRequested;
     private MetaTile _currentTile;
     private List<MetaLocationCell> _cells = new();
     private readonly List<RaycastResult> _uiHits = new();
@@ -33,6 +37,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       if (_hexCoinsView == null || _insufficientFundsPopup == null)
         _fallbackUI = MetaFeedbackUI.Create(ref _hexCoinsView, ref _insufficientFundsPopup);
       _hexCoinsView.Bind(_currency);
+      _insufficientFundsPopup.Bind(_lives, () => OnPlayRequested?.Invoke());
     }
 
     public void SetCurrentTile(MetaTile tile)

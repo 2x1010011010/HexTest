@@ -38,7 +38,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine
         [typeof(LoadLevelState)]    = new LoadLevelState(this, sceneLoader, gameFactory, uiFactory, progressService, livesService),
         [typeof(GameLoopState)]     = new GameLoopState(this, curtain, uiListenerService, gameFactory, uiFactory),
         [typeof(GameResultState)]   = new GameResultState(this, sceneLoader, uiFactory, progressService, saveLoadService, gameFactory, currencyService, livesService),
-        [typeof(MetaState)]         = new MetaState(this, sceneLoader, curtain, uiFactory, metaObjectFactory),
+        [typeof(MetaState)]         = new MetaState(this, sceneLoader, curtain, uiFactory, metaObjectFactory, progressService, livesService),
         [typeof(ShopState)]         = new ShopState(this, sceneLoader, curtain, uiFactory),
       };
 #if UNITY_EDITOR
