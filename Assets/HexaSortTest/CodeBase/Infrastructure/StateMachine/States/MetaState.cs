@@ -19,6 +19,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     private readonly IMetaObjectFactory _metaObjectFactory;
 
     private MetaUIObserver _metaUI;
+    private Coroutine _prepareForReveal;
+    private int _entryVersion;
     private MetaTileInteractor _interactor;
     private readonly IPersistentProgressService _progress;
     private readonly LivesService _lives;
@@ -44,11 +46,19 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
     public void Enter()
     {
       _loadingCurtain.Show();
-      _sceneLoader.Load(Constants.MetaScene, onLoaded: SpawnMetaUI);
+      int entryVersion = ++_entryVersion;
+      _sceneLoader.Load(Constants.MetaScene, onLoaded: () =>
+      {
+        if (entryVersion == _entryVersion) SpawnMetaUI();
+      });
     }
 
     public void Exit()
     {
+      ++_entryVersion;
+      if (_metaUI != null && _prepareForReveal != null)
+        _metaUI.StopCoroutine(_prepareForReveal);
+      _prepareForReveal = null;
       if (_interactor != null) _interactor.OnPlayRequested -= PlaySavedLevel;
       _interactor = null;
       _metaUI = null;
@@ -58,8 +68,6 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
 
     private void SpawnMetaUI()
     {
-      _loadingCurtain.Hide();
-
       _metaUI = _uiFactory.CreateMetaUI();
       NavigationPanelObserver.InitializeInScene(_gameStateMachine, Constants.MetaScene);
 
@@ -69,11 +77,20 @@ namespace HexaSortTest.CodeBase.Infrastructure.StateMachine.States
         GameLogger.Error("[MetaState] Failed to spawn MetaUIObserver. " +
                        "Check that AssetPaths.MetaUIPrefab points to a valid prefab under Resources/.");
 #endif
+        _loadingCurtain.Hide();
         return;
       }
 
       _interactor = _metaUI.GetComponentInChildren<MetaTileInteractor>(true);
       if (_interactor != null) _interactor.OnPlayRequested += PlaySavedLevel;
+
+      int entryVersion = _entryVersion;
+      _prepareForReveal = _metaUI.StartCoroutine(_metaUI.PrepareForReveal(() =>
+      {
+        if (entryVersion != _entryVersion) return;
+        _prepareForReveal = null;
+        _loadingCurtain.Hide();
+      }));
 
 #if UNITY_EDITOR
       GameLogger.Message("[MetaState] UI created.");

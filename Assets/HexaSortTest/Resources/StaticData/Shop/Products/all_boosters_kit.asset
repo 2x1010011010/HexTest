@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Adventure kit
   <Description>k__BackingField: 1,000 Coins + Hammer + Hand + Respawn
   <Icon>k__BackingField: {fileID: 2144097387, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  <PriceDisplayFallback>k__BackingField: Coming soon
+  <PriceDisplayFallback>k__BackingField: Free
   <Entries>k__BackingField:
   - _storePosition: {fileID: 11400001}
     _quantity: 1

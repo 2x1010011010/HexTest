@@ -914,7 +914,6 @@ MonoBehaviour:
   _nameText: {fileID: 1047}
   _descriptionText: {fileID: 1051}
   _priceText: {fileID: 1061}
-  _priceFallbackText: {fileID: 1065}
   _purchaseButton: {fileID: 1057}
 --- !u!114 &1067
 MonoBehaviour:
@@ -935,7 +934,7 @@ MonoBehaviour:
     Ad removal included when
     ads launch.'
   _icon: {fileID: 67955033, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 0
   _hammer: 0
   _hand: 0
@@ -1354,7 +1353,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1493,7 +1492,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -1821,7 +1820,6 @@ MonoBehaviour:
   _nameText: {fileID: 1080}
   _descriptionText: {fileID: 1084}
   _priceText: {fileID: 1094}
-  _priceFallbackText: {fileID: 1098}
   _purchaseButton: {fileID: 1090}
 --- !u!114 &1100
 MonoBehaviour:
@@ -1839,7 +1837,7 @@ MonoBehaviour:
   _title: 100 Coins
   _description: Coins for your next adventure
   _icon: {fileID: 10976026, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 100
   _hammer: 0
   _hand: 0
@@ -2258,7 +2256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2397,7 +2395,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -2725,7 +2723,6 @@ MonoBehaviour:
   _nameText: {fileID: 1113}
   _descriptionText: {fileID: 1117}
   _priceText: {fileID: 1127}
-  _priceFallbackText: {fileID: 1131}
   _purchaseButton: {fileID: 1123}
 --- !u!114 &1133
 MonoBehaviour:
@@ -2743,7 +2740,7 @@ MonoBehaviour:
   _title: 500 Coins
   _description: Coins for your next adventure
   _icon: {fileID: 10976026, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 500
   _hammer: 0
   _hand: 0
@@ -3162,7 +3159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3301,7 +3298,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -3629,7 +3626,6 @@ MonoBehaviour:
   _nameText: {fileID: 1146}
   _descriptionText: {fileID: 1150}
   _priceText: {fileID: 1160}
-  _priceFallbackText: {fileID: 1164}
   _purchaseButton: {fileID: 1156}
 --- !u!114 &1166
 MonoBehaviour:
@@ -3647,7 +3643,7 @@ MonoBehaviour:
   _title: 1,000 Coins
   _description: Coins for your next adventure
   _icon: {fileID: 10976026, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 1000
   _hammer: 0
   _hand: 0
@@ -4066,7 +4062,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4205,7 +4201,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -4533,7 +4529,6 @@ MonoBehaviour:
   _nameText: {fileID: 1179}
   _descriptionText: {fileID: 1183}
   _priceText: {fileID: 1193}
-  _priceFallbackText: {fileID: 1197}
   _purchaseButton: {fileID: 1189}
 --- !u!114 &1199
 MonoBehaviour:
@@ -4551,7 +4546,7 @@ MonoBehaviour:
   _title: 5,000 Coins
   _description: Coins for your next adventure
   _icon: {fileID: 10976026, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 5000
   _hammer: 0
   _hand: 0
@@ -4970,7 +4965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5109,7 +5104,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -5437,7 +5432,6 @@ MonoBehaviour:
   _nameText: {fileID: 1212}
   _descriptionText: {fileID: 1216}
   _priceText: {fileID: 1226}
-  _priceFallbackText: {fileID: 1230}
   _purchaseButton: {fileID: 1222}
 --- !u!114 &1232
 MonoBehaviour:
@@ -5455,7 +5449,7 @@ MonoBehaviour:
   _title: 10,000 Coins
   _description: Coins for your next adventure
   _icon: {fileID: 10976026, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 10000
   _hammer: 0
   _hand: 0
@@ -5874,7 +5868,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6013,7 +6007,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -6341,7 +6335,6 @@ MonoBehaviour:
   _nameText: {fileID: 1245}
   _descriptionText: {fileID: 1249}
   _priceText: {fileID: 1259}
-  _priceFallbackText: {fileID: 1263}
   _purchaseButton: {fileID: 1255}
 --- !u!114 &1265
 MonoBehaviour:
@@ -6359,7 +6352,7 @@ MonoBehaviour:
   _title: Hammer booster
   _description: 1 booster added to your inventory
   _icon: {fileID: 21300000, guid: 42fc4b1ebf63581418bdd63d6d7741f6, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 0
   _hammer: 1
   _hand: 0
@@ -6778,7 +6771,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6917,7 +6910,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -7245,7 +7238,6 @@ MonoBehaviour:
   _nameText: {fileID: 1278}
   _descriptionText: {fileID: 1282}
   _priceText: {fileID: 1292}
-  _priceFallbackText: {fileID: 1296}
   _purchaseButton: {fileID: 1288}
 --- !u!114 &1298
 MonoBehaviour:
@@ -7263,7 +7255,7 @@ MonoBehaviour:
   _title: Hand booster
   _description: 1 booster added to your inventory
   _icon: {fileID: 21300000, guid: 793075aad0b763b458bab5c5d0094d62, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 0
   _hammer: 0
   _hand: 1
@@ -7682,7 +7674,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7821,7 +7813,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -8149,7 +8141,6 @@ MonoBehaviour:
   _nameText: {fileID: 1311}
   _descriptionText: {fileID: 1315}
   _priceText: {fileID: 1325}
-  _priceFallbackText: {fileID: 1329}
   _purchaseButton: {fileID: 1321}
 --- !u!114 &1331
 MonoBehaviour:
@@ -8167,7 +8158,7 @@ MonoBehaviour:
   _title: Respawn booster
   _description: 1 booster added to your inventory
   _icon: {fileID: 21300000, guid: 1fd6fe123f8c3394d8690d1e05cb796c, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 0
   _hammer: 0
   _hand: 0
@@ -8586,7 +8577,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8725,7 +8716,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -9053,7 +9044,6 @@ MonoBehaviour:
   _nameText: {fileID: 1344}
   _descriptionText: {fileID: 1348}
   _priceText: {fileID: 1358}
-  _priceFallbackText: {fileID: 1362}
   _purchaseButton: {fileID: 1354}
 --- !u!114 &1364
 MonoBehaviour:
@@ -9071,7 +9061,7 @@ MonoBehaviour:
   _title: Starter kit
   _description: 100 Coins + 1 Hammer
   _icon: {fileID: 21300000, guid: 42fc4b1ebf63581418bdd63d6d7741f6, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 100
   _hammer: 1
   _hand: 0
@@ -9490,7 +9480,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9629,7 +9619,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -9957,7 +9947,6 @@ MonoBehaviour:
   _nameText: {fileID: 1377}
   _descriptionText: {fileID: 1381}
   _priceText: {fileID: 1391}
-  _priceFallbackText: {fileID: 1395}
   _purchaseButton: {fileID: 1387}
 --- !u!114 &1397
 MonoBehaviour:
@@ -9975,7 +9964,7 @@ MonoBehaviour:
   _title: Adventure kit
   _description: 1,000 Coins + Hammer + Hand + Respawn
   _icon: {fileID: 21300000, guid: 1fd6fe123f8c3394d8690d1e05cb796c, type: 3}
-  _priceLabel: Coming soon
+  _priceLabel: Free
   _coins: 1000
   _hammer: 1
   _hand: 1
@@ -10394,7 +10383,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78, g: 1, b: 0.77, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10533,7 +10522,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: Free
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
   m_sharedMaterial: {fileID: -2043457644009472612, guid: 44f99d942e3059c4aa885064fa6d1412, type: 2}
@@ -10833,6 +10822,10 @@ PrefabInstance:
     - target: {fileID: 6241942985223707291, guid: 364a5b86fa089f4479a0d35a5d6abad6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8938784415958561136, guid: 364a5b86fa089f4479a0d35a5d6abad6, type: 3}
+      propertyPath: m_Color.a
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

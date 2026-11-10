@@ -36,13 +36,16 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         }
       }
     }
-    private void LateUpdate()
+    private void LateUpdate() => FitNow();
+
+    // Also used before revealing the scene, after the Canvas layout is rebuilt.
+    public bool FitNow()
     {
-      if (!_hasBounds) return;
+      if (!_hasBounds) return false;
       if (_camera == null)
       {
         _camera = Camera.main;
-        if (_camera == null) return;
+        if (_camera == null) return false;
         _originalPosition = _camera.transform.position;
         _originalRotation = _camera.transform.rotation;
         _originalSize = _camera.orthographicSize;
@@ -50,14 +53,14 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       }
       ((RectTransform)transform).GetWorldCorners(_corners);
       var canvas = GetComponentInParent<Canvas>();
-      if (canvas == null) return;
+      if (canvas == null) return false;
       var uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
       var a = RectTransformUtility.WorldToScreenPoint(uiCamera, _corners[0]);
       var b = RectTransformUtility.WorldToScreenPoint(uiCamera, _corners[2]);
       var pixels = _camera.pixelRect;
-      if (pixels.width <= 0 || pixels.height <= 0) return;
+      if (pixels.width <= 0 || pixels.height <= 0) return false;
       float w = (b.x-a.x) / pixels.width, h = (b.y-a.y) / pixels.height;
-      if (w <= 0 || h <= 0) return;
+      if (w <= 0 || h <= 0) return false;
       _camera.transform.rotation = _viewRotation;
       Vector3 worldCenter = _viewRotation * _bounds.center;
       var right = _camera.transform.right; var up = _camera.transform.up;
@@ -75,7 +78,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         _camera.farClipPlane = Mathf.Max(_originalFarClip, distance + ez + 1f);
         _camera.transform.position = worldCenter - forward*distance
           - right*(ox*distance*tanX) - up*(oy*distance*tanY);
-        return;
+        return true;
       }
       float size = Mathf.Max(ey/h, ex/(w*_camera.aspect))*1.08f;
       _camera.orthographicSize = Mathf.Max(0.1f, size);
@@ -84,6 +87,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       var p = worldCenter - _camera.transform.forward * depth;
       p -= right*((center.x-.5f)*2*size*_camera.aspect) + up*((center.y-.5f)*2*size);
       _camera.transform.position = p;
+      return true;
     }
     private void OnDisable()
     {

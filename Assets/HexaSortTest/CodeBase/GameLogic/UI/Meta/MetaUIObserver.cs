@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using HexaSortTest.CodeBase.GameConfigs;
@@ -39,6 +41,22 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
     private MetaTile _activeTile;
     private MetaTileListItemButton _selectedItem;
 
+    private bool _initialSelectionComplete;
+
+    public IEnumerator PrepareForReveal(Action onReady)
+    {
+      // Start creates the location and applies its saved progress.
+      while (!_initialSelectionComplete) yield return null;
+      // Let newly spawned components run Start and safe-area/layout updates.
+      yield return null;
+      Canvas.ForceUpdateCanvases();
+      if (_activeTile != null && (_viewport == null || !_viewport.FitNow()))
+        Debug.LogError("[MetaUIObserver] Cannot frame the initial location. Check viewport, camera and renderers.", this);
+      // A broken/empty catalog must not leave navigation behind an endless curtain.
+      onReady?.Invoke();
+    }
+
+
     private void Start()
     {
       BuildTileList();
@@ -51,6 +69,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
         if (!IsTileUnlocked(index + 1)) break;
       }
       if (selected != null) HandleItemClicked(selected);
+      _initialSelectionComplete = true;
     }
 
     private void OnDestroy()

@@ -11,12 +11,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5f66cdaffb4f729608a08043123761, type: 3}
   m_Name: lives_upgrade
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   <Sku>k__BackingField: lives_upgrade
-  <DisplayName>k__BackingField: "More lives"
-  <Description>k__BackingField: "10 lives maximum. One-time upgrade.\nAd removal included when ads launch."
+  <DisplayName>k__BackingField: More lives
+  <Description>k__BackingField: '10 lives maximum. One-time upgrade.
+
+    Ad removal
+    included when ads launch.'
   <Icon>k__BackingField: {fileID: 67955033, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
-  <PriceDisplayFallback>k__BackingField: Coming soon
+  <PriceDisplayFallback>k__BackingField: Free
   <Entries>k__BackingField:
   - _storePosition: {fileID: 11400001}
     _quantity: 1
@@ -30,8 +33,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9da46c26d334473db53a051869382030, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   <Id>k__BackingField: lives_upgrade.0
   <DisplayName>k__BackingField: Reward
   <Icon>k__BackingField: {fileID: 0}
