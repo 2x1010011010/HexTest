@@ -7,7 +7,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
   [Serializable]
   public class PlayerProgress
   {
-    public const int CurrentSaveVersion = 2;
+    public const int CurrentSaveVersion = 3;
     public int SaveVersion;
 
     public WorldData WorldData;
@@ -16,6 +16,8 @@ namespace HexaSortTest.CodeBase.GameLogic.Data
     public int HexCoins;
     public int Coins;
 
+    public bool LivesUpgradePurchased;
+    public bool AdRemovalPurchased; // Entitlement only; future ad integration reads this flag.
     public bool LivesInitialized;
     public int Lives;
     public long NextLifeUtcTicks;

@@ -130,7 +130,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
         _lifeTimerRoot.SetActive(true);
       if (_lifeTimerText == null) return;
       _lifeTimerText.enabled = true;
-      if (_lives.Lives >= LivesService.MaxLives)
+      if (_lives.Lives >= _lives.MaxLives)
       {
         _lifeTimerText.text = "Full";
         return;

@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf5f66cdaffb4f729608a08043123761, type: 3}
+  m_Name: all_boosters_kit
+  m_EditorClassIdentifier: 
+  <Sku>k__BackingField: all_boosters_kit
+  <DisplayName>k__BackingField: Adventure kit
+  <Description>k__BackingField: 1,000 Coins + Hammer + Hand + Respawn
+  <Icon>k__BackingField: {fileID: 2144097387, guid: ab1358f192b2e5841934c663818cb2ef, type: 3}
+  <PriceDisplayFallback>k__BackingField: Coming soon
+  <Entries>k__BackingField:
+  - _storePosition: {fileID: 11400001}
+    _quantity: 1
+  - _storePosition: {fileID: 11400002}
+    _quantity: 1
+  - _storePosition: {fileID: 11400003}
+    _quantity: 1
+  - _storePosition: {fileID: 11400004}
+    _quantity: 1
+--- !u!114 &11400001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da46c26d334473db53a051869382030, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: all_boosters_kit.0
+  <DisplayName>k__BackingField: Reward
+  <Icon>k__BackingField: {fileID: 0}
+  <Type>k__BackingField: 0
+  <Amount>k__BackingField: 1000
+  <BoosterType>k__BackingField: 0
+--- !u!114 &11400002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da46c26d334473db53a051869382030, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: all_boosters_kit.1
+  <DisplayName>k__BackingField: Reward
+  <Icon>k__BackingField: {fileID: 0}
+  <Type>k__BackingField: 1
+  <Amount>k__BackingField: 1
+  <BoosterType>k__BackingField: 0
+--- !u!114 &11400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da46c26d334473db53a051869382030, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: all_boosters_kit.2
+  <DisplayName>k__BackingField: Reward
+  <Icon>k__BackingField: {fileID: 0}
+  <Type>k__BackingField: 1
+  <Amount>k__BackingField: 1
+  <BoosterType>k__BackingField: 1
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da46c26d334473db53a051869382030, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: all_boosters_kit.3
+  <DisplayName>k__BackingField: Reward
+  <Icon>k__BackingField: {fileID: 0}
+  <Type>k__BackingField: 1
+  <Amount>k__BackingField: 1
+  <BoosterType>k__BackingField: 2

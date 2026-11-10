@@ -13,7 +13,7 @@ namespace HexaSortTest.CodeBase.GameConfigs
     [field: SerializeField, BoxGroup("STORE POSITION")] public StorePositionType Type { get; private set; }
 
     [field: SerializeField, BoxGroup("AMOUNT"), Min(1),
-            Tooltip("Coins/HexCoins amount, booster count, or lives count — depends on Type.")]
+            Tooltip("Coins amount or booster count — depends on Type.")]
     public int Amount { get; private set; } = 1;
 
     [field: SerializeField, BoxGroup("BOOSTER (used only if Type = Booster)")]

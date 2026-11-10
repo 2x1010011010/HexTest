@@ -55,6 +55,10 @@ namespace HexaSortTest.CodeBase.Editor
       Run(DefeatRewardsAndLives, ref count);
       Run(AbandonAttemptSpendsExactlyOnce, ref count);
       Run(NewerSaveIsNotOverwritten, ref count);
+      Run(ShopCatalogRewards, ref count);
+      Run(ShopUpgradeSurvivesReload, ref count);
+      Run(ShopRejectsInvalidAndDisabledPurchase, ref count);
+      Run(ShopRollsBackFailedBundle, ref count);
       Debug.Log($"[ProgressSaveChecks] PASS: {count} checks. Player profile was not touched.");
     }
 
@@ -411,6 +415,74 @@ namespace HexaSortTest.CodeBase.Editor
       apply.Invoke(state, new object[] { new GameResultPayload(true, 250) });
       Require(!state.TryAbandonAttempt() && f.Reload().Lives == 3,
         "A completed victory cannot subsequently lose a life through Exit");
+    }
+
+    private static HexaSortTest.CodeBase.Infrastructure.Services.ShopService Shop(Fixture f) =>
+      new HexaSortTest.CodeBase.Infrastructure.Services.ShopService(f.Service, f.Save, f.Currency,
+        new BoosterInventoryService(f.Service, f.Save), new LivesService(f.Service, f.Save));
+
+    private static StorePositionBundle ShopProduct(string id)
+    {
+      var catalog = Resources.Load<StorePositionBundleCatalog>(
+        HexaSortTest.CodeBase.Infrastructure.Services.AssetManagement.AssetPaths.StorePositionBundleCatalog);
+      Require(catalog != null && catalog.Bundles != null, "Shop catalog exists");
+      var product = catalog.Bundles.Find(p => p != null && p.Sku == id);
+      Require(product != null, "Product exists: " + id);
+      return product;
+    }
+
+    private static void ShopCatalogRewards(Fixture f)
+    {
+      var shop = Shop(f);
+      f.Progress.HexCoins = 77;
+      Require(shop.TryPurchaseStub(ShopProduct("all_boosters_kit"), true, out _), "Bundle purchase");
+      var saved = f.Reload();
+      Require(saved.Coins == 1000 && saved.HexCoins == 77, "Bundle coins saved; HexCoins unchanged");
+      foreach (BoosterType type in Enum.GetValues(typeof(BoosterType)))
+        Require(saved.Boosters.Find(b => b.Type == type).Count == 3, "Each booster granted exactly once");
+      Require(shop.TryPurchaseStub(ShopProduct("coins_10000"), true, out _), "Large coin pack");
+      Require(f.Reload().Coins == 11000, "Coin rewards are cumulative");
+    }
+
+    private static void ShopUpgradeSurvivesReload(Fixture f)
+    {
+      var product = ShopProduct("lives_upgrade"); var shop = Shop(f);
+      var lives = new LivesService(f.Service, f.Save); lives.Refresh();
+      Require(lives.MaxLives == 5, "Default capacity remains five");
+      Require(shop.TryPurchaseStub(product, true, out _), "Upgrade purchase");
+      f.Service.PlayerProgress = f.Reload();
+      Require(lives.MaxLives == 10 && lives.Lives == 10 && f.Progress.AdRemovalPurchased, "Upgrade persisted");
+      Require(!shop.TryPurchaseStub(product, true, out _), "Cannot repurchase after reload");
+      Require(lives.TrySpendLife() && lives.Lives == 9 && lives.TimeToNextLife > TimeSpan.Zero, "Timer starts at nine");
+      f.Progress.NextLifeUtcTicks = DateTime.UtcNow.AddMinutes(-1).Ticks; lives.Refresh();
+      Require(lives.Lives == 10 && lives.TimeToNextLife == TimeSpan.Zero, "Regeneration reaches ten");
+      lives.AddLives(100); Require(lives.Lives == 10, "Capacity enforced");
+    }
+
+    private static void ShopRejectsInvalidAndDisabledPurchase(Fixture f)
+    {
+      var shop = Shop(f); var product = ShopProduct("coins_100");
+      Require(!shop.TryPurchaseStub(product, false, out _), "Disabled test mode grants nothing");
+      Require(f.Progress.Coins == 0, "No coins in disabled mode");
+      Require(!shop.TryPurchaseStub(null, true, out _), "Null product rejected");
+      f.Progress.Coins = int.MaxValue;
+      Require(!shop.TryPurchaseStub(product, true, out _), "Overflow rejected");
+      Require(f.Progress.Coins == int.MaxValue, "Overflow preserves balance");
+    }
+
+    private static void ShopRollsBackFailedBundle(Fixture f)
+    {
+      var shop = Shop(f); f.Save.SaveProgress();
+      Action<int> fail = _ => throw new InvalidOperationException("Simulated reward failure");
+      f.Currency.OnCoinsChanged += fail;
+      try
+      {
+        Require(!shop.TryPurchaseStub(ShopProduct("all_boosters_kit"), true, out _), "Failed reward rejected");
+        Require(f.Progress.Coins == 0 && f.Reload().Coins == 0, "No partial bundle persisted");
+        Require(f.Progress.Boosters.TrueForAll(b => b.Count == 2), "No partial boosters retained");
+      }
+      finally { f.Currency.OnCoinsChanged -= fail; }
+      Require(shop.TryPurchaseStub(ShopProduct("all_boosters_kit"), true, out _), "Can retry after rollback");
     }
 
     private static void NewerSaveIsNotOverwritten(Fixture f)

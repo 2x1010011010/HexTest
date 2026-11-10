@@ -89,6 +89,7 @@ namespace HexaSortTest.CodeBase.Infrastructure.DI
 #endif
 
       Container.Bind<LivesService>().AsSingle();
+      Container.Bind<HexaSortTest.CodeBase.Infrastructure.Services.ShopService>().AsSingle();
 
       Container
         .Bind<ICurrencyService>()

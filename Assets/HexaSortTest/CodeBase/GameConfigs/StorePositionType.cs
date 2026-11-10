@@ -4,6 +4,7 @@ namespace HexaSortTest.CodeBase.GameConfigs
   {
     Coins,
     Booster,
-    Lives
+    Lives, // Legacy refill; not offered in the new shop.
+    LivesUpgrade
   }
 }

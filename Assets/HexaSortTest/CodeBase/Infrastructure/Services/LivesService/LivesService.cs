@@ -7,7 +7,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.LivesService
   // UTC deadline survives scene changes and time spent outside the application.
   public class LivesService
   {
-    public const int MaxLives = 5;
+    public const int DefaultMaxLives = 5;
+    public int MaxLives => _progress.PlayerProgress?.LivesUpgradePurchased == true ? 10 : DefaultMaxLives;
     private static readonly long IntervalTicks = TimeSpan.FromMinutes(30).Ticks;
     private readonly IPersistentProgressService _progress;
     private readonly ISaveLoadService _save;
@@ -68,6 +69,8 @@ namespace HexaSortTest.CodeBase.Infrastructure.Services.LivesService
       OnLivesChanged?.Invoke(data.Lives);
       return true;
     }
+
+    public void NotifyChanged() => OnLivesChanged?.Invoke(Lives);
 
     public void AddLives(int amount)
     {
