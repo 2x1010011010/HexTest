@@ -175,7 +175,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 571071518f8345d995725414774f6f9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.Infrastructure.Bootstrapper
-  _loadingCurtain: {fileID: 423507834200942660}
 --- !u!1 &3349346988549160604
 GameObject:
   m_ObjectHideFlags: 0
