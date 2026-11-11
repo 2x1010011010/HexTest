@@ -16,7 +16,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
     [SerializeField, BoxGroup("COUNTERS")] private TMP_Text _livesText;
     [SerializeField, BoxGroup("COUNTERS")] private TMP_Text _lifeTimerText;
     [SerializeField, BoxGroup("COUNTERS")] private TMP_Text _coinsText;
-    [SerializeField, BoxGroup("COUNTERS")] private TMP_Text _hexCoinsText;
     [SerializeField, BoxGroup("COUNTERS"), Tooltip("Optional existing timer container; kept visible for Full and countdown.")]
     private GameObject _lifeTimerRoot;
 
@@ -61,7 +60,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
       if (_subscribed || _currency == null || _lives == null) return;
       _subscribed = true;
       _currency.OnCoinsChanged += UpdateCoins;
-      _currency.OnHexCoinsChanged += UpdateHexCoins;
       _lives.OnLivesChanged += UpdateLives;
       RefreshCounters();
       _timerRoutine = StartCoroutine(UpdateTimer());
@@ -73,7 +71,6 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
       _timerRoutine = null;
       if (!_subscribed) return;
       _currency.OnCoinsChanged -= UpdateCoins;
-      _currency.OnHexCoinsChanged -= UpdateHexCoins;
       _lives.OnLivesChanged -= UpdateLives;
       _subscribed = false;
     }
@@ -103,18 +100,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Menu
     {
       _lives.Refresh();
       UpdateCoins(_currency.Coins);
-      UpdateHexCoins(_currency.HexCoins);
       UpdateLives(_lives.Lives);
     }
 
     private void UpdateCoins(int value)
     {
       if (_coinsText != null) _coinsText.text = value.ToString();
-    }
-
-    private void UpdateHexCoins(int value)
-    {
-      if (_hexCoinsText != null) _hexCoinsText.text = value.ToString();
     }
 
     private void UpdateLives(int value)

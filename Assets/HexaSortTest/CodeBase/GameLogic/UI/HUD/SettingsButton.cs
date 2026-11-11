@@ -9,7 +9,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.HUD
 
     protected override void ButtonClick()
     {
-      AudioFacade.Instance.PlayClick();
+      AudioFacade.Instance?.PlayClick();
       OnSettingsButtonClick?.Invoke();
     }
   }

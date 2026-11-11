@@ -30,7 +30,7 @@ namespace HexaSortTest.CodeBase.Infrastructure
 #if UNITY_EDITOR
       GameLogger.Message("[Bootstrapper] Starting game initialization.", this);
 #endif
-      Application.targetFrameRate = 60;
+      HexaSortTest.CodeBase.GameLogic.SoundLogic.PlayerSettings.ApplyFrameRate();
       Screen.orientation = ScreenOrientation.Portrait;
       Input.multiTouchEnabled = false;
       

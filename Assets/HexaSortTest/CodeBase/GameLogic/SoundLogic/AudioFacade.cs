@@ -26,9 +26,35 @@ namespace HexaSortTest.CodeBase.GameLogic.SoundLogic
 
     private void Awake()
     {
-      if (Instance != null) Destroy(gameObject);
+      if (Instance != null && Instance != this) { Destroy(gameObject); return; }
       Instance = this;
     }
+
+    private void Start() => ApplyVolumes();
+
+    private void OnDestroy()
+    {
+      if (Instance == this) Instance = null;
+    }
+
+    public void ApplyVolumes()
+    {
+      AudioListener.volume = PlayerSettings.Master;
+      float music = _musicEnabled ? PlayerSettings.Music : 0f;
+      float fx = _fxEnabled ? PlayerSettings.Sfx : 0f;
+      if (_mixer != null)
+      {
+        _mixer.SetFloat(MusicGroup, ToDecibels(music));
+        _mixer.SetFloat(FxGroup, ToDecibels(fx));
+      }
+      else
+      {
+        if (_musicSource != null) _musicSource.volume = music;
+        if (_soundEffectsSource != null) _soundEffectsSource.volume = fx;
+      }
+    }
+
+    private static float ToDecibels(float volume) => volume <= 0f ? -80f : Mathf.Log10(volume) * 20f;
 
     public void PlayClick() => PlayFX(_sounds[0]);
     public void PlayOpen() => PlayFX(_sounds[1]);
@@ -39,13 +65,13 @@ namespace HexaSortTest.CodeBase.GameLogic.SoundLogic
     public void SetMusicEnabled(bool enabled)
     {
       _musicEnabled = enabled;
-      _mixer.SetFloat(MusicGroup, enabled ? 0f : -80f);
+      ApplyVolumes();
     }
 
     public void SetFXEnabled(bool enabled)
     {
       _fxEnabled = enabled;
-      _mixer.SetFloat(FxGroup, enabled ? 0f : -80f);
+      ApplyVolumes();
     }
     
     private void PlayFX(AudioClip clip) => 

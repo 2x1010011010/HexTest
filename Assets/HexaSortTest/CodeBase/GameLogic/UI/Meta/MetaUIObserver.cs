@@ -228,30 +228,9 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
           item.SetLocked(!IsTileUnlocked(index));
     }
     
-    private bool IsTileUnlocked(int index)
-    {
-      if (_tileConfigsList?.Tiles == null || index < 0 || index >= _tileConfigsList.Tiles.Count)
-        return false;
-      if (_tileConfigsList.Tiles[index]?.TilePrefab == null) return false;
-      if (index == 0) return true;
-
-      var prevConfig = _tileConfigsList.Tiles[index - 1];
-      // A broken predecessor must not silently unlock the following location.
-      if (prevConfig?.TilePrefab == null) return false;
-      if (!prevConfig.TilePrefab.ValidateLayout(out _)) return false;
-
-      int totalGroups = prevConfig.TilePrefab.GroupsCount;
-
-      var prevProgress = FindSavedProgress(prevConfig.TilePrefab.TileId);
-      if (prevProgress == null) return false;
-      if (prevProgress.UsesCellIds)
-      {
-        var cells = prevConfig.TilePrefab.Cells;
-        return cells.Count > 0 && cells.TrueForAll(cell => prevProgress.OpenedCellIds != null &&
-          prevProgress.OpenedCellIds.Contains(cell.CellId));
-      }
-      return prevProgress.UnlockedGroupsCount >= totalGroups;
-    }
+    private bool IsTileUnlocked(int index) =>
+      HexaSortTest.CodeBase.GameLogic.UI.Menu.MetaCatalogProgress.IsUnlocked(
+        _tileConfigsList, _progressService?.PlayerProgress?.MetaProgress, index);
 
     private MetaTileProgress FindSavedProgress(string tileId) =>
       _progressService?.PlayerProgress?.MetaProgress?.Find(p => p != null && p.TileId == tileId);

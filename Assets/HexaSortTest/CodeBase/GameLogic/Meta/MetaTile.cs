@@ -75,6 +75,29 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     public bool UsesCells => Cells.Count > 0;
     public bool IsCellOpen(MetaLocationCell cell) => cell != null && _openedCellIds.Contains(cell.CellId);
 
+    public bool TryGetCheapestClosedCellCost(MetaTileProgress saved, out int cost)
+    {
+      cost = int.MaxValue;
+      bool found = false;
+      if (!ValidateLayout(out _)) return false;
+      if (saved != null && saved.TileId != TileId) saved = null;
+      for (int g = 0; g < GroupsCount; g++)
+        for (int o = 0; o < (_groups[g]?.Objects?.Count ?? 0); o++)
+        {
+          var cover = _groups[g].Objects[o];
+          var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>(true) : null;
+          if (cell == null) continue;
+          bool opened = saved != null && (saved.UsesCellIds
+            ? saved.OpenedCellIds != null && saved.OpenedCellIds.Contains(cell.CellId)
+            : g < saved.UnlockedGroupsCount ||
+              (g == saved.UnlockedGroupsCount && o < saved.UnlockedObjectsInGroupCount));
+          if (opened) continue;
+          cost = Mathf.Min(cost, cell.HexCoinsCost);
+          found = true;
+        }
+      return found;
+    }
+
     public MetaTileProgress CaptureProgress() => new MetaTileProgress(_tileId)
     {
       UsesCellIds = UsesCells,
