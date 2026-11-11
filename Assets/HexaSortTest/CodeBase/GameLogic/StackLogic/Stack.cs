@@ -27,6 +27,21 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
     public Cell Cell => _parentCell;
     public bool IsDragged => _isDragged;
     public ObjectPool<StackTile> PoolInstance => _poolInstance;
+    public bool CanCollectTop
+    {
+      get
+      {
+        if (_stack.Count < _colorTreshold) return false;
+        var color = GetLastCellColor();
+        int count = 0;
+        for (int i = _stack.Count - 1; i >= 0; i--)
+        {
+          if (_stack[i].GetComponent<StackTile>().Color != color) break;
+          if (++count >= _colorTreshold) return true;
+        }
+        return false;
+      }
+    }
 
     public void Initialize(ObjectPool<StackTile> pool)
     {
@@ -51,7 +66,7 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
 
     public async UniTask<int> CollectTopAsync(CancellationToken token, Action<float> onRemovalProgress = null)
     {
-      if (_stack.Count < _colorTreshold) return 0;
+      if (!CanCollectTop) return 0;
       var color = GetLastCellColor();
       var group = new List<StackTile>();
       for (int i = _stack.Count - 1; i >= 0; i--)
@@ -60,7 +75,6 @@ namespace HexaSortTest.CodeBase.GameLogic.StackLogic
         if (tile.Color != color) break;
         group.Add(tile);
       }
-      if (group.Count < _colorTreshold) return 0;
       await _stackAnimator.DestroyTilesAsync(group, this, token, onRemovalProgress);
       DestroyIfEmpty();
       return group.Count;

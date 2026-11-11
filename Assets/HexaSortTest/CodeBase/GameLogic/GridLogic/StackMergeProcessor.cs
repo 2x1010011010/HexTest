@@ -58,6 +58,9 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
             if (removed == 0) continue;
             collected = true;
             await _collected(cell, removed, token);
+            // A removal can expose a matching color or unlock a neighbor.
+            // Resolve those transfers before collecting any other stack.
+            break;
           }
           finally { _busy.Remove(cell); }
         }
@@ -82,7 +85,12 @@ namespace HexaSortTest.CodeBase.GameLogic.GridLogic
           if (other == null || stack.GetLastCellColor() != other.GetLastCellColor()) continue;
           bool hubA = IsHub(cell, stack.GetLastCellColor());
           bool hubB = IsHub(neighbor, other.GetLastCellColor());
-          bool targetA = hubA != hubB ? hubA : stack.Tiles.Count >= other.Tiles.Count;
+          // Feed a group that is ready for collection rather than moving it
+          // into a taller mixed stack or a newly exposed hub.
+          bool readyA = stack.CanCollectTop;
+          bool readyB = other.CanCollectTop;
+          bool targetA = readyA != readyB ? readyA :
+            hubA != hubB ? hubA : stack.Tiles.Count >= other.Tiles.Count;
           var source = targetA ? other : stack;
           var target = targetA ? stack : other;
           var color = source.GetLastCellColor();
