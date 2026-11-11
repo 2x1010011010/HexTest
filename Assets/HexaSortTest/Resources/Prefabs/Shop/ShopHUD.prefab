@@ -32,7 +32,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7856491235477972879}
   - {fileID: 1011}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -150,16 +149,15 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1014}
+  - {fileID: 7856491235477972879}
   - {fileID: 1018}
-  - {fileID: 1022}
   - {fileID: 1026}
   - {fileID: 753683191730324488}
   m_Father: {fileID: 1002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.96581197}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.000041008}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1012
@@ -199,17 +197,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1013}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1011}
+  m_Father: {fileID: 6854509611123132981}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -107}
-  m_SizeDelta: {x: -80, y: 80}
+  m_AnchoredPosition: {x: 7.4855957, y: -83.06177}
+  m_SizeDelta: {x: 248.65009, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1015
 CanvasRenderer:
@@ -473,16 +471,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1021}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1011}
+  m_Father: {fileID: 7856491235477972879}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -228}
+  m_AnchoredPosition: {x: 0, y: -109.95068}
   m_SizeDelta: {x: -70, y: 42}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1023
@@ -739,12 +737,12 @@ RectTransform:
   m_Children:
   - {fileID: 900000000000001002}
   - {fileID: 900000000000001003}
-  - {fileID: 7539013401703224162}
-  - {fileID: 934829485127870715}
+  - {fileID: 5169572393193928089}
+  - {fileID: 1479219932782522722}
   - {fileID: 900000000000001006}
   - {fileID: 900000000000001007}
   - {fileID: 900000000000000012}
-  - {fileID: 3257933301341907664}
+  - {fileID: 4121287949284487815}
   - {fileID: 900000000000000994}
   - {fileID: 900000000000000995}
   - {fileID: 900000000000000014}
@@ -824,13 +822,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1014}
   m_Father: {fileID: 7856491235477972879}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -7.4855957, y: 1036.2639}
-  m_SizeDelta: {x: 751.3499, y: 161.5835}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -7.4855957, y: 1014}
+  m_SizeDelta: {x: -328.6501, y: 161.5835}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6320971818559265029
 CanvasRenderer:
@@ -895,18 +894,19 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2456033083813304805}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1022}
   - {fileID: 6854509611123132981}
-  m_Father: {fileID: 1002}
+  m_Father: {fileID: 1011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -50.993896}
-  m_SizeDelta: {x: 0, y: -294.1107}
+  m_AnchoredPosition: {x: 0, y: -1114.3015}
+  m_SizeDelta: {x: 0, y: 2055.274}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4148326965130818563
 CanvasRenderer:
@@ -1002,12 +1002,20 @@ PrefabInstance:
       propertyPath: m_text
       value: More lives
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: '10 lives maximum. One-time upgrade.
 
         Ad removal included when
         ads launch.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1126,9 +1134,17 @@ PrefabInstance:
       propertyPath: m_text
       value: 100 Coins
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: Coins for your next adventure
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1244,9 +1260,17 @@ PrefabInstance:
       propertyPath: m_text
       value: 500 Coins
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: Coins for your next adventure
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1265,13 +1289,13 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1032, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000002}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7539013401703224161}
+  m_GameObject: {fileID: 5169572393193928088}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b80f764827f4ff3a387fd2e2a9e708f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &7539013401703224161 stripped
+--- !u!1 &5169572393193928088 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1001, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000002}
@@ -1282,7 +1306,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7539013401703224161}
+  m_GameObject: {fileID: 5169572393193928088}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3cdad9b0bacd4fbb8adc3c4579aaf6d3, type: 3}
@@ -1301,7 +1325,7 @@ MonoBehaviour:
   _product: {fileID: 11400000, guid: 803702afe0ba47e9993bdf29d7d4f6bb, type: 2}
   _catalog: {fileID: 11400000, guid: 5ccdc885d35f463c8f8644befde2a712, type: 2}
   _previewCard: {fileID: 900000000000001034}
---- !u!224 &7539013401703224162 stripped
+--- !u!224 &5169572393193928089 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1002, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000002}
@@ -1362,9 +1386,17 @@ PrefabInstance:
       propertyPath: m_text
       value: 1,000 Coins
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: Coins for your next adventure
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1383,13 +1415,13 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1032, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000003}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 934829485127870714}
+  m_GameObject: {fileID: 1479219932782522721}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b80f764827f4ff3a387fd2e2a9e708f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &934829485127870714 stripped
+--- !u!1 &1479219932782522721 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1001, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000003}
@@ -1400,7 +1432,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 934829485127870714}
+  m_GameObject: {fileID: 1479219932782522721}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3cdad9b0bacd4fbb8adc3c4579aaf6d3, type: 3}
@@ -1419,7 +1451,7 @@ MonoBehaviour:
   _product: {fileID: 11400000, guid: bcabe3ec261a4595b8a7705744059178, type: 2}
   _catalog: {fileID: 11400000, guid: 5ccdc885d35f463c8f8644befde2a712, type: 2}
   _previewCard: {fileID: 900000000000001035}
---- !u!224 &934829485127870715 stripped
+--- !u!224 &1479219932782522722 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1002, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000003}
@@ -1480,9 +1512,17 @@ PrefabInstance:
       propertyPath: m_text
       value: 5,000 Coins
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: Coins for your next adventure
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1598,9 +1638,17 @@ PrefabInstance:
       propertyPath: m_text
       value: 10,000 Coins
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: Coins for your next adventure
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1716,9 +1764,17 @@ PrefabInstance:
       propertyPath: m_text
       value: Hammer booster
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: 1 booster added to your inventory
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1834,9 +1890,17 @@ PrefabInstance:
       propertyPath: m_text
       value: Hand booster
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: 1 booster added to your inventory
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -1855,13 +1919,13 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1032, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000007}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3257933301341907663}
+  m_GameObject: {fileID: 4121287949284487814}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b80f764827f4ff3a387fd2e2a9e708f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &3257933301341907663 stripped
+--- !u!1 &4121287949284487814 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1001, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000007}
@@ -1872,7 +1936,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3257933301341907663}
+  m_GameObject: {fileID: 4121287949284487814}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3cdad9b0bacd4fbb8adc3c4579aaf6d3, type: 3}
@@ -1891,7 +1955,7 @@ MonoBehaviour:
   _product: {fileID: 11400000, guid: fc47aa90ec434b4c841dbdf1cf597bfb, type: 2}
   _catalog: {fileID: 11400000, guid: 5ccdc885d35f463c8f8644befde2a712, type: 2}
   _previewCard: {fileID: 900000000000001039}
---- !u!224 &3257933301341907664 stripped
+--- !u!224 &4121287949284487815 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1002, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
   m_PrefabInstance: {fileID: 900000000000000007}
@@ -1952,9 +2016,17 @@ PrefabInstance:
       propertyPath: m_text
       value: Respawn booster
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: 1 booster added to your inventory
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -2070,9 +2142,17 @@ PrefabInstance:
       propertyPath: m_text
       value: Starter kit
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: 100 Coins + 1 Hammer
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
@@ -2188,9 +2268,17 @@ PrefabInstance:
       propertyPath: m_text
       value: Adventure kit
       objectReference: {fileID: 0}
+    - target: {fileID: 1013, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text
       value: 1,000 Coins + Hammer + Hand + Respawn
+      objectReference: {fileID: 0}
+    - target: {fileID: 1017, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
+      propertyPath: m_fontSize
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 1031, guid: 083c2d68ad704d76a4e687c24f5180cb, type: 3}
       propertyPath: m_text

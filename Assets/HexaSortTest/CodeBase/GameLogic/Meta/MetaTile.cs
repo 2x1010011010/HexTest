@@ -46,13 +46,15 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
         var objects = _groups[_currentGroupIndex]?.Objects;
         if (objects == null || _currentObjectIndexInGroup < 0 || _currentObjectIndexInGroup >= objects.Count) return null;
         var cover = objects[_currentObjectIndexInGroup];
-        return cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+        return cover != null ? cover.GetComponentInParent<MetaLocationCell>(true) : null;
       }
     }
     public int CurrentGroupIndex => _currentGroupIndex;
     public int CurrentObjectIndexInGroup => _currentObjectIndexInGroup;
     public float CurrentObjectProgress => _currentObjectProgress;
 
+    // Catalog checks read prefab assets; their parents are inactive in the hierarchy.
+    // Include inactive parents so saved progress and live instances use the same cells.
     public List<MetaLocationCell> Cells
     {
       get
@@ -63,7 +65,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
           if (group?.Objects != null)
             foreach (var cover in group.Objects)
             {
-              var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+              var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>(true) : null;
               if (cell != null && cell.CoverRoot == cover) result.Add(cell);
             }
         return result;
@@ -102,7 +104,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
         for (int o = 0; o < (_groups[g]?.Objects?.Count ?? 0); o++)
         {
           var cover = _groups[g].Objects[o];
-          var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+          var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>(true) : null;
           if (cell == null || !IsCellOpen(cell))
           {
             _currentGroupIndex = g;
@@ -136,7 +138,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
               if (g < saved.UnlockedGroupsCount ||
                   (g == saved.UnlockedGroupsCount && o < saved.UnlockedObjectsInGroupCount))
               {
-                var cell = _groups[g].Objects[o]?.GetComponentInParent<MetaLocationCell>();
+                var cell = _groups[g].Objects[o]?.GetComponentInParent<MetaLocationCell>(true);
                 if (cell != null) _openedCellIds.Add(cell.CellId);
               }
         }
@@ -256,7 +258,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
         { error = $"Group {g} is empty. Collect covers again."; return false; }
         foreach (var cover in objects)
         {
-          var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+          var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>(true) : null;
           if (usesCells && (cell == null || string.IsNullOrWhiteSpace(cell.CellId) || !cellIds.Add(cell.CellId)))
           { error = "Missing or duplicate Cell Id. Click Collect Covers / Apply Settings."; return false; }
           if (cell != null && (cell.HexCoinsCost < 0 || cell.CoverRoot != cover))
@@ -279,7 +281,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       var ids = new HashSet<string>();
       foreach (var cover in covers)
       {
-        var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>() : null;
+        var cell = cover != null ? cover.GetComponentInParent<MetaLocationCell>(true) : null;
         if (cell != null) cell.EnsureUniqueId(ids);
       }
       _tileId = tileId;

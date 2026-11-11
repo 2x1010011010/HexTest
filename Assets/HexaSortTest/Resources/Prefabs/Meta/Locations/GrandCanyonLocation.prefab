@@ -125,8 +125,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -0.926}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &7017105676115529648
 MeshRenderer:
@@ -224,12 +224,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -522,8 +522,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -0.926}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8270782131477338025
 MeshRenderer:
@@ -621,12 +621,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -855,8 +855,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -0.9869}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &1962436796121672453
 MeshRenderer:
@@ -954,12 +954,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -1916,8 +1916,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -1.0478}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &1982081470691088561
 MeshRenderer:
@@ -2015,12 +2015,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -2097,8 +2097,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -1.0478}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8617950743558100598
 MeshRenderer:
@@ -2196,12 +2196,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -2428,8 +2428,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -0.9869}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &2977233940354296299
 MeshRenderer:
@@ -2527,12 +2527,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -3250,8 +3250,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -0.926}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &5646583362692409414
 MeshRenderer:
@@ -3349,12 +3349,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -3795,8 +3795,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -0.9869}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &3852165966844390530
 MeshRenderer:
@@ -3894,12 +3894,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -4374,8 +4374,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.058}
-  m_SizeDelta: {x: 3.68, y: 1.15}
+  m_AnchoredPosition: {x: 0, y: -1.0478}
+  m_SizeDelta: {x: 3.68, y: 1.1703}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &507125868409174398
 MeshRenderer:
@@ -4473,12 +4473,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 4
+  m_fontSize: 9.75
   m_fontSizeBase: 4
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0.1
-  m_fontSizeMax: 4
+  m_fontSizeMax: 20
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512

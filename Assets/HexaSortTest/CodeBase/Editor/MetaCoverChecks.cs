@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using HexaSortTest.CodeBase.GameConfigs;
+using HexaSortTest.CodeBase.GameLogic.UI.Meta;
+using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using HexaSortTest.CodeBase.GameLogic.Data;
 using HexaSortTest.CodeBase.GameLogic.Meta;
 using UnityEditor;
@@ -57,9 +60,45 @@ namespace HexaSortTest.CodeBase.Editor
         Require(!a.activeSelf && b.activeSelf && tile.CurrentGroupIndex == 1, "Future group remains covered");
         tile.InitializeFromSave(null);
         Require(a.activeSelf && b.activeSelf, "Rollback restores both covers");
+        CheckCatalogUnlocks(root);
         Debug.Log("[MetaCoverChecks] PASS. Run Progress Save Checks too for currency/save transactions.");
       }
       finally { Object.DestroyImmediate(root); }
+    }
+
+    private static void CheckCatalogUnlocks(GameObject root)
+    {
+      var catalog = AssetDatabase.LoadAssetAtPath<MetaTileConfigsList>(
+        "Assets/HexaSortTest/Resources/StaticData/Meta/MetaTileConfigsList.asset");
+      Require(catalog != null && catalog.Tiles.Count >= 2, "Catalog has successive locations");
+      var progress = new PlayerProgress("test");
+      var observer = root.AddComponent<MetaUIObserver>();
+      Set(observer, "_tileConfigsList", catalog);
+      Set(observer, "_progressService", new PersistentProgressService { PlayerProgress = progress });
+      var unlock = typeof(MetaUIObserver).GetMethod("IsTileUnlocked", BindingFlags.NonPublic | BindingFlags.Instance);
+      bool IsUnlocked(int index) => (bool)unlock.Invoke(observer, new object[] { index });
+      Require(IsUnlocked(0), "First location is available without a save");
+      var ids = new HashSet<string>();
+      for (int i = 0; i < catalog.Tiles.Count; i++)
+      {
+        var prefab = catalog.Tiles[i].TilePrefab;
+        Require(prefab != null && ids.Add(prefab.TileId), "Catalog has unique location IDs");
+        Require(prefab.ValidateLayout(out var error), "Prefab layout: " + error);
+        var cells = prefab.Cells;
+        Require(cells.Count > 0 && cells.Count == prefab.GetComponentsInChildren<MetaLocationCell>(true).Length,
+          "Prefab query finds every cell, including inactive parents");
+        if (i + 1 >= catalog.Tiles.Count) continue;
+        Require(!IsUnlocked(i + 1), "Next location is locked without predecessor progress");
+        var saved = new MetaTileProgress(prefab.TileId) { UsesCellIds = true };
+        progress.MetaProgress.Add(saved);
+        for (int c = 0; c < cells.Count - 1; c++) saved.OpenedCellIds.Add(cells[c].CellId);
+        Require(!IsUnlocked(i + 1), "Partial cell progress keeps next location locked");
+        saved.OpenedCellIds.Add(cells[cells.Count - 1].CellId);
+        Require(IsUnlocked(i + 1), "Last paid cell unlocks next location from saved progress");
+        // Recreate the progress data as on reload; no active instance is needed.
+        progress.MetaProgress[i] = JsonUtility.FromJson<MetaTileProgress>(JsonUtility.ToJson(saved));
+        Require(IsUnlocked(i + 1), "Reload keeps next location unlocked");
+      }
     }
 
     private static GameObject Child(GameObject root, string name)
