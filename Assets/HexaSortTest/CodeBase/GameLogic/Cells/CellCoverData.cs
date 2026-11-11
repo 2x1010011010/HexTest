@@ -56,9 +56,9 @@ namespace HexaSortTest.CodeBase.GameLogic.Cells
       token.ThrowIfCancellationRequested();
       if (_type != CellCoverType.ScoreLock || _unlocked)
         return UniTask.CompletedTask;
-      int remaining = Mathf.Max(0, RequiredScore - Mathf.Max(0, score));
-      if (Locker != null) Locker.SetRemainingScore(remaining);
-      if (remaining == 0) Unlock(_locker != null ? _locker.UnlockParticles : null);
+      // Keep the authored threshold on the lock; score progress only controls unlocking.
+      if (Mathf.Max(0, score) >= RequiredScore)
+        Unlock(_locker != null ? _locker.UnlockParticles : null);
       return UniTask.CompletedTask;
     }
 

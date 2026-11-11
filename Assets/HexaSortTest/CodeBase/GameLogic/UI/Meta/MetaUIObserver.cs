@@ -10,6 +10,7 @@ using HexaSortTest.CodeBase.Infrastructure.Services.PersistentProgress;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zenject;
+using TMPro;
 
 namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 {
@@ -27,6 +28,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
     [Inject] private IPersistentProgressService _progressService;
 
     [SerializeField] private MetaLocationViewport _viewport;
+    [SerializeField, BoxGroup("LOCATION INFO")] private TMP_Text _locationTitle;
+    [SerializeField, BoxGroup("LOCATION INFO")] private TMP_Text _locationProgress;
 
     private void RefreshProgress(MetaTile tile)
     {
@@ -34,6 +37,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       int total = tile.UsesCells ? tile.Cells.Count : tile.GroupsCount;
       int opened = tile.UsesCells ? tile.Cells.FindAll(tile.IsCellOpen).Count : tile.CurrentGroupIndex;
       _selectedItem.SetProgress(opened, total);
+      if (_locationProgress != null)
+        _locationProgress.text = $"{Mathf.Clamp(opened, 0, Mathf.Max(0, total))}/{Mathf.Max(0, total)}";
     }
 
     private readonly List<MetaTileListItemButton> _listItems = new();
@@ -59,6 +64,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
 
     private void Start()
     {
+      ClearLocationInfo();
       BuildTileList();
       // Continue the first unfinished available location, or the last completed one.
       MetaTileListItemButton selected = null;
@@ -160,6 +166,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       _activeTile = null;
       if (_selectedItem != null) _selectedItem.SetSelected(false);
       _selectedItem = null;
+      ClearLocationInfo();
 
       var tile = _metaObjectFactory.SpawnTile(item.Config, Vector3.zero);
       if (tile == null)
@@ -174,6 +181,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
       _activeTile = tile;
       tile.OnProgressChanged += RefreshProgress;
       _selectedItem = item;
+      if (_locationTitle != null) _locationTitle.text = item.Config.DisplayName;
       item.SetSelected(true);
       ScrollToSelected(item);
       RefreshProgress(tile);
@@ -186,6 +194,12 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.Meta
     {
       RefreshProgress(tile);
       RefreshLockStates();
+    }
+
+    private void ClearLocationInfo()
+    {
+      if (_locationTitle != null) _locationTitle.text = string.Empty;
+      if (_locationProgress != null) _locationProgress.text = string.Empty;
     }
 
     private void RefreshSavedProgress(MetaTileListItemButton item)
