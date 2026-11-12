@@ -24,6 +24,9 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     [SerializeField, BoxGroup("SPRITES"), LabelText("MaskSprite")] private Sprite _maskSprite;
     [SerializeField, BoxGroup("SPRITES"), LabelText("CoverSprite")] private Sprite _coverSprite;
     [SerializeField, BoxGroup("SPRITES"), LabelText("Lock")] private Sprite _lockSprite;
+    [SerializeField, BoxGroup("VISUAL EFFECT"), AssetsOnly, LabelText("Open FX Prefab"),
+     Tooltip("Optional ParticleSystem prefab. Generated as a child of each Cell, outside Cover.")]
+    private ParticleSystem _openParticlesPrefab;
     [SerializeField, BoxGroup("APPEARANCE"), Range(0.5f, 1f), Tooltip("Filled mask size relative to the frame. Match the inner opening of the golden frame.")]
     private float _maskInset = 0.94f;
     [SerializeField, BoxGroup("APPEARANCE"), Range(0.1f, 1f)] private float _lockSize = 0.3f;
@@ -325,9 +328,38 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       var cover = Undo.AddComponent<SpriteRenderer>(CreateChild("Hexagon", coverRoot.transform));
       var lockRenderer = Undo.AddComponent<SpriteRenderer>(CreateChild("Lock", coverRoot.transform));
       var price = Undo.AddComponent<TextMeshPro>(CreateChild("Price", coverRoot.transform));
+      var openParticles = CreateOpenParticles(go.transform);
       Undo.RecordObject(cell, "Configure cell");
-      cell.Configure(_hexCoinsPerCover, coverRoot, frame, mask, cover, lockRenderer, price);
+      cell.Configure(_hexCoinsPerCover, coverRoot, frame, mask, cover, lockRenderer, price, openParticles);
       MarkChanged(cell);
+    }
+
+    private ParticleSystem CreateOpenParticles(Transform cell)
+    {
+      if (_openParticlesPrefab == null) return null;
+      // Instantiate the whole prefab hierarchy, including child emitters and renderers.
+      var instance = (GameObject)PrefabUtility.InstantiatePrefab(_openParticlesPrefab.gameObject, cell);
+      Undo.RegisterCreatedObjectUndo(instance, "Create meta opening FX");
+      instance.name = "Open FX";
+      instance.SetActive(true);
+      foreach (var particles in instance.GetComponentsInChildren<ParticleSystem>(true))
+      {
+        Undo.RecordObject(particles, "Configure meta opening FX");
+        var main = particles.main;
+        main.playOnAwake = false;
+        particles.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+        MarkChanged(particles);
+      }
+      // Covers and price labels use orders 2..4 inside the location SortingGroup.
+      foreach (var renderer in instance.GetComponentsInChildren<ParticleSystemRenderer>(true))
+      {
+        Undo.RecordObject(renderer, "Sort meta opening FX");
+        renderer.sortingLayerID = 0;
+        renderer.sortingOrder = Mathf.Max(5, renderer.sortingOrder);
+        MarkChanged(renderer);
+      }
+      MarkChanged(instance);
+      return instance.GetComponent<ParticleSystem>();
     }
 
     private void ConfigurePictureMask()

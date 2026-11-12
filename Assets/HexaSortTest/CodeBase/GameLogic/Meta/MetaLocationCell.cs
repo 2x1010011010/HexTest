@@ -54,6 +54,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     {
       _paid = true;
       _revealTween?.Kill();
+      RestoreLock();
       if (_lock == null) { FinishReveal(true); return; }
       _lockRotation = _lock.transform.localRotation;
       _hasLockRotation = true;
@@ -72,6 +73,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     {
       _revealTween = null;
       RestoreLock();
+      // FX is a sibling of Cover: hiding the cover leaves particles, frame and mask active.
       // Particle lifetime must not hold the cover or the input locked.
       if (playParticles && _openParticles != null) _openParticles.Play(true);
       if (_coverRoot != null) _coverRoot.SetActive(false);
@@ -149,7 +151,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     }
 
     public void Configure(int cost, GameObject coverRoot, SpriteRenderer frame, SpriteMask mask,
-      SpriteRenderer cover, SpriteRenderer lockRenderer, TextMeshPro priceLabel)
+      SpriteRenderer cover, SpriteRenderer lockRenderer, TextMeshPro priceLabel, ParticleSystem openParticles = null)
     {
       _hexCoinsCost = Mathf.Max(0, cost);
       _coverRoot = coverRoot;
@@ -158,6 +160,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       _cover = cover;
       _lock = lockRenderer;
       _priceLabel = priceLabel;
+      _openParticles = openParticles;
       RefreshPrice();
     }
 #endif
