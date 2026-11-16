@@ -36,7 +36,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 405, y: 865}
+  m_AnchoredPosition: {x: 395, y: 890}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7508345500035061446
@@ -327,6 +327,10 @@ MonoBehaviour:
   _victoryHexCoinsText: {fileID: 4855539455525628314}
   _defeatCoinsText: {fileID: 0}
   _defeatHexCoinsText: {fileID: 0}
+  _fireworkPrefabs: []
+  _fireworksOrigin: {fileID: 0}
+  _simultaneousFireworks: 3
+  _fireworksInterval: 0.2
 --- !u!1 &1349464670302451167
 GameObject:
   m_ObjectHideFlags: 0
@@ -1486,8 +1490,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -49.152023}
-  m_SizeDelta: {x: 978, y: 1188.3042}
+  m_AnchoredPosition: {x: -0.00035667, y: -49.152023}
+  m_SizeDelta: {x: 879.08, y: 1188.3042}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2088054894668473900
 CanvasRenderer:
