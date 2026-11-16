@@ -30,8 +30,11 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
     [SerializeField, BoxGroup("FIREWORKS"),
      Tooltip("Optional world-space origin. If empty, effects appear at the screen centre with their prefab offsets.")]
     private Transform _fireworksOrigin;
+    [SerializeField, BoxGroup("FIREWORKS"), Min(1),
+     Tooltip("Number of effects launched together in each batch. Repeats are allowed.")]
+    private int _simultaneousFireworks = 3;
     [SerializeField, BoxGroup("FIREWORKS"), Min(0f),
-     Tooltip("Pause after the previous effect finishes, in real-time seconds.")]
+     Tooltip("Pause after all effects in the previous batch finish, in real-time seconds.")]
     private float _fireworksInterval = 0.2f;
 
     private Coroutine _fireworks;
@@ -134,14 +137,14 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
       }
 
       PrepareFireworksCanvas();
+      var activeEffects = new List<ParticleSystem>();
       while (true)
       {
         available.RemoveAll(prefab => prefab == null);
         if (available.Count == 0) break;
-        var prefab = available[UnityEngine.Random.Range(0, available.Count)];
 
         // Configure under an inactive parent, before Play On Awake can run.
-        _activeFireworkRoot = new GameObject("Victory Firework");
+        _activeFireworkRoot = new GameObject("Victory Fireworks");
         _activeFireworkRoot.SetActive(false);
         var root = _activeFireworkRoot.transform;
         if (_fireworksOrigin != null)
@@ -159,36 +162,50 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
         else
           root.SetParent(transform, false);
 
-        var effect = Instantiate(prefab, root, false);
-        effect.gameObject.SetActive(true);
-        foreach (var particles in effect.GetComponentsInChildren<ParticleSystem>(true))
+        activeEffects.Clear();
+        int count = Mathf.Max(1, _simultaneousFireworks);
+        for (int i = 0; i < count; i++)
         {
-          var main = particles.main;
-          main.playOnAwake = false;
-          main.loop = false;
-          main.useUnscaledTime = true;
-          particles.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
-        }
-        if (_fireworksCanvas != null)
-          foreach (var renderer in effect.GetComponentsInChildren<ParticleSystemRenderer>(true))
+          var prefab = available[UnityEngine.Random.Range(0, available.Count)];
+          var effect = Instantiate(prefab, root, false);
+          effect.gameObject.SetActive(true);
+          foreach (var particles in effect.GetComponentsInChildren<ParticleSystem>(true))
           {
-            renderer.sortingLayerID = _fireworksCanvas.sortingLayerID;
-            renderer.sortingOrder = Mathf.Max(_fireworksCanvas.sortingOrder + 1, renderer.sortingOrder);
+            var main = particles.main;
+            main.playOnAwake = false;
+            main.loop = false;
+            main.useUnscaledTime = true;
+            particles.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
           }
+          if (_fireworksCanvas != null)
+            foreach (var renderer in effect.GetComponentsInChildren<ParticleSystemRenderer>(true))
+            {
+              renderer.sortingLayerID = _fireworksCanvas.sortingLayerID;
+              renderer.sortingOrder = Mathf.Max(_fireworksCanvas.sortingOrder + 1, renderer.sortingOrder);
+            }
+          activeEffects.Add(effect);
+        }
 
         _activeFireworkRoot.SetActive(true);
-        // Asset scripts may disable or destroy the effect in Awake/OnEnable.
-        if (effect != null && effect.gameObject.activeInHierarchy)
-        {
-          effect.Play(true);
-          do { yield return null; }
-          while (effect != null && effect.gameObject.activeInHierarchy && effect.IsAlive(true));
-        }
+        // Launch the entire batch in this frame. Asset scripts may remove instances.
+        foreach (var effect in activeEffects)
+          if (effect != null && effect.gameObject.activeInHierarchy)
+            effect.Play(true);
+        do { yield return null; }
+        while (HasAliveFireworks(activeEffects));
         ClearActiveFirework();
         // Always yield even when an asset removes itself and interval is zero.
         yield return new WaitForSecondsRealtime(Mathf.Max(0f, _fireworksInterval));
       }
       StopFireworks();
+    }
+
+    private static bool HasAliveFireworks(List<ParticleSystem> effects)
+    {
+      foreach (var effect in effects)
+        if (effect != null && effect.gameObject.activeInHierarchy && effect.IsAlive(true))
+          return true;
+      return false;
     }
 
     private void PrepareFireworksCanvas()
