@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexaSortTest.CodeBase.GameConfigs.MetaTileConfigsList
   <Tiles>k__BackingField:
   - _icon: {fileID: 21300000, guid: 9961e81cecb87ae448a2be7b54c1104a, type: 3}
-    _tilePrefab: {fileID: 8379718870057165537, guid: a6509ffa363b64648a85704ed276b335, type: 3}
+    _tilePrefab: {fileID: 1810009522812987644, guid: 4c59a66dd00f9894eb69de3faf34a4eb, type: 3}
     _displayName: Sunny Harbor
   - _icon: {fileID: 21300000, guid: 23668f7f7f7e85144961f64787db5511, type: 3}
-    _tilePrefab: {fileID: 3275313640735863487, guid: b8c7251e06ea5f74ca26712a5424441c, type: 3}
+    _tilePrefab: {fileID: 5381083773762522739, guid: 4896b8fa80db62a4ab2b6432c15beee6, type: 3}
     _displayName: Grand Canyon

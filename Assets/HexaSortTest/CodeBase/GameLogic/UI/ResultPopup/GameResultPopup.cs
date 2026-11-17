@@ -24,21 +24,21 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
     [SerializeField, BoxGroup("REWARDS")] private TMP_Text _defeatCoinsText;
     [SerializeField, BoxGroup("REWARDS")] private TMP_Text _defeatHexCoinsText;
 
-    [SerializeField, BoxGroup("FIREWORKS"), AssetsOnly,
-     Tooltip("Random prefab on every launch. Repeats are allowed.")]
-    private List<ParticleSystem> _fireworkPrefabs = new();
     [SerializeField, BoxGroup("FIREWORKS"),
-     Tooltip("Optional world-space origin. If empty, effects appear at the screen centre with their prefab offsets.")]
-    private Transform _fireworksOrigin;
+     Tooltip("Preplaced effects on this window. Random selection; repeats between batches are allowed.")]
+    private List<ParticleSystem> _fireworkPrefabs = new();
     [SerializeField, BoxGroup("FIREWORKS"), Min(1),
-     Tooltip("Number of effects launched together in each batch. Repeats are allowed.")]
+     Tooltip("Number of different preplaced effects launched together, limited by the list size.")]
     private int _simultaneousFireworks = 3;
     [SerializeField, BoxGroup("FIREWORKS"), Min(0f),
      Tooltip("Pause after all effects in the previous batch finish, in real-time seconds.")]
     private float _fireworksInterval = 0.2f;
 
+    [SerializeField, BoxGroup("FIREWORKS"), Range(0f, 0.4f),
+     Tooltip("Inset from each screen edge as a fraction of screen width/height.")]
+    private float _fireworksScreenPadding = 0.12f;
+
     private Coroutine _fireworks;
-    private GameObject _activeFireworkRoot;
     private Canvas _fireworksCanvas;
     private Camera _fireworksCamera;
     private Camera _previousCanvasCamera;
@@ -58,6 +58,7 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
 
     private void OnEnable()
     {
+      ClearFireworks();
       if (_continueButton == null)
         Debug.LogError("[GameResultPopup] _continueButton is not assigned in the inspector!");
       else
@@ -128,7 +129,8 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
       var available = new List<ParticleSystem>();
       if (_fireworkPrefabs != null)
         foreach (var prefab in _fireworkPrefabs)
-          if (prefab != null) available.Add(prefab);
+          if (prefab != null && prefab.gameObject.scene.IsValid() && !available.Contains(prefab))
+            available.Add(prefab);
 
       if (available.Count == 0)
       {
@@ -136,44 +138,31 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
         yield break;
       }
 
+      // Position only after the popup scale animation has settled.
+      yield return new WaitForSeconds(Mathf.Max(0f, _openDuration));
       PrepareFireworksCanvas();
+      Canvas.ForceUpdateCanvases();
       var activeEffects = new List<ParticleSystem>();
       while (true)
       {
         available.RemoveAll(prefab => prefab == null);
         if (available.Count == 0) break;
 
-        // Configure under an inactive parent, before Play On Awake can run.
-        _activeFireworkRoot = new GameObject("Victory Fireworks");
-        _activeFireworkRoot.SetActive(false);
-        var root = _activeFireworkRoot.transform;
-        if (_fireworksOrigin != null)
-          root.SetParent(_fireworksOrigin, false);
-        else if (_fireworksCamera != null)
-        {
-          float distance = _fireworksCanvas != null &&
-                           _fireworksCanvas.renderMode == RenderMode.ScreenSpaceCamera
-            ? _fireworksCanvas.planeDistance
-            : Mathf.Min(10f, _fireworksCamera.farClipPlane * 0.5f);
-          distance = Mathf.Max(_fireworksCamera.nearClipPlane + 0.01f, distance - 0.1f);
-          root.position = _fireworksCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, distance));
-          root.rotation = _fireworksCamera.transform.rotation;
-        }
-        else
-          root.SetParent(transform, false);
-
         activeEffects.Clear();
-        int count = Mathf.Max(1, _simultaneousFireworks);
+        var candidates = new List<ParticleSystem>(available);
+        int count = Mathf.Min(Mathf.Max(1, _simultaneousFireworks), candidates.Count);
         for (int i = 0; i < count; i++)
         {
-          var prefab = available[UnityEngine.Random.Range(0, available.Count)];
-          var effect = Instantiate(prefab, root, false);
+          int index = UnityEngine.Random.Range(0, candidates.Count);
+          var effect = candidates[index];
+          candidates.RemoveAt(index);
           effect.gameObject.SetActive(true);
           foreach (var particles in effect.GetComponentsInChildren<ParticleSystem>(true))
           {
             var main = particles.main;
             main.playOnAwake = false;
             main.loop = false;
+            main.stopAction = ParticleSystemStopAction.None;
             main.useUnscaledTime = true;
             particles.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
           }
@@ -186,18 +175,64 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
           activeEffects.Add(effect);
         }
 
-        _activeFireworkRoot.SetActive(true);
-        // Launch the entire batch in this frame. Asset scripts may remove instances.
+        PositionFireworks(activeEffects);
+        // Each preplaced effect is launched at most once in this batch.
         foreach (var effect in activeEffects)
           if (effect != null && effect.gameObject.activeInHierarchy)
             effect.Play(true);
         do { yield return null; }
         while (HasAliveFireworks(activeEffects));
-        ClearActiveFirework();
+        ClearFireworks();
         // Always yield even when an asset removes itself and interval is zero.
         yield return new WaitForSecondsRealtime(Mathf.Max(0f, _fireworksInterval));
       }
       StopFireworks();
+    }
+
+    private void PositionFireworks(List<ParticleSystem> effects)
+    {
+      if (effects.Count == 0) return;
+      Canvas.ForceUpdateCanvases();
+      Rect area = Screen.safeArea;
+      Camera camera = _fireworksCanvas != null &&
+                      _fireworksCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+        ? null : _fireworksCamera;
+      if (camera != null)
+      {
+        Rect viewport = camera.pixelRect;
+        area = Rect.MinMaxRect(Mathf.Max(area.xMin, viewport.xMin),
+          Mathf.Max(area.yMin, viewport.yMin), Mathf.Min(area.xMax, viewport.xMax),
+          Mathf.Min(area.yMax, viewport.yMax));
+      }
+      if (area.width <= 0f || area.height <= 0f) return;
+      float padding = Mathf.Clamp(_fireworksScreenPadding, 0f, 0.4f);
+      float insetX = area.width * padding;
+      float insetY = area.height * padding;
+      area = Rect.MinMaxRect(area.xMin + insetX, area.yMin + insetY,
+        area.xMax - insetX, area.yMax - insetY);
+
+      // Separate cells guarantee that a batch cannot pick the same launch point.
+      int columns = Mathf.Clamp(Mathf.CeilToInt(Mathf.Sqrt(
+        effects.Count * area.width / area.height)), 1, effects.Count);
+      int rows = Mathf.CeilToInt((float)effects.Count / columns);
+      var cells = new List<int>(columns * rows);
+      for (int i = 0; i < columns * rows; i++) cells.Add(i);
+      foreach (var effect in effects)
+      {
+        if (effect == null) continue;
+        int index = UnityEngine.Random.Range(0, cells.Count);
+        int cell = cells[index];
+        cells.RemoveAt(index);
+        Vector2 screenPoint = new Vector2(
+          area.xMin + (cell % columns + UnityEngine.Random.Range(0.2f, 0.8f)) * area.width / columns,
+          area.yMin + (cell / columns + UnityEngine.Random.Range(0.2f, 0.8f)) * area.height / rows);
+        // Convert through the actual parent plane: CanvasScaler, anchors and pivot
+        // need no manual pixel-to-UI scaling. The effect stays at local Z = 0.
+        var parent = effect.transform.parent as RectTransform;
+        if (parent != null && RectTransformUtility.ScreenPointToWorldPointInRectangle(
+              parent, screenPoint, camera, out Vector3 worldPoint))
+          effect.transform.position = worldPoint;
+      }
     }
 
     private static bool HasAliveFireworks(List<ParticleSystem> effects)
@@ -229,19 +264,27 @@ namespace HexaSortTest.CodeBase.GameLogic.UI.ResultPopup
         _fireworksCamera.nearClipPlane + 0.02f, _fireworksCamera.farClipPlane - 0.02f);
     }
 
-    private void ClearActiveFirework()
+    private void ClearFireworks()
     {
-      if (_activeFireworkRoot == null) return;
-      _activeFireworkRoot.SetActive(false);
-      Destroy(_activeFireworkRoot);
-      _activeFireworkRoot = null;
+      if (_fireworkPrefabs == null) return;
+      foreach (var effect in _fireworkPrefabs)
+      {
+        if (effect == null || !effect.gameObject.scene.IsValid()) continue;
+        foreach (var particles in effect.GetComponentsInChildren<ParticleSystem>(true))
+        {
+          var main = particles.main;
+          main.playOnAwake = false;
+          main.stopAction = ParticleSystemStopAction.None;
+          particles.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+      }
     }
 
     private void StopFireworks()
     {
       if (_fireworks != null) StopCoroutine(_fireworks);
       _fireworks = null;
-      ClearActiveFirework();
+      ClearFireworks();
       if (_restoreOverlayCanvas && _fireworksCanvas != null)
       {
         _fireworksCanvas.renderMode = RenderMode.ScreenSpaceOverlay;

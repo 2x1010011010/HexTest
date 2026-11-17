@@ -158,7 +158,7 @@ TextureImporter:
         height: 111
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 62, y: 51, z: 62, w: 51}
+      border: {x: 62, y: 51, z: 62, w: 50}
       customData: 
       outline: []
       physicsShape: []
@@ -174,13 +174,13 @@ TextureImporter:
       name: YellowButton
       rect:
         serializedVersion: 2
-        x: 333
+        x: 334
         y: 1097
-        width: 294
+        width: 293
         height: 110
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 66, y: 51, z: 66, w: 51}
+      border: {x: 64, y: 0, z: 60, w: 0}
       customData: 
       outline: []
       physicsShape: []
