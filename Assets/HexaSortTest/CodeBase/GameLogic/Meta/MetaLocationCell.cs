@@ -58,9 +58,13 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       if (_lock == null) { FinishReveal(true); return; }
       _lockRotation = _lock.transform.localRotation;
       _hasLockRotation = true;
-      _revealTween = _lock.transform.DOShakeRotation(Mathf.Max(0.01f, _lockShakeDuration),
-          new Vector3(0f, 0f, _lockShakeAngle), 12, 0f, true)
-        .SetUpdate(true).OnComplete(() => FinishReveal(true));
+      _revealTween = DOVirtual.Float(0f, 1f, Mathf.Max(0.01f, _lockShakeDuration), progress =>
+        {
+          float swing = Mathf.Sin(progress * Mathf.PI * 4f);
+          float angle = _lockShakeAngle * swing * (1f - progress);
+          _lock.transform.localRotation = _lockRotation * Quaternion.AngleAxis(angle, Vector3.forward);
+        })
+        .SetEase(Ease.Linear).SetUpdate(true).OnComplete(() => FinishReveal(true));
     }
 
     private void RestoreLock()
@@ -75,7 +79,19 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       RestoreLock();
       // FX is a sibling of Cover: hiding the cover leaves particles, frame and mask active.
       // Particle lifetime must not hold the cover or the input locked.
-      if (playParticles && _openParticles != null) _openParticles.Play(true);
+      if (playParticles && _openParticles != null)
+      {
+        if (_openParticles.transform.parent == transform && _openParticles.name == "Open FX")
+          _openParticles.transform.localPosition = Vector3.zero;
+        foreach (var emitter in _openParticles.GetComponentsInChildren<ParticleSystem>(true))
+        {
+          var main = emitter.main;
+          main.useUnscaledTime = true;
+        }
+        _openParticles.gameObject.SetActive(true);
+        _openParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        _openParticles.Play(true);
+      }
       if (_coverRoot != null) _coverRoot.SetActive(false);
     }
 
@@ -124,6 +140,10 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
     }
 
 #if UNITY_EDITOR
+    public ParticleSystem OpenParticles => _openParticles;
+
+    public void SetOpenParticles(ParticleSystem particles) => _openParticles = particles;
+
     public void EnsureUniqueId(HashSet<string> used)
     {
       if (!string.IsNullOrWhiteSpace(_cellId) && used.Add(_cellId)) return;

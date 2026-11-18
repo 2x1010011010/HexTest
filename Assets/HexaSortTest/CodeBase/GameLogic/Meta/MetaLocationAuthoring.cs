@@ -210,6 +210,128 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       Debug.Log($"Meta location valid: {CoverCount} covers, {TotalHexCoins} HexCoins. Also check unique Location Id in the location list and configure MetaTileInteractor feedback UI.", this);
     }
 
+    [Button("Edit"), BoxGroup("LOCATION"), ShowIf(nameof(IsSavedPrefab)), DisableInPlayMode]
+    private void EditPrefabVisuals()
+    {
+      var target = this;
+      if (PrefabStageUtility.GetPrefabStage(gameObject) == null)
+      {
+        string path = IsPrefabAsset ? AssetDatabase.GetAssetPath(gameObject)
+          : PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(gameObject);
+        if (string.IsNullOrEmpty(path)) return;
+        var stage = PrefabStageUtility.OpenPrefab(path);
+        if (stage == null || !stage.prefabContentsRoot.TryGetComponent(out target)) return;
+      }
+      var window = ScriptableObject.CreateInstance<VisualEditWindow>();
+      window.Initialize(target);
+      window.ShowUtility();
+    }
+
+    private sealed class VisualEditWindow : EditorWindow
+    {
+      private MetaLocationAuthoring _target;
+      private Sprite _picture, _frame, _cover, _lock;
+      private ParticleSystem _fx;
+
+      public void Initialize(MetaLocationAuthoring target)
+      {
+        _target = target;
+        _picture = target._picture != null ? target._picture : target._pictureRenderer?.sprite;
+        _frame = target._maskSprite;
+        _cover = target._coverSprite;
+        _lock = target._lockSprite;
+        _fx = target._openParticlesPrefab;
+        titleContent = new GUIContent("Edit " + target.name);
+        minSize = new Vector2(340f, 180f);
+      }
+
+      private void OnGUI()
+      {
+        if (_target == null || Application.isPlaying ||
+            PrefabStageUtility.GetPrefabStage(_target.gameObject) == null)
+        { Close(); return; }
+        _picture = AssetField("Location picture", _picture);
+        _frame = AssetField("Mask frame", _frame);
+        _cover = AssetField("Cover hexagon", _cover);
+        _lock = AssetField("Lock", _lock);
+        _fx = AssetField("Open FX prefab", _fx);
+        bool validFx = _fx == null || (PrefabUtility.IsPartOfPrefabAsset(_fx) &&
+          _fx.transform.parent == null);
+        if (!validFx) EditorGUILayout.HelpBox("Select a prefab with ParticleSystem on its root.", MessageType.Warning);
+        using (new EditorGUI.DisabledScope(!validFx || !_picture || !_frame || !_cover || !_lock))
+          if (GUILayout.Button("Apply Changes") && _target.ApplyPrefabVisuals(_picture, _frame, _cover, _lock, _fx))
+            Close();
+      }
+
+      private static T AssetField<T>(string label, T value) where T : Object =>
+        (T)EditorGUILayout.ObjectField(label, value, typeof(T), false);
+    }
+
+    private bool ApplyPrefabVisuals(Sprite picture, Sprite frame, Sprite cover, Sprite padlock, ParticleSystem fx)
+    {
+      if (!CanEdit() || _generatedRoot == null || !TryCollectCovers(out _)) return false;
+      if (_pictureRenderer == null || !_pictureRenderer.transform.IsChildOf(transform) ||
+          _pictureRenderer.transform.IsChildOf(_generatedRoot))
+      { Debug.LogError("Assign the location picture renderer before editing.", this); return false; }
+      int undo = BeginUndo("Edit meta location visuals");
+      try
+      {
+        Undo.RecordObject(this, "Edit meta location assets");
+        if (_pictureRenderer.sprite != picture)
+        {
+          Undo.RecordObject(_pictureRenderer, "Replace location picture");
+          _pictureRenderer.sprite = picture;
+          MarkChanged(_pictureRenderer);
+        }
+        foreach (Transform child in _generatedRoot)
+        {
+          var cell = child.GetComponent<MetaLocationCell>();
+          if (frame != _maskSprite) SetSprite(cell.Frame, frame, _cellSize, 1);
+          if (cover != _coverSprite)
+          {
+            SetSprite(cell.Cover, cover, _cellSize, 2);
+            Undo.RecordObject(cell.Mask, "Replace hex mask");
+            cell.Mask.sprite = cover;
+            FitSpriteTransform(cell.Mask.transform, cover, _cellSize * _maskInset);
+            MarkChanged(cell.Mask);
+          }
+          if (padlock != _lockSprite) SetLockSprite(cell, padlock);
+          if (fx != _openParticlesPrefab || (fx != null && cell.OpenParticles == null))
+            ReplaceOpenParticles(cell, fx);
+        }
+        _picture = picture;
+        _maskSprite = frame;
+        _coverSprite = cover;
+        _lockSprite = padlock;
+        _openParticlesPrefab = fx;
+        FinishUndo(undo);
+        EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        return true;
+      }
+      catch (System.Exception error)
+      {
+        Undo.FlushUndoRecordObjects();
+        Undo.RevertAllDownToGroup(undo);
+        Debug.LogException(error, this);
+        return false;
+      }
+    }
+
+    private void ReplaceOpenParticles(MetaLocationCell cell, ParticleSystem prefab)
+    {
+      var previous = cell.OpenParticles;
+      if (previous != null && prefab != null &&
+          PrefabUtility.GetCorrespondingObjectFromSource(previous) == prefab) return;
+      var replacement = CreateOpenParticles(cell.transform, prefab);
+      Undo.RecordObject(cell, "Assign opening FX");
+      cell.SetOpenParticles(replacement);
+      MarkChanged(cell);
+      // Remove only the generated FX instance. Hand-authored children may have other roles.
+      if (previous != null && previous.transform.parent == cell.transform &&
+          previous.name == "Open FX" && PrefabUtility.IsAnyPrefabInstanceRoot(previous.gameObject))
+        Undo.DestroyObjectImmediate(previous.gameObject);
+    }
+
     [Button("Open Prefab For Preview"), BoxGroup("PREVIEW"), ShowIf(nameof(IsPrefabAsset)), DisableInPlayMode]
     public void OpenPrefabForPreview()
     {
@@ -328,18 +450,21 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       var cover = Undo.AddComponent<SpriteRenderer>(CreateChild("Hexagon", coverRoot.transform));
       var lockRenderer = Undo.AddComponent<SpriteRenderer>(CreateChild("Lock", coverRoot.transform));
       var price = Undo.AddComponent<TextMeshPro>(CreateChild("Price", coverRoot.transform));
-      var openParticles = CreateOpenParticles(go.transform);
+      var openParticles = CreateOpenParticles(go.transform, _openParticlesPrefab);
       Undo.RecordObject(cell, "Configure cell");
       cell.Configure(_hexCoinsPerCover, coverRoot, frame, mask, cover, lockRenderer, price, openParticles);
       MarkChanged(cell);
     }
 
-    private ParticleSystem CreateOpenParticles(Transform cell)
+    private ParticleSystem CreateOpenParticles(Transform cell, ParticleSystem prefab)
     {
-      if (_openParticlesPrefab == null) return null;
+      if (prefab == null) return null;
       // Instantiate the whole prefab hierarchy, including child emitters and renderers.
-      var instance = (GameObject)PrefabUtility.InstantiatePrefab(_openParticlesPrefab.gameObject, cell);
+      var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject, cell);
       Undo.RegisterCreatedObjectUndo(instance, "Create meta opening FX");
+      Undo.RecordObject(instance.transform, "Place meta opening FX");
+      instance.transform.localPosition = Vector3.zero;
+      MarkChanged(instance.transform);
       instance.name = "Open FX";
       instance.SetActive(true);
       foreach (var particles in instance.GetComponentsInChildren<ParticleSystem>(true))
@@ -347,6 +472,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
         Undo.RecordObject(particles, "Configure meta opening FX");
         var main = particles.main;
         main.playOnAwake = false;
+        main.useUnscaledTime = true;
         particles.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
         MarkChanged(particles);
       }
@@ -378,11 +504,7 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       cell.ConfigureHitShape(_orientation == HexOrientation.PointyTop);
       SetSprite(cell.Frame, _maskSprite, _cellSize, 1);
       SetSprite(cell.Cover, _coverSprite, _cellSize, 2);
-      float lockWidth = Mathf.Min(_cellSize.x, _cellSize.y) * _lockSize;
-      float aspect = _lockSprite.bounds.size.y / Mathf.Max(0.0001f, _lockSprite.bounds.size.x);
-      SetSprite(cell.Lock, _lockSprite, new Vector2(lockWidth, lockWidth * aspect), 3);
-      cell.Lock.transform.localPosition += new Vector3(_lockOffset.x * _cellSize.x, _lockOffset.y * _cellSize.y, -0.01f);
-      MarkChanged(cell.Lock.transform);
+      SetLockSprite(cell, _lockSprite);
       Undo.RecordObject(cell.Mask, "Configure filled mask");
       // A hollow golden frame would mask OUT its transparent centre. Use the solid hex silhouette.
       cell.Mask.sprite = _coverSprite;
@@ -414,6 +536,15 @@ namespace HexaSortTest.CodeBase.GameLogic.Meta
       MarkChanged(label);
       MarkChanged(label.rectTransform);
       MarkChanged(label.GetComponent<MeshRenderer>());
+    }
+
+    private void SetLockSprite(MetaLocationCell cell, Sprite sprite)
+    {
+      float lockWidth = Mathf.Min(_cellSize.x, _cellSize.y) * _lockSize;
+      float aspect = sprite.bounds.size.y / Mathf.Max(0.0001f, sprite.bounds.size.x);
+      SetSprite(cell.Lock, sprite, new Vector2(lockWidth, lockWidth * aspect), 3);
+      cell.Lock.transform.localPosition += new Vector3(_lockOffset.x * _cellSize.x, _lockOffset.y * _cellSize.y, -0.01f);
+      MarkChanged(cell.Lock.transform);
     }
 
     private static void SetSprite(SpriteRenderer renderer, Sprite sprite, Vector2 size, int order)
